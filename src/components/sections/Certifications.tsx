@@ -21,11 +21,11 @@ const containerVariants = {
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: { opacity: 0, y: 28 },
   show: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] as const },
+    transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] as const },
   },
 };
 
@@ -57,26 +57,26 @@ export function Certifications({ items }: CertificationsProps) {
     <section
       id="certifications"
       aria-labelledby="certifications-heading"
-      className="relative bg-zinc-50 py-20 sm:py-28"
+      className="relative scroll-mt-20 bg-muted/50 py-20 sm:py-28"
     >
       <div className="mx-auto max-w-3xl px-4 sm:px-6 md:px-10">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-medium tracking-[0.18em] text-zinc-500 uppercase">
+          <p className="text-sm font-medium tracking-[0.18em] text-muted-foreground uppercase">
             Credentials
           </p>
           <h2
             id="certifications-heading"
-            className="mt-3 text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl"
+            className="mt-3 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl"
           >
             Certifications
           </h2>
-          <p className="mt-3 text-base text-zinc-600 sm:text-lg">
+          <p className="mt-3 text-base text-muted-foreground sm:text-lg">
             Verified learning and professional credentials.
           </p>
         </div>
 
         <motion.ul
-          className="mt-12 divide-y divide-zinc-200/80 overflow-hidden rounded-2xl border border-zinc-200/80 bg-white/80 shadow-sm sm:mt-14"
+          className="mt-12 divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card/80 shadow-sm sm:mt-14"
           variants={reduceMotion ? undefined : containerVariants}
           initial={reduceMotion ? false : "hidden"}
           whileInView="show"
@@ -90,18 +90,18 @@ export function Certifications({ items }: CertificationsProps) {
             >
               <div className="flex min-w-0 items-start gap-3 sm:items-center">
                 <span
-                  className="flex size-11 shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-zinc-50 text-xs font-semibold tracking-wide text-zinc-700"
+                  className="flex size-11 shrink-0 items-center justify-center rounded-full border border-border bg-muted/50 text-xs font-semibold tracking-wide text-foreground/80"
                   aria-hidden
                 >
                   {providerInitials(item.provider) || "C"}
                 </span>
                 <div className="min-w-0">
-                  <p className="text-base font-semibold tracking-tight text-zinc-900">
+                  <p className="text-base font-semibold tracking-tight text-foreground">
                     {item.title}
                   </p>
-                  <p className="mt-1 text-sm text-zinc-500">
+                  <p className="mt-1 text-sm text-muted-foreground">
                     {item.provider}
-                    <span className="mx-2 text-zinc-300" aria-hidden>
+                    <span className="mx-2 text-muted-foreground/40" aria-hidden>
                       ·
                     </span>
                     <span>{formatDate(item.date)}</span>

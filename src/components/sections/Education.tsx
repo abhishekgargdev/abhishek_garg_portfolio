@@ -26,11 +26,11 @@ const containerVariants = {
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 24 },
+  hidden: { opacity: 0, y: 28 },
   show: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] as const },
+    transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] as const },
   },
 };
 
@@ -45,20 +45,20 @@ export function Education({ items }: EducationProps) {
     <section
       id="education"
       aria-labelledby="education-heading"
-      className="relative bg-white py-20 sm:py-28"
+      className="relative scroll-mt-20 bg-background py-20 sm:py-28"
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6 md:px-10">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-medium tracking-[0.18em] text-zinc-500 uppercase">
+          <p className="text-sm font-medium tracking-[0.18em] text-muted-foreground uppercase">
             Learning
           </p>
           <h2
             id="education-heading"
-            className="mt-3 text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl"
+            className="mt-3 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl"
           >
             Education
           </h2>
-          <p className="mt-3 text-base text-zinc-600 sm:text-lg">
+          <p className="mt-3 text-base text-muted-foreground sm:text-lg">
             Degrees and highlights that shaped the foundation of my work.
           </p>
         </div>
@@ -77,22 +77,22 @@ export function Education({ items }: EducationProps) {
             >
               <Card
                 className={cn(
-                  "h-full border-0 bg-zinc-50/80 shadow-sm ring-zinc-200/80",
-                  "transition-colors hover:ring-zinc-300",
+                  "h-full border-0 bg-muted/50 shadow-sm ring-border",
+                  "transition-colors hover:ring-border",
                 )}
               >
                 <CardHeader className="flex flex-row items-start gap-3">
-                  <span className="flex size-10 shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-700">
+                  <span className="flex size-10 shrink-0 items-center justify-center rounded-full border border-border bg-card text-foreground/80">
                     <GraduationCap className="size-4" aria-hidden />
                   </span>
                   <div className="min-w-0 space-y-1">
                     <CardDescription className="text-xs font-medium tracking-wide text-teal-700 uppercase">
                       {item.year}
                     </CardDescription>
-                    <CardTitle className="text-lg leading-snug text-zinc-900 sm:text-xl">
+                    <CardTitle className="text-lg leading-snug text-foreground sm:text-xl">
                       {item.degree}
                     </CardTitle>
-                    <p className="text-sm font-medium text-zinc-500">
+                    <p className="text-sm font-medium text-muted-foreground">
                       {item.institution}
                     </p>
                   </div>
@@ -100,15 +100,15 @@ export function Education({ items }: EducationProps) {
 
                 {item.highlights.length > 0 ? (
                   <CardContent>
-                    <ul className="space-y-2 border-t border-zinc-200/80 pt-4">
+                    <ul className="space-y-2 border-t border-border pt-4">
                       {item.highlights.map((highlight) => (
                         <li
                           key={highlight}
-                          className="flex gap-2 text-sm leading-relaxed text-zinc-600"
+                          className="flex gap-2 text-sm leading-relaxed text-muted-foreground"
                         >
                           <span
                             aria-hidden
-                            className="mt-2 size-1.5 shrink-0 rounded-full bg-zinc-400"
+                            className="mt-2 size-1.5 shrink-0 rounded-full bg-muted-foreground/60"
                           />
                           <span>{highlight}</span>
                         </li>

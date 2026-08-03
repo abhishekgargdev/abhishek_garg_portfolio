@@ -45,6 +45,8 @@ next-env.d.ts
 **/public/sw.js.map
 **/public/workbox-*.js
 **/public/workbox-*.js.map
+lighthouse-report.json
+lighthouse-report.html
 **/public/worker-*.js
 **/public/worker-*.js.map
 **/public/fallback-*.js

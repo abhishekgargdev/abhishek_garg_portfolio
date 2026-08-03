@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
 import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
-import type { ResumeData } from "@/lib/resume-data";
+import type { ResumeData } from "@/lib/resume-types";
 import {
   formatResumeDateRange,
   formatResumeMonthYear,
-} from "@/lib/resume-data";
+} from "@/lib/resume-types";
 
 export type ResumeTemplateProps = {
   data: ResumeData;

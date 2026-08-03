@@ -56,11 +56,11 @@ function StatCard({
 
   return (
     <motion.div
-      initial={reduceMotion ? false : { opacity: 0, y: 20 }}
+      initial={reduceMotion ? false : { opacity: 0, y: 28 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.4 }}
       transition={{
-        duration: 0.45,
+        duration: reduceMotion ? 0 : 0.55,
         delay: reduceMotion ? 0 : index * 0.06,
         ease: [0.22, 1, 0.36, 1],
       }}
@@ -68,16 +68,16 @@ function StatCard({
       <Card
         size="sm"
         className={cn(
-          "h-full border-0 bg-white/80 shadow-sm ring-zinc-200/80 backdrop-blur-sm",
-          "transition-colors hover:ring-zinc-300",
+          "h-full border-0 bg-card/80 shadow-sm ring-border backdrop-blur-sm",
+          "transition-colors hover:ring-border",
         )}
       >
         <CardHeader className="flex flex-row items-start justify-between gap-3">
           <div className="space-y-1">
-            <CardDescription className="line-clamp-2 text-[0.65rem] tracking-wide text-zinc-500 uppercase sm:text-xs">
+            <CardDescription className="line-clamp-2 text-[0.65rem] tracking-wide text-muted-foreground uppercase sm:text-xs">
               {stat.label}
             </CardDescription>
-            <CardTitle className="text-2xl font-semibold tracking-tight text-zinc-900 tabular-nums sm:text-3xl lg:text-4xl">
+            <CardTitle className="text-2xl font-semibold tracking-tight text-foreground tabular-nums sm:text-3xl lg:text-4xl">
               {reduceMotion ? (
                 <span>
                   {stat.value}
@@ -96,7 +96,7 @@ function StatCard({
               )}
             </CardTitle>
           </div>
-          <span className="flex size-8 shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-zinc-50 text-zinc-700 sm:size-10">
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-full border border-border bg-muted/50 text-foreground/80 sm:size-10">
             <Icon className="size-3.5 sm:size-4" aria-hidden />
           </span>
         </CardHeader>
@@ -116,7 +116,7 @@ export function StatsCounters({ stats }: StatsCountersProps) {
     <section
       id="stats"
       aria-labelledby="stats-heading"
-      className="relative bg-zinc-100/70 py-16 sm:py-20"
+      className="relative scroll-mt-20 bg-muted/40 py-16 sm:py-20"
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6 md:px-10">
         <h2 id="stats-heading" className="sr-only">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 
 const SESSION_KEY = "portfolio-splash-seen";
@@ -28,13 +29,24 @@ type SplashLoaderProps = {
 };
 
 export function SplashLoader({ children }: SplashLoaderProps) {
+  const pathname = usePathname();
   const prefersReducedMotion = useReducedMotion();
-  // Assume splash until sessionStorage is checked to avoid a homepage flash on first load.
-  const [showSplash, setShowSplash] = useState(true);
+  const skipSplash =
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/setup") ||
+    pathname.startsWith("/offline");
+
+  const [showSplash, setShowSplash] = useState(!skipSplash);
   const [animateExit, setAnimateExit] = useState(true);
   const [videoFailed, setVideoFailed] = useState(false);
 
   useEffect(() => {
+    if (skipSplash) {
+      setShowSplash(false);
+      return;
+    }
+
     const alreadySeen = sessionStorage.getItem(SESSION_KEY) === "1";
 
     if (alreadySeen) {
@@ -44,23 +56,24 @@ export function SplashLoader({ children }: SplashLoaderProps) {
     }
 
     let cancelled = false;
-    const duration =
-      MIN_DURATION_MS +
-      Math.floor(Math.random() * (MAX_DURATION_MS - MIN_DURATION_MS + 1));
+    const duration = prefersReducedMotion
+      ? 400
+      : MIN_DURATION_MS +
+        Math.floor(Math.random() * (MAX_DURATION_MS - MIN_DURATION_MS + 1));
 
     void (async () => {
       await Promise.all([delay(duration), waitForResources()]);
       if (cancelled) return;
 
       sessionStorage.setItem(SESSION_KEY, "1");
-      setAnimateExit(true);
+      setAnimateExit(!prefersReducedMotion);
       setShowSplash(false);
     })();
 
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [prefersReducedMotion, skipSplash]);
 
   const useStaticImage = Boolean(prefersReducedMotion) || videoFailed;
 
@@ -76,11 +89,11 @@ export function SplashLoader({ children }: SplashLoaderProps) {
             initial={false}
             exit={
               animateExit
-                ? { opacity: 0, scale: 1.04 }
+                ? { opacity: 0, scale: prefersReducedMotion ? 1 : 1.04 }
                 : { opacity: 0, scale: 1 }
             }
             transition={
-              animateExit
+              animateExit && !prefersReducedMotion
                 ? { duration: 0.55, ease: [0.22, 1, 0.36, 1] }
                 : { duration: 0 }
             }
@@ -115,7 +128,11 @@ export function SplashLoader({ children }: SplashLoaderProps) {
             <img
               src="/abhishek_garg_icon.png"
               alt=""
-              className="h-8 w-8 rounded-md opacity-70 animate-pulse sm:h-9 sm:w-9"
+              className={
+                prefersReducedMotion
+                  ? "h-8 w-8 rounded-md opacity-70 sm:h-9 sm:w-9"
+                  : "h-8 w-8 animate-pulse rounded-md opacity-70 sm:h-9 sm:w-9"
+              }
             />
           </motion.div>
         )}

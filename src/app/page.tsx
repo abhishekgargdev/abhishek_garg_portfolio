@@ -8,6 +8,8 @@ import { Projects } from "@/components/sections/Projects";
 import { Skills } from "@/components/sections/Skills";
 import { StatsCounters } from "@/components/sections/StatsCounters";
 import { WorkExperience } from "@/components/sections/WorkExperience";
+import { SiteHeader } from "@/components/layout/SiteHeader";
+import { FadeInSection } from "@/components/motion/FadeInSection";
 import { getAboutMe } from "@/lib/about";
 import { getAchievements } from "@/lib/achievements";
 import { getCertifications } from "@/lib/certifications";
@@ -69,17 +71,38 @@ export default async function Home() {
   ]);
 
   return (
-    <main className="flex flex-1 flex-col">
-      <Hero about={about} />
-      <StatsCounters stats={stats} />
-      <CareerJourney entries={timeline} />
-      <WorkExperience items={experience} />
-      <Education items={education} />
-      <Projects projects={projects} />
-      <Skills categories={skills} />
-      <Achievements items={achievements} />
-      <Certifications items={certifications} />
-      <Contact />
-    </main>
+    <>
+      <SiteHeader />
+      <main className="flex flex-1 flex-col">
+        <Hero about={about} />
+        <FadeInSection>
+          <StatsCounters stats={stats} />
+        </FadeInSection>
+        <FadeInSection>
+          <CareerJourney entries={timeline} />
+        </FadeInSection>
+        <FadeInSection>
+          <WorkExperience items={experience} />
+        </FadeInSection>
+        <FadeInSection>
+          <Education items={education} />
+        </FadeInSection>
+        <FadeInSection>
+          <Projects projects={projects} />
+        </FadeInSection>
+        <FadeInSection>
+          <Skills categories={skills} />
+        </FadeInSection>
+        <FadeInSection>
+          <Achievements items={achievements} />
+        </FadeInSection>
+        <FadeInSection>
+          <Certifications items={certifications} />
+        </FadeInSection>
+        <FadeInSection>
+          <Contact />
+        </FadeInSection>
+      </main>
+    </>
   );
 }

@@ -25,11 +25,11 @@ const containerVariants = {
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 24 },
+  hidden: { opacity: 0, y: 28 },
   show: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] as const },
+    transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] as const },
   },
 };
 
@@ -52,20 +52,20 @@ export function Achievements({ items }: AchievementsProps) {
     <section
       id="achievements"
       aria-labelledby="achievements-heading"
-      className="relative bg-white py-20 sm:py-28"
+      className="relative scroll-mt-20 bg-background py-20 sm:py-28"
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6 md:px-10">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-medium tracking-[0.18em] text-zinc-500 uppercase">
+          <p className="text-sm font-medium tracking-[0.18em] text-muted-foreground uppercase">
             Highlights
           </p>
           <h2
             id="achievements-heading"
-            className="mt-3 text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl"
+            className="mt-3 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl"
           >
             Achievements
           </h2>
-          <p className="mt-3 text-base text-zinc-600 sm:text-lg">
+          <p className="mt-3 text-base text-muted-foreground sm:text-lg">
             Milestones and recognition along the way.
           </p>
         </div>
@@ -89,8 +89,8 @@ export function Achievements({ items }: AchievementsProps) {
             >
               <Card
                 className={cn(
-                  "relative h-full overflow-hidden border-0 bg-zinc-50/90 shadow-sm ring-zinc-200/80",
-                  "transition-colors hover:ring-zinc-300",
+                  "relative h-full overflow-hidden border-0 bg-muted/50 shadow-sm ring-border",
+                  "transition-colors hover:ring-border",
                 )}
               >
                 <div
@@ -105,10 +105,10 @@ export function Achievements({ items }: AchievementsProps) {
                     <p className="text-xs font-medium tracking-wide text-teal-700 uppercase">
                       {formatDate(item.date)}
                     </p>
-                    <CardTitle className="text-lg leading-snug text-zinc-900 sm:text-xl">
+                    <CardTitle className="text-lg leading-snug text-foreground sm:text-xl">
                       {item.title}
                     </CardTitle>
-                    <CardDescription className="text-sm leading-relaxed text-zinc-600">
+                    <CardDescription className="text-sm leading-relaxed text-muted-foreground">
                       {item.description}
                     </CardDescription>
                   </div>

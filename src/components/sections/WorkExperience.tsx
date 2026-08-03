@@ -38,41 +38,41 @@ export function WorkExperience({ items }: WorkExperienceProps) {
     <section
       id="experience"
       aria-labelledby="experience-heading"
-      className="relative bg-zinc-50 py-20 sm:py-28"
+      className="relative scroll-mt-20 bg-muted/50 py-20 sm:py-28"
     >
       <div className="mx-auto max-w-3xl px-4 sm:px-6 md:px-10">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-medium tracking-[0.18em] text-zinc-500 uppercase">
+          <p className="text-sm font-medium tracking-[0.18em] text-muted-foreground uppercase">
             Work
           </p>
           <h2
             id="experience-heading"
-            className="mt-3 text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl"
+            className="mt-3 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl"
           >
             Experience
           </h2>
-          <p className="mt-3 text-base text-zinc-600 sm:text-lg">
+          <p className="mt-3 text-base text-muted-foreground sm:text-lg">
             Roles, impact, and the tools used along the way.
           </p>
         </div>
 
         <Accordion
           defaultValue={defaultOpenId ? [defaultOpenId] : []}
-          className="mt-12 rounded-2xl border border-zinc-200/80 bg-white/80 px-4 shadow-sm backdrop-blur-sm sm:mt-14 sm:px-5"
+          className="mt-12 rounded-2xl border border-border bg-card/80 px-4 shadow-sm backdrop-blur-sm sm:mt-14 sm:px-5"
         >
           {items.map((item) => (
-            <AccordionItem key={item.id} value={item.id} className="border-zinc-200/80">
+            <AccordionItem key={item.id} value={item.id} className="border-border">
               <AccordionTrigger className="py-4 hover:no-underline sm:py-5">
                 <div className="pr-4">
-                  <p className="text-base font-semibold tracking-tight text-zinc-900 sm:text-lg">
+                  <p className="text-base font-semibold tracking-tight text-foreground sm:text-lg">
                     {item.role}
                   </p>
-                  <p className="mt-1 text-sm font-medium text-zinc-500">
+                  <p className="mt-1 text-sm font-medium text-muted-foreground">
                     {item.company}
-                    <span className="mx-2 text-zinc-300" aria-hidden>
+                    <span className="mx-2 text-muted-foreground/40" aria-hidden>
                       ·
                     </span>
-                    <span className="font-normal text-zinc-500">
+                    <span className="font-normal text-muted-foreground">
                       {formatDateRange(item.startDate, item.endDate)}
                     </span>
                   </p>
@@ -85,11 +85,11 @@ export function WorkExperience({ items }: WorkExperienceProps) {
                     {item.bullets.map((bullet) => (
                       <li
                         key={bullet}
-                        className="flex gap-2.5 text-sm leading-relaxed text-zinc-600"
+                        className="flex gap-2.5 text-sm leading-relaxed text-muted-foreground"
                       >
                         <span
                           aria-hidden
-                          className="mt-2 size-1.5 shrink-0 rounded-full bg-zinc-400"
+                          className="mt-2 size-1.5 shrink-0 rounded-full bg-muted-foreground/60"
                         />
                         <span>{bullet}</span>
                       </li>

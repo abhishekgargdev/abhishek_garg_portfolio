@@ -48,15 +48,15 @@ function formatMonthYear(iso: string): string {
 
 function EntryCard({ entry }: { entry: TimelineEntryData }) {
   return (
-    <div className="rounded-2xl border border-zinc-200/80 bg-white/80 p-5 shadow-sm backdrop-blur-sm sm:p-6 lg:max-w-md">
+    <div className="rounded-2xl border border-border bg-card/80 p-5 shadow-sm backdrop-blur-sm sm:p-6 lg:max-w-md">
       <p className="text-xs font-medium tracking-wide text-teal-700 uppercase">
         {formatDateRange(entry.startDate, entry.endDate)}
       </p>
-      <h3 className="mt-2 text-lg font-semibold tracking-tight text-zinc-900 sm:text-xl">
+      <h3 className="mt-2 text-lg font-semibold tracking-tight text-foreground sm:text-xl">
         {entry.role}
       </h3>
-      <p className="mt-1 text-sm font-medium text-zinc-500">{entry.company}</p>
-      <p className="mt-3 text-sm leading-relaxed text-zinc-600">
+      <p className="mt-1 text-sm font-medium text-muted-foreground">{entry.company}</p>
+      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
         {entry.description}
       </p>
     </div>
@@ -74,7 +74,7 @@ function MilestoneDot({
 }) {
   return (
     <motion.span
-      className="relative z-10 flex size-10 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-700 shadow-sm lg:size-11"
+      className="relative z-10 flex size-10 items-center justify-center rounded-full border border-border bg-card text-foreground/80 shadow-sm lg:size-11"
       initial={reduceMotion ? false : { scale: 0.7, opacity: 0 }}
       whileInView={{ scale: 1, opacity: 1 }}
       viewport={{ once: true, amount: 0.5 }}
@@ -114,7 +114,7 @@ function TimelineItem({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.35 }}
       transition={{
-        duration: 0.5,
+        duration: reduceMotion ? 0 : 0.55,
         ease: [0.22, 1, 0.36, 1],
       }}
     >
@@ -166,25 +166,25 @@ export function CareerJourney({ entries }: CareerJourneyProps) {
     <section
       id="journey"
       aria-labelledby="career-journey-heading"
-      className="relative overflow-hidden bg-zinc-50 py-20 sm:py-28"
+      className="relative scroll-mt-20 overflow-hidden bg-muted/50 py-20 sm:py-28"
     >
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-zinc-300 to-transparent"
+        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border to-transparent"
       />
 
       <div className="relative mx-auto max-w-5xl px-4 sm:px-6 md:px-10">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-medium tracking-[0.18em] text-zinc-500 uppercase">
+          <p className="text-sm font-medium tracking-[0.18em] text-muted-foreground uppercase">
             Path
           </p>
           <h2
             id="career-journey-heading"
-            className="mt-3 text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl"
+            className="mt-3 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl"
           >
             Career journey
           </h2>
-          <p className="mt-3 text-base text-zinc-600 sm:text-lg">
+          <p className="mt-3 text-base text-muted-foreground sm:text-lg">
             Roles, milestones, and the steps that shaped how I build.
           </p>
         </div>
@@ -192,7 +192,7 @@ export function CareerJourney({ entries }: CareerJourneyProps) {
         <div className="relative mt-14 sm:mt-16">
           <div
             aria-hidden
-            className="absolute top-2 bottom-2 left-5 w-px bg-gradient-to-b from-zinc-300 via-zinc-300 to-zinc-200 lg:left-1/2 lg:-translate-x-px"
+            className="absolute top-2 bottom-2 left-5 w-px bg-gradient-to-b from-border via-border to-border/80 lg:left-1/2 lg:-translate-x-px"
           />
 
           <ol className="relative flex flex-col gap-10 sm:gap-12">

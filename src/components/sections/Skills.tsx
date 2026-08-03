@@ -67,16 +67,16 @@ function SkillCard({
   const Icon = getSkillIcon(skill.iconKey);
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-zinc-200/80 bg-white p-4 shadow-sm transition-colors hover:border-zinc-300">
+    <div className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 shadow-sm transition-colors hover:border-foreground/30">
       <div className="flex items-center gap-3">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-zinc-200 bg-zinc-50 text-zinc-700">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-border bg-muted/50 text-foreground/80">
           <Icon className="size-5" aria-hidden />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium text-zinc-900">
+          <p className="truncate text-sm font-medium text-foreground">
             {skill.name}
           </p>
-          <p className="text-xs tabular-nums text-zinc-500">
+          <p className="text-xs tabular-nums text-muted-foreground">
             {skill.proficiency}%
           </p>
         </div>
@@ -95,7 +95,7 @@ function SkillGrid({
 }) {
   if (!skills.length) {
     return (
-      <p className="py-8 text-center text-sm text-zinc-500">
+      <p className="py-8 text-center text-sm text-muted-foreground">
         No skills in this category yet.
       </p>
     );
@@ -106,7 +106,7 @@ function SkillGrid({
       className="grid grid-cols-1 gap-3 min-[380px]:grid-cols-2 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4"
       initial={reduceMotion ? false : { opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: reduceMotion ? 0 : 0.55, ease: [0.22, 1, 0.36, 1] }}
     >
       {skills.map((skill) => (
         <SkillCard
@@ -135,20 +135,20 @@ export function Skills({ categories }: SkillsProps) {
     <section
       id="skills"
       aria-labelledby="skills-heading"
-      className="relative bg-zinc-50 py-20 sm:py-28"
+      className="relative scroll-mt-20 bg-muted/50 py-20 sm:py-28"
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6 md:px-10">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-medium tracking-[0.18em] text-zinc-500 uppercase">
+          <p className="text-sm font-medium tracking-[0.18em] text-muted-foreground uppercase">
             Toolkit
           </p>
           <h2
             id="skills-heading"
-            className="mt-3 text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl"
+            className="mt-3 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl"
           >
             Skills
           </h2>
-          <p className="mt-3 text-base text-zinc-600 sm:text-lg">
+          <p className="mt-3 text-base text-muted-foreground sm:text-lg">
             Languages, frameworks, and tools I reach for most often.
           </p>
         </div>

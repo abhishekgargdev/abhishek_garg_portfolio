@@ -34,14 +34,14 @@ function AnimatedTagline({
 
   if (reduceMotion) {
     return (
-      <p className="max-w-xl text-base leading-relaxed text-zinc-600 sm:text-lg">
+      <p className="max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
         {text}
       </p>
     );
   }
 
   return (
-    <p className="max-w-xl text-base leading-relaxed text-zinc-600 sm:text-lg">
+    <p className="max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
       {words.map((word, index) => (
         <motion.span
           key={`${word}-${index}`}
@@ -68,8 +68,8 @@ function FloatingBlobs({ reduceMotion }: { reduceMotion: boolean | null }) {
         aria-hidden
         className="pointer-events-none absolute inset-0 overflow-hidden"
       >
-        <div className="absolute -left-24 top-16 size-[28rem] rounded-full bg-sky-200/40 blur-3xl" />
-        <div className="absolute -right-20 bottom-10 size-[24rem] rounded-full bg-teal-100/40 blur-3xl" />
+        <div className="absolute -left-24 top-16 size-[28rem] rounded-full bg-sky-200/25 blur-3xl" />
+        <div className="absolute -right-20 bottom-10 size-[24rem] rounded-full bg-teal-100/25 blur-3xl" />
       </div>
     );
   }
@@ -80,17 +80,17 @@ function FloatingBlobs({ reduceMotion }: { reduceMotion: boolean | null }) {
       className="pointer-events-none absolute inset-0 overflow-hidden"
     >
       <motion.div
-        className="absolute -left-24 top-10 size-[28rem] rounded-full bg-sky-200/45 blur-3xl"
+        className="absolute -left-24 top-10 size-[28rem] rounded-full bg-sky-200/25 blur-3xl"
         animate={{ x: [0, 36, 0], y: [0, 28, 0] }}
         transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
       />
       <motion.div
-        className="absolute -right-16 bottom-0 size-[26rem] rounded-full bg-teal-100/45 blur-3xl"
+        className="absolute -right-16 bottom-0 size-[26rem] rounded-full bg-teal-100/25 blur-3xl"
         animate={{ x: [0, -30, 0], y: [0, -24, 0] }}
         transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
       />
       <motion.div
-        className="absolute left-1/3 top-1/3 size-40 rounded-full bg-zinc-300/30 blur-2xl"
+        className="absolute left-1/3 top-1/3 size-40 rounded-full bg-muted-foreground/20 blur-2xl"
         animate={{ x: [0, 20, -10, 0], y: [0, -16, 12, 0], opacity: [0.35, 0.55, 0.35] }}
         transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
       />
@@ -121,8 +121,8 @@ export function Hero({ about }: HeroProps) {
 
   return (
     <section
-      id="home"
-      className="relative flex min-h-[100svh] items-center overflow-hidden bg-zinc-50"
+      id="about"
+      className="relative scroll-mt-20 flex min-h-[100svh] items-center overflow-hidden bg-muted/50"
       aria-label="Hero"
     >
       <FloatingBlobs reduceMotion={reduceMotion} />
@@ -131,7 +131,7 @@ export function Hero({ about }: HeroProps) {
         {/* Copy */}
         <div className="order-2 flex flex-col items-center text-center lg:order-1 lg:items-start lg:text-left">
           <motion.p
-            className="mb-3 text-sm font-medium tracking-[0.18em] text-zinc-500 uppercase"
+            className="mb-3 text-sm font-medium tracking-[0.18em] text-muted-foreground uppercase"
             initial={reduceMotion ? false : { opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.05 }}
@@ -140,7 +140,7 @@ export function Hero({ about }: HeroProps) {
           </motion.p>
 
           <motion.h1
-            className="font-heading max-w-2xl text-4xl leading-[1.05] font-semibold tracking-tight text-zinc-900 sm:text-5xl md:text-6xl lg:text-7xl"
+            className="font-heading max-w-2xl text-4xl leading-[1.05] font-semibold tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl"
             initial={reduceMotion ? false : { opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
@@ -173,7 +173,7 @@ export function Hero({ about }: HeroProps) {
               type="button"
               variant="outline"
               size="lg"
-              className="w-full min-w-0 border-zinc-300 bg-white/70 backdrop-blur-sm sm:w-auto sm:min-w-40"
+              className="w-full min-w-0 border-border bg-card/80 backdrop-blur-sm sm:w-auto sm:min-w-40"
               onClick={scrollToContact}
             >
               <Mail data-icon="inline-start" />
@@ -194,7 +194,7 @@ export function Hero({ about }: HeroProps) {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="GitHub"
-                  className="inline-flex size-10 items-center justify-center rounded-full border border-zinc-200 bg-white/70 text-zinc-700 transition-colors hover:border-zinc-400 hover:text-zinc-900"
+                  className="inline-flex size-10 items-center justify-center rounded-full border border-border bg-card/80 text-foreground/80 transition-colors hover:border-foreground/30 hover:text-foreground"
                 >
                   <FaGithub className="size-5" />
                 </Link>
@@ -205,7 +205,7 @@ export function Hero({ about }: HeroProps) {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="LinkedIn"
-                  className="inline-flex size-10 items-center justify-center rounded-full border border-zinc-200 bg-white/70 text-zinc-700 transition-colors hover:border-zinc-400 hover:text-zinc-900"
+                  className="inline-flex size-10 items-center justify-center rounded-full border border-border bg-card/80 text-foreground/80 transition-colors hover:border-foreground/30 hover:text-foreground"
                 >
                   <FaLinkedin className="size-5" />
                 </Link>
@@ -232,7 +232,7 @@ export function Hero({ about }: HeroProps) {
             />
             <div
               aria-hidden
-              className="pointer-events-none absolute inset-0 bg-gradient-to-t from-zinc-900/25 via-transparent to-transparent"
+              className="pointer-events-none absolute inset-0 bg-gradient-to-t from-foreground/25 via-transparent to-transparent"
             />
           </div>
         </motion.div>

@@ -13,10 +13,10 @@ type RouteContext = {
   params: Promise<{ resource: string }>;
 };
 
-function sortForResource(resource: string) {
-  if (resource === "education") return { year: -1 as const };
-  if (resource === "about") return { updatedAt: -1 as const };
-  return { order: 1 as const, createdAt: -1 as const };
+function sortForResource(resource: string): Record<string, 1 | -1> {
+  if (resource === "education") return { year: -1 };
+  if (resource === "about") return { updatedAt: -1 };
+  return { order: 1, createdAt: -1 };
 }
 
 export async function GET(_request: Request, context: RouteContext) {

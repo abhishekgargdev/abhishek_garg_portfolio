@@ -65,20 +65,20 @@ export function Contact() {
     <section
       id="contact"
       aria-labelledby="contact-heading"
-      className="relative scroll-mt-20 bg-white py-20 sm:py-28"
+      className="relative scroll-mt-20 bg-background py-20 sm:py-28"
     >
       <div className="mx-auto max-w-3xl px-4 sm:px-6 md:px-10">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-medium tracking-[0.18em] text-zinc-500 uppercase">
+          <p className="text-sm font-medium tracking-[0.18em] text-muted-foreground uppercase">
             Get in touch
           </p>
           <h2
             id="contact-heading"
-            className="mt-3 text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl"
+            className="mt-3 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl"
           >
             Contact
           </h2>
-          <p className="mt-3 text-base text-zinc-600 sm:text-lg">
+          <p className="mt-3 text-base text-muted-foreground sm:text-lg">
             Have a project or question? Send a message and I&apos;ll get back to
             you.
           </p>
@@ -87,7 +87,7 @@ export function Contact() {
         <form
           onSubmit={onSubmit}
           noValidate
-          className="mt-12 space-y-5 rounded-2xl border border-zinc-200/80 bg-zinc-50/70 p-5 shadow-sm sm:mt-14 sm:p-8"
+          className="mt-12 space-y-5 rounded-2xl border border-border bg-muted/50 p-5 shadow-sm sm:mt-14 sm:p-8"
         >
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
             <div className="space-y-2">

@@ -10,6 +10,9 @@ const withPWA = require("next-pwa")({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // next-pwa injects a webpack config; keep webpack builds explicit in scripts,
+  // and allow Turbopack in next-dev without hard-failing.
+  turbopack: {},
   serverExternalPackages: ["@react-pdf/renderer"],
   images: {
     remotePatterns: [

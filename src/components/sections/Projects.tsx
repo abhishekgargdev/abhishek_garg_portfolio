@@ -39,7 +39,7 @@ const itemVariants = {
   show: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] as const },
+    transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] as const },
   },
 };
 
@@ -74,9 +74,9 @@ function ProjectImage({
   return (
     <div
       aria-hidden
-      className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-zinc-200 via-teal-100 to-sky-100 transition-transform duration-500 ease-out group-hover:scale-105"
+      className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-muted via-teal-100 to-sky-100 transition-transform duration-500 ease-out group-hover:scale-105"
     >
-      <span className="rounded-full border border-white/60 bg-white/50 px-4 py-3 text-lg font-semibold tracking-wide text-zinc-700 backdrop-blur-sm">
+      <span className="rounded-full border border-white/60 bg-white/50 px-4 py-3 text-lg font-semibold tracking-wide text-foreground/80 backdrop-blur-sm">
         {projectInitials(title) || "P"}
       </span>
     </div>
@@ -94,20 +94,20 @@ function ProjectCard({ project }: { project: ProjectData }) {
   return (
     <Card
       className={cn(
-        "group h-full overflow-hidden border-0 bg-white shadow-sm ring-zinc-200/80",
-        "transition-colors hover:ring-zinc-300",
+        "group h-full overflow-hidden border-0 bg-card shadow-sm ring-border",
+        "transition-colors hover:ring-border",
         "pt-0",
       )}
     >
-      <div className="relative aspect-[16/10] w-full overflow-hidden bg-zinc-100">
+      <div className="relative aspect-[16/10] w-full overflow-hidden bg-muted">
         <ProjectImage title={project.title} imageUrl={project.imageUrl} />
       </div>
 
       <CardHeader>
-        <CardTitle className="text-lg text-zinc-900 sm:text-xl">
+        <CardTitle className="text-lg text-foreground sm:text-xl">
           {project.title}
         </CardTitle>
-        <CardDescription className="text-sm leading-relaxed text-zinc-600">
+        <CardDescription className="text-sm leading-relaxed text-muted-foreground">
           {project.description}
         </CardDescription>
 
@@ -132,11 +132,11 @@ function ProjectCard({ project }: { project: ProjectData }) {
                 {visibleBullets.map((bullet) => (
                   <li
                     key={bullet}
-                    className="flex gap-2 text-sm leading-relaxed text-zinc-600"
+                    className="flex gap-2 text-sm leading-relaxed text-muted-foreground"
                   >
                     <span
                       aria-hidden
-                      className="mt-2 size-1.5 shrink-0 rounded-full bg-zinc-400"
+                      className="mt-2 size-1.5 shrink-0 rounded-full bg-muted-foreground/60"
                     />
                     <span>{bullet}</span>
                   </li>
@@ -207,20 +207,20 @@ export function Projects({ projects }: ProjectsProps) {
     <section
       id="projects"
       aria-labelledby="projects-heading"
-      className="relative bg-white py-20 sm:py-28"
+      className="relative scroll-mt-20 bg-background py-20 sm:py-28"
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6 md:px-10">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-medium tracking-[0.18em] text-zinc-500 uppercase">
+          <p className="text-sm font-medium tracking-[0.18em] text-muted-foreground uppercase">
             Selected work
           </p>
           <h2
             id="projects-heading"
-            className="mt-3 text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl"
+            className="mt-3 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl"
           >
             Projects
           </h2>
-          <p className="mt-3 text-base text-zinc-600 sm:text-lg">
+          <p className="mt-3 text-base text-muted-foreground sm:text-lg">
             A few builds I&apos;m proud of — from idea to shipped experience.
           </p>
         </div>
