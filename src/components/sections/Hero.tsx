@@ -108,7 +108,6 @@ export function Hero({ about }: HeroProps) {
     "Building thoughtful web experiences with clean code and clear craft.";
   const profileImage =
     about?.profileImageUrl || "/abhishek_garg.png";
-  const hasResume = Boolean(about?.resumeFileUrl);
   const socialLinks = about?.socialLinks ?? [];
   const githubUrl = findSocialUrl(socialLinks, "github");
   const linkedinUrl = findSocialUrl(socialLinks, "linkedin");
@@ -159,20 +158,13 @@ export function Hero({ about }: HeroProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, delay: 0.55 }}
           >
-            {hasResume ? (
-              <a
-                href="/api/resume/download"
-                className={cn(buttonVariants({ size: "lg" }), "min-w-40")}
-              >
-                <Download data-icon="inline-start" />
-                Download Resume
-              </a>
-            ) : (
-              <Button size="lg" className="min-w-40" disabled>
-                <Download data-icon="inline-start" />
-                Download Resume
-              </Button>
-            )}
+            <a
+              href="/api/resume/download"
+              className={cn(buttonVariants({ size: "lg" }), "min-w-40")}
+            >
+              <Download data-icon="inline-start" />
+              Download Resume
+            </a>
 
             <Button
               type="button"
