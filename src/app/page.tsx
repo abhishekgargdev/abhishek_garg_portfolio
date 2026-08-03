@@ -1,6 +1,7 @@
 import { Achievements } from "@/components/sections/Achievements";
 import { CareerJourney } from "@/components/sections/CareerJourney";
 import { Certifications } from "@/components/sections/Certifications";
+import { Contact } from "@/components/sections/Contact";
 import { Education } from "@/components/sections/Education";
 import { Hero } from "@/components/sections/Hero";
 import { Projects } from "@/components/sections/Projects";
@@ -78,8 +79,7 @@ export default async function Home() {
       <Skills categories={skills} />
       <Achievements items={achievements} />
       <Certifications items={certifications} />
-      {/* Scroll target for Hero "Contact Me" — full Contact section lands here later */}
-      <section id="contact" aria-label="Contact" className="scroll-mt-20" />
+      <Contact />
     </main>
   );
 }
