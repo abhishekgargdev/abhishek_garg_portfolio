@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import { ExternalLink, Github } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import type { ProjectData } from "@/lib/projects";
+import { FaGithub } from "react-icons/fa";
 
 type ProjectsProps = {
   projects: ProjectData[];
@@ -182,7 +183,7 @@ function ProjectCard({ project }: { project: ProjectData }) {
                 "min-w-28",
               )}
             >
-              <Github data-icon="inline-start" />
+              <FaGithub data-icon="inline-start" />
               GitHub
             </Link>
           ) : null}
