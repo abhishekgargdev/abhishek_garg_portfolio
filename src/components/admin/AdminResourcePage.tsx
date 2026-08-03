@@ -34,19 +34,18 @@ type AdminResourcePageProps<
   fields: CrudFieldConfig<z.infer<TSchema> & FieldValues>[];
   schema: TSchema;
   emptyValues: DefaultValues<z.infer<TSchema> & FieldValues>;
-  /** Convert API row into form defaults for edit. */
   toFormValues?: (
     row: TRow,
   ) => DefaultValues<z.infer<TSchema> & FieldValues>;
-  /** Convert form values into API payload. */
   toPayload?: (values: z.infer<TSchema>) => unknown;
-  /** Max records allowed (e.g. About = 1). */
   maxRecords?: number;
   emptyMessage?: string;
+  /** Enable up/down reorder using the `order` field. */
+  enableReorder?: boolean;
 };
 
 export function AdminResourcePage<
-  TRow extends { id: string },
+  TRow extends { id: string; order?: number },
   TSchema extends z.ZodType,
 >({
   title,
@@ -60,10 +59,12 @@ export function AdminResourcePage<
   toPayload,
   maxRecords,
   emptyMessage,
+  enableReorder = false,
 }: AdminResourcePageProps<TRow, TSchema>) {
   const [rows, setRows] = useState<TRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [reordering, setReordering] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<TRow | null>(null);
   const [deleting, setDeleting] = useState<TRow | null>(null);
@@ -104,8 +105,7 @@ export function AdminResourcePage<
     return emptyValues;
   }, [editing, emptyValues, toFormValues]);
 
-  const canAdd =
-    maxRecords === undefined || rows.length < maxRecords;
+  const canAdd = maxRecords === undefined || rows.length < maxRecords;
 
   const openCreate = () => {
     setEditing(null);
@@ -171,6 +171,54 @@ export function AdminResourcePage<
     }
   };
 
+  const moveRow = async (row: TRow, direction: "up" | "down") => {
+    const index = rows.findIndex((item) => item.id === row.id);
+    if (index < 0) return;
+
+    const swapIndex = direction === "up" ? index - 1 : index + 1;
+    if (swapIndex < 0 || swapIndex >= rows.length) return;
+
+    const next = [...rows];
+    const current = next[index];
+    const neighbor = next[swapIndex];
+    next[index] = neighbor;
+    next[swapIndex] = current;
+
+    const updates = next.map((item, order) => ({
+      id: item.id,
+      order,
+    }));
+
+    setReordering(true);
+    setRows(
+      next.map((item, order) => ({
+        ...item,
+        order,
+      })),
+    );
+
+    try {
+      const response = await fetch(`/api/admin/${resource}/reorder`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ updates }),
+      });
+      const data = (await response.json().catch(() => ({}))) as {
+        error?: string;
+      };
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to reorder");
+      }
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to reorder",
+      );
+      await fetchRows();
+    } finally {
+      setReordering(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -198,6 +246,11 @@ export function AdminResourcePage<
           data={rows}
           onEdit={openEdit}
           onDelete={setDeleting}
+          onMoveUp={enableReorder ? (row) => void moveRow(row, "up") : undefined}
+          onMoveDown={
+            enableReorder ? (row) => void moveRow(row, "down") : undefined
+          }
+          reorderDisabled={reordering || submitting}
           emptyMessage={emptyMessage}
         />
       )}

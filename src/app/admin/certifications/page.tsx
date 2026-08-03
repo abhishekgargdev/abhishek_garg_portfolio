@@ -25,6 +25,7 @@ export default function AdminCertificationsPage() {
     <AdminResourcePage<CertificationRow, typeof schema>
       title="Certifications"
       resource="certifications"
+      enableReorder
       schema={schema}
       emptyValues={{
         title: "",

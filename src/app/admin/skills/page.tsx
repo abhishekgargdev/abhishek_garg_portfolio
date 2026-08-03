@@ -22,6 +22,7 @@ export default function AdminSkillsPage() {
       title="Skills"
       description="Categories and skills for the Skills section tabs."
       resource="skills"
+      enableReorder
       schema={schema}
       emptyValues={{
         categoryName: "",

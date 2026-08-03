@@ -31,6 +31,7 @@ export default function AdminProjectsPage() {
     <AdminResourcePage<ProjectRow, typeof schema>
       title="Projects"
       resource="projects"
+      enableReorder
       schema={schema}
       emptyValues={{
         title: "",

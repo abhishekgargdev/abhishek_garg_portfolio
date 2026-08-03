@@ -1,6 +1,6 @@
 "use client";
 
-import { Pencil, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -24,6 +24,9 @@ type CrudTableProps<T extends { id: string }> = {
   data: T[];
   onEdit: (row: T) => void;
   onDelete: (row: T) => void;
+  onMoveUp?: (row: T) => void;
+  onMoveDown?: (row: T) => void;
+  reorderDisabled?: boolean;
   emptyMessage?: string;
   className?: string;
 };
@@ -33,9 +36,14 @@ export function CrudTable<T extends { id: string }>({
   data,
   onEdit,
   onDelete,
+  onMoveUp,
+  onMoveDown,
+  reorderDisabled = false,
   emptyMessage = "No records yet.",
   className,
 }: CrudTableProps<T>) {
+  const canReorder = Boolean(onMoveUp && onMoveDown);
+
   if (!data.length) {
     return (
       <div className="rounded-xl border border-dashed border-zinc-300 bg-white px-4 py-10 text-center text-sm text-zinc-500">
@@ -54,6 +62,9 @@ export function CrudTable<T extends { id: string }>({
       <Table>
         <TableHeader>
           <TableRow>
+            {canReorder ? (
+              <TableHead className="w-[1%]">Order</TableHead>
+            ) : null}
             {columns.map((column) => (
               <TableHead key={column.key} className={column.className}>
                 {column.header}
@@ -63,8 +74,34 @@ export function CrudTable<T extends { id: string }>({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data.map((row) => (
+          {data.map((row, index) => (
             <TableRow key={row.id}>
+              {canReorder ? (
+                <TableCell>
+                  <div className="inline-flex items-center gap-0.5">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      onClick={() => onMoveUp?.(row)}
+                      disabled={reorderDisabled || index === 0}
+                      aria-label="Move up"
+                    >
+                      <ArrowUp className="size-4" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      onClick={() => onMoveDown?.(row)}
+                      disabled={reorderDisabled || index === data.length - 1}
+                      aria-label="Move down"
+                    >
+                      <ArrowDown className="size-4" />
+                    </Button>
+                  </div>
+                </TableCell>
+              ) : null}
               {columns.map((column) => (
                 <TableCell key={column.key} className={column.className}>
                   {column.render

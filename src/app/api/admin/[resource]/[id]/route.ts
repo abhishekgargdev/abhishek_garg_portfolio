@@ -15,6 +15,14 @@ type RouteContext = {
 };
 
 export async function PUT(request: Request, context: RouteContext) {
+  return updateRecord(request, context);
+}
+
+export async function PATCH(request: Request, context: RouteContext) {
+  return updateRecord(request, context);
+}
+
+async function updateRecord(request: Request, context: RouteContext) {
   const auth = await requireAdminSession();
   if (!auth.ok) return auth.response;
 
@@ -44,7 +52,7 @@ export async function PUT(request: Request, context: RouteContext) {
       item: serializeAdminDoc(updated as Record<string, unknown>),
     });
   } catch (error) {
-    console.error(`[admin/${resource}/${id}] PUT failed:`, error);
+    console.error(`[admin/${resource}/${id}] update failed:`, error);
     return NextResponse.json(
       { error: "Failed to update record" },
       { status: 500 },

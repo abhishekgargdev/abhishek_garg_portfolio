@@ -23,6 +23,7 @@ export default function AdminAchievementsPage() {
     <AdminResourcePage<AchievementRow, typeof schema>
       title="Achievements"
       resource="achievements"
+      enableReorder
       schema={schema}
       emptyValues={{
         title: "",

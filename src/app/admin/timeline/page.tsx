@@ -37,6 +37,7 @@ export default function AdminTimelinePage() {
       title="Timeline"
       description="Career journey milestones shown on the public timeline."
       resource="timeline"
+      enableReorder
       schema={schema}
       emptyValues={{
         role: "",

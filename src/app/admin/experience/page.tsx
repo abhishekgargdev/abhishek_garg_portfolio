@@ -29,6 +29,7 @@ export default function AdminExperiencePage() {
     <AdminResourcePage<ExperienceRow, typeof schema>
       title="Experience"
       resource="experience"
+      enableReorder
       schema={schema}
       emptyValues={{
         role: "",
