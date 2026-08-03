@@ -74,10 +74,10 @@ function StatCard({
       >
         <CardHeader className="flex flex-row items-start justify-between gap-3">
           <div className="space-y-1">
-            <CardDescription className="text-xs tracking-wide text-zinc-500 uppercase">
+            <CardDescription className="line-clamp-2 text-[0.65rem] tracking-wide text-zinc-500 uppercase sm:text-xs">
               {stat.label}
             </CardDescription>
-            <CardTitle className="text-3xl font-semibold tracking-tight text-zinc-900 tabular-nums sm:text-4xl">
+            <CardTitle className="text-2xl font-semibold tracking-tight text-zinc-900 tabular-nums sm:text-3xl lg:text-4xl">
               {reduceMotion ? (
                 <span>
                   {stat.value}
@@ -96,8 +96,8 @@ function StatCard({
               )}
             </CardTitle>
           </div>
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-zinc-50 text-zinc-700">
-            <Icon className="size-4" aria-hidden />
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-zinc-50 text-zinc-700 sm:size-10">
+            <Icon className="size-3.5 sm:size-4" aria-hidden />
           </span>
         </CardHeader>
       </Card>
@@ -118,12 +118,12 @@ export function StatsCounters({ stats }: StatsCountersProps) {
       aria-labelledby="stats-heading"
       className="relative bg-zinc-100/70 py-16 sm:py-20"
     >
-      <div className="mx-auto max-w-6xl px-6 md:px-10">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 md:px-10">
         <h2 id="stats-heading" className="sr-only">
           Portfolio stats
         </h2>
 
-        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 lg:gap-5">
+        <div className="grid grid-cols-2 gap-2.5 sm:gap-4 lg:grid-cols-4 lg:gap-5">
           {stats.map((stat, index) => (
             <StatCard
               key={stat.id}

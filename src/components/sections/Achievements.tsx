@@ -54,7 +54,7 @@ export function Achievements({ items }: AchievementsProps) {
       aria-labelledby="achievements-heading"
       className="relative bg-white py-20 sm:py-28"
     >
-      <div className="mx-auto max-w-6xl px-6 md:px-10">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 md:px-10">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-medium tracking-[0.18em] text-zinc-500 uppercase">
             Highlights
@@ -72,7 +72,7 @@ export function Achievements({ items }: AchievementsProps) {
 
         <motion.div
           className={cn(
-            "mt-12 flex gap-4 overflow-x-auto pb-2 sm:mt-14 sm:gap-5",
+            "mt-12 flex gap-3 overflow-x-auto pb-2 sm:mt-14 sm:gap-5",
             "snap-x snap-mandatory md:grid md:grid-cols-2 md:overflow-visible md:pb-0 lg:grid-cols-3",
             "[scrollbar-width:thin]",
           )}

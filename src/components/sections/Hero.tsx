@@ -127,7 +127,7 @@ export function Hero({ about }: HeroProps) {
     >
       <FloatingBlobs reduceMotion={reduceMotion} />
 
-      <div className="relative z-10 mx-auto grid w-full max-w-6xl items-center gap-12 px-6 py-24 md:px-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 lg:py-28">
+      <div className="relative z-10 mx-auto grid w-full max-w-6xl items-center gap-10 px-4 py-20 sm:gap-12 sm:px-6 sm:py-24 md:px-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 lg:py-28">
         {/* Copy */}
         <div className="order-2 flex flex-col items-center text-center lg:order-1 lg:items-start lg:text-left">
           <motion.p
@@ -140,7 +140,7 @@ export function Hero({ about }: HeroProps) {
           </motion.p>
 
           <motion.h1
-            className="font-heading max-w-2xl text-5xl leading-[1.05] font-semibold tracking-tight text-zinc-900 sm:text-6xl lg:text-7xl"
+            className="font-heading max-w-2xl text-4xl leading-[1.05] font-semibold tracking-tight text-zinc-900 sm:text-5xl md:text-6xl lg:text-7xl"
             initial={reduceMotion ? false : { opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
@@ -160,7 +160,10 @@ export function Hero({ about }: HeroProps) {
           >
             <a
               href="/api/resume/download"
-              className={cn(buttonVariants({ size: "lg" }), "min-w-40")}
+              className={cn(
+                buttonVariants({ size: "lg" }),
+                "w-full min-w-0 sm:w-auto sm:min-w-40",
+              )}
             >
               <Download data-icon="inline-start" />
               Download Resume
@@ -170,7 +173,7 @@ export function Hero({ about }: HeroProps) {
               type="button"
               variant="outline"
               size="lg"
-              className="min-w-40 border-zinc-300 bg-white/70 backdrop-blur-sm"
+              className="w-full min-w-0 border-zinc-300 bg-white/70 backdrop-blur-sm sm:w-auto sm:min-w-40"
               onClick={scrollToContact}
             >
               <Mail data-icon="inline-start" />

@@ -40,7 +40,7 @@ export function WorkExperience({ items }: WorkExperienceProps) {
       aria-labelledby="experience-heading"
       className="relative bg-zinc-50 py-20 sm:py-28"
     >
-      <div className="mx-auto max-w-3xl px-6 md:px-10">
+      <div className="mx-auto max-w-3xl px-4 sm:px-6 md:px-10">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-medium tracking-[0.18em] text-zinc-500 uppercase">
             Work

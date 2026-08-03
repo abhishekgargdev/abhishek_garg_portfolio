@@ -59,6 +59,7 @@ export function CrudTable<T extends { id: string }>({
         className,
       )}
     >
+      <div className="-mx-0 max-w-full overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow>
@@ -137,6 +138,7 @@ export function CrudTable<T extends { id: string }>({
           ))}
         </TableBody>
       </Table>
+      </div>
     </div>
   );
 }

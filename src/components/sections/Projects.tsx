@@ -161,13 +161,16 @@ function ProjectCard({ project }: { project: ProjectData }) {
       )}
 
       {(project.liveUrl || project.githubUrl) && (
-        <CardFooter className="flex flex-wrap gap-2 border-t-0 bg-transparent">
+        <CardFooter className="flex flex-col gap-2 border-t-0 bg-transparent sm:flex-row sm:flex-wrap">
           {project.liveUrl ? (
             <Link
               href={project.liveUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className={cn(buttonVariants({ size: "sm" }), "min-w-28")}
+              className={cn(
+                buttonVariants({ size: "sm" }),
+                "w-full justify-center sm:w-auto sm:min-w-28",
+              )}
             >
               <ExternalLink data-icon="inline-start" />
               Live Demo
@@ -180,7 +183,7 @@ function ProjectCard({ project }: { project: ProjectData }) {
               rel="noopener noreferrer"
               className={cn(
                 buttonVariants({ variant: "outline", size: "sm" }),
-                "min-w-28",
+                "w-full justify-center sm:w-auto sm:min-w-28",
               )}
             >
               <FaGithub data-icon="inline-start" />
@@ -206,7 +209,7 @@ export function Projects({ projects }: ProjectsProps) {
       aria-labelledby="projects-heading"
       className="relative bg-white py-20 sm:py-28"
     >
-      <div className="mx-auto max-w-6xl px-6 md:px-10">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 md:px-10">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-medium tracking-[0.18em] text-zinc-500 uppercase">
             Selected work

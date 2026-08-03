@@ -173,7 +173,7 @@ export function CareerJourney({ entries }: CareerJourneyProps) {
         className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-zinc-300 to-transparent"
       />
 
-      <div className="relative mx-auto max-w-5xl px-6 md:px-10">
+      <div className="relative mx-auto max-w-5xl px-4 sm:px-6 md:px-10">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-medium tracking-[0.18em] text-zinc-500 uppercase">
             Path

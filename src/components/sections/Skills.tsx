@@ -103,7 +103,7 @@ function SkillGrid({
 
   return (
     <motion.div
-      className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4"
+      className="grid grid-cols-1 gap-3 min-[380px]:grid-cols-2 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4"
       initial={reduceMotion ? false : { opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
@@ -137,7 +137,7 @@ export function Skills({ categories }: SkillsProps) {
       aria-labelledby="skills-heading"
       className="relative bg-zinc-50 py-20 sm:py-28"
     >
-      <div className="mx-auto max-w-6xl px-6 md:px-10">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 md:px-10">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-medium tracking-[0.18em] text-zinc-500 uppercase">
             Toolkit

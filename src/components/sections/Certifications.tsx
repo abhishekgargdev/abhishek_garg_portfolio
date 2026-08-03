@@ -59,7 +59,7 @@ export function Certifications({ items }: CertificationsProps) {
       aria-labelledby="certifications-heading"
       className="relative bg-zinc-50 py-20 sm:py-28"
     >
-      <div className="mx-auto max-w-3xl px-6 md:px-10">
+      <div className="mx-auto max-w-3xl px-4 sm:px-6 md:px-10">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-sm font-medium tracking-[0.18em] text-zinc-500 uppercase">
             Credentials
@@ -86,7 +86,7 @@ export function Certifications({ items }: CertificationsProps) {
             <motion.li
               key={item.id}
               variants={reduceMotion ? undefined : itemVariants}
-              className="flex flex-col gap-4 px-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:px-6"
+              className="flex flex-col gap-3 px-3 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:px-6 sm:py-5"
             >
               <div className="flex min-w-0 items-start gap-3 sm:items-center">
                 <span
