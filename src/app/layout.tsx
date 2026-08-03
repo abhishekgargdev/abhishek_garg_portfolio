@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { SplashLoader } from "@/components/loader/SplashLoader";
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -30,6 +31,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <SplashLoader>{children}</SplashLoader>
+        <Toaster richColors closeButton position="top-right" />
       </body>
     </html>
   );
