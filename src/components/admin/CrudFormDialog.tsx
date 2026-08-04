@@ -34,7 +34,8 @@ export type CrudFieldType =
   | "date"
   | "textarea"
   | "string-list"
-  | "image";
+  | "image"
+  | "select";
 
 export type CrudFieldConfig<T extends FieldValues> = {
   name: Path<T>;
@@ -43,6 +44,8 @@ export type CrudFieldConfig<T extends FieldValues> = {
   placeholder?: string;
   description?: string;
   uploadSection?: UploadSection;
+  /** Options for `type: "select"`. */
+  options?: { value: string; label: string }[];
 };
 
 type CrudFormDialogProps<TSchema extends z.ZodType> = {
@@ -171,6 +174,35 @@ export function CrudFormDialog<TSchema extends z.ZodType>({
                       />
                     )}
                   />
+                  {field.description ? (
+                    <p className="text-xs text-muted-foreground">
+                      {field.description}
+                    </p>
+                  ) : null}
+                  {message ? (
+                    <p className="text-sm text-destructive">{message}</p>
+                  ) : null}
+                </div>
+              );
+            }
+
+            if (field.type === "select") {
+              return (
+                <div key={String(field.name)} className="space-y-2">
+                  <Label htmlFor={String(field.name)}>{field.label}</Label>
+                  <select
+                    id={String(field.name)}
+                    disabled={submitting}
+                    aria-invalid={Boolean(message)}
+                    className="flex h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-input/30"
+                    {...register(field.name)}
+                  >
+                    {(field.options ?? []).map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
                   {field.description ? (
                     <p className="text-xs text-muted-foreground">
                       {field.description}

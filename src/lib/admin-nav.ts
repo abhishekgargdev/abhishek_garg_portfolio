@@ -9,6 +9,7 @@ import {
   MessageSquare,
   Route,
   Sparkles,
+  Timer,
   Trophy,
   UserRound,
 } from "lucide-react";
@@ -22,6 +23,7 @@ export type AdminNavItem = {
 export const ADMIN_NAV: AdminNavItem[] = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/about", label: "About", icon: UserRound },
+  { href: "/admin/experience-clocks", label: "Experience Clocks", icon: Timer },
   { href: "/admin/timeline", label: "Timeline", icon: Route },
   { href: "/admin/education", label: "Education", icon: GraduationCap },
   { href: "/admin/experience", label: "Experience", icon: Briefcase },

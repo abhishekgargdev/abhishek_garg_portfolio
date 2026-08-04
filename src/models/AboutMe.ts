@@ -49,7 +49,7 @@ const AboutMeSchema = new Schema<IAboutMe>(
 
 // Keep legacy `tagline` populated from the first rotating line so older
 // required validators / consumers never see an empty required path.
-AboutMeSchema.pre("validate", function (next) {
+AboutMeSchema.pre("validate", function () {
   const taglines = Array.isArray(this.taglines)
     ? this.taglines.map((line) => String(line).trim()).filter(Boolean)
     : [];
@@ -62,8 +62,6 @@ AboutMeSchema.pre("validate", function (next) {
   } else {
     this.tagline = this.tagline?.trim() || "";
   }
-
-  next();
 });
 
 // Next.js HMR can keep a stale compiled model (e.g. old required tagline).
