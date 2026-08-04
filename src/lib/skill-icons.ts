@@ -1,4 +1,4 @@
-import type { ComponentType, SVGProps } from "react";
+import { type ComponentType, type SVGProps, createElement } from "react";
 import {
   SiAnthropic,
   SiCss,
@@ -38,7 +38,36 @@ import {
   SiTypescript,
   SiVitest,
   SiVuedotjs,
+  SiC,
+  SiCplusplus,
+  SiElectron,
+  SiBootstrap,
+  SiMui,
+  SiAntdesign,
+  SiShadcnui,
+  SiPwa,
+  SiSocketdotio,
+  SiServerless,
+  SiSequelize,
+  SiSqlalchemy,
+  SiGithub,
+  SiGitlab,
+  SiBitbucket,
+  SiRabbitmq,
+  SiJenkins,
+  SiSwagger,
+  SiJira,
+  SiTrello,
+  SiPostman,
+  SiMocha,
+  SiGithubcopilot,
+  SiCursor,
+  SiCoursera,
+  SiUdemy,
+  SiGoogle,
 } from "react-icons/si";
+import { FaAws, FaMicrosoft } from "react-icons/fa6";
+import { TbBrandOpenai, TbBrandVscode, TbBrandAmazon } from "react-icons/tb";
 import {
   Code2,
   Database,
@@ -47,6 +76,17 @@ import {
   Brain,
   Cloud,
   type LucideProps,
+  Workflow,
+  Boxes,
+  Network,
+  Zap,
+  Layers,
+  ListTodo,
+  CheckCircle2,
+  Eye,
+  Gauge,
+  RotateCcw,
+  Users,
 } from "lucide-react";
 
 export type SkillIconProps = SVGProps<SVGSVGElement> & {
@@ -69,8 +109,13 @@ const SKILL_ICON_MAP: Record<string, IconComponent> = {
   html: SiHtml5,
   html5: SiHtml5,
   css: SiCss,
+  css3: SiCss,
   sass: SiSass,
   scss: SiSass,
+  sql: Database,
+  c: SiC,
+  cplusplus: SiCplusplus,
+  cpp: SiCplusplus,
 
   // Frontend
   react: SiReact,
@@ -82,12 +127,25 @@ const SKILL_ICON_MAP: Record<string, IconComponent> = {
   vuejs: SiVuedotjs,
   vuedotjs: SiVuedotjs,
   redux: SiRedux,
+  reduxtoolkit: SiRedux,
+  reduxthunk: SiRedux,
+  reduxsaga: SiRedux,
   tailwind: SiTailwindcss,
   tailwindcss: SiTailwindcss,
   framer: SiFramer,
   framermotion: SiFramer,
+  electron: SiElectron,
+  electronjs: SiElectron,
+  bootstrap: SiBootstrap,
+  mui: SiMui,
+  materialui: SiMui,
+  antdesign: SiAntdesign,
+  antd: SiAntdesign,
+  shadcnui: SiShadcnui,
+  shadcn: SiShadcnui,
+  pwa: SiPwa,
 
-  // Backend
+  // Backend & APIs
   node: SiNodedotjs,
   nodejs: SiNodedotjs,
   nodedotjs: SiNodedotjs,
@@ -100,9 +158,15 @@ const SKILL_ICON_MAP: Record<string, IconComponent> = {
   fastapi: SiFastapi,
   graphql: SiGraphql,
   prisma: SiPrisma,
+  restapis: Code2,
+  restapi: Code2,
+  apigateway: Server,
+  websockets: SiSocketdotio,
+  socketio: SiSocketdotio,
+  serverless: SiServerless,
   server: Server,
 
-  // Databases
+  // Databases & ORMs
   mongodb: SiMongodb,
   mongo: SiMongodb,
   postgresql: SiPostgresql,
@@ -112,29 +176,65 @@ const SKILL_ICON_MAP: Record<string, IconComponent> = {
   firebase: SiFirebase,
   supabase: SiSupabase,
   database: Database,
+  dynamodb: TbBrandAmazon,
+  dynamo: TbBrandAmazon,
+  sequelize: SiSequelize,
+  sequelizeorm: SiSequelize,
+  sqlalchemy: SiSqlalchemy,
 
-  // DevOps
+  // DevOps & Cloud
   docker: SiDocker,
   kubernetes: SiKubernetes,
   k8s: SiKubernetes,
   git: SiGit,
+  github: SiGithub,
+  gitlab: SiGitlab,
+  bitbucket: SiBitbucket,
   githubactions: SiGithubactions,
   linux: SiLinux,
   cloud: Cloud,
+  aws: FaAws,
+  amazonwebservices: FaAws,
+  cicd: Workflow,
+  jenkins: SiJenkins,
 
-  // AI / ML
+  // AI / ML & Tools
   tensorflow: SiTensorflow,
   anthropic: SiAnthropic,
   ai: Brain,
   ml: Brain,
   brain: Brain,
+  openai: TbBrandOpenai,
+  openaigpt4api: TbBrandOpenai,
+  promptengineering: Zap,
+  githubcopilot: SiGithubcopilot,
+  cursor: SiCursor,
+  cursorai: SiCursor,
+  playfab: props => createElement(FaMicrosoft, props as any),
 
-  // Testing
+  // Testing & Quality
   jest: SiJest,
   vitest: SiVitest,
   cypress: SiCypress,
   testing: TestTube2,
   test: TestTube2,
+  unittest: CheckCircle2,
+  unittesting: CheckCircle2,
+  tdd: CheckCircle2,
+  mocha: SiMocha,
+  swagger: SiSwagger,
+  swaggeropenapi: SiSwagger,
+  codereviews: Eye,
+  performanceoptimization: Gauge,
+
+  // Tools & Methods
+  agile: RotateCcw,
+  agilescrum: RotateCcw,
+  jira: SiJira,
+  trello: SiTrello,
+  postman: SiPostman,
+  vscode: TbBrandVscode,
+  dsa: Code2,
 };
 
 export function normalizeSkillIconKey(iconKey: string): string {
@@ -145,3 +245,4 @@ export function getSkillIcon(iconKey: string): IconComponent {
   const normalized = normalizeSkillIconKey(iconKey);
   return SKILL_ICON_MAP[normalized] ?? Code2;
 }
+

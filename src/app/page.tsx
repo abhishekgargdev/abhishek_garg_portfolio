@@ -22,6 +22,8 @@ import { getSkillCategories } from "@/lib/skills";
 import { getStats } from "@/lib/stats";
 import { getTimelineEntries } from "@/lib/timeline";
 
+import { VisualEffects } from "@/components/layout/VisualEffects";
+
 export default async function Home() {
   const [
     about,
@@ -75,7 +77,8 @@ export default async function Home() {
   return (
     <>
       <SiteHeader />
-      <main className="flex flex-1 flex-col">
+      <VisualEffects />
+      <main className="flex flex-1 flex-col relative z-10">
         <Hero about={about} />
         <FadeInSection>
           <StatsCounters stats={stats} />

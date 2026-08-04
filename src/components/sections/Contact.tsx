@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Send } from "lucide-react";
+import { Loader2, Send, Mail, Check } from "lucide-react";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,9 +14,12 @@ import {
   contactFormSchema,
   type ContactFormValues,
 } from "@/lib/contact-schema";
+import { cn } from "@/lib/utils";
+import { SectionHeading } from "@/components/layout/SectionHeading";
 
 export function Contact() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const {
     register,
@@ -53,7 +57,9 @@ export function Contact() {
       }
 
       toast.success(data.message || "Message sent successfully");
+      setIsSuccess(true);
       reset();
+      setTimeout(() => setIsSuccess(false), 3000);
     } catch {
       toast.error("Unable to send your message right now");
     } finally {
@@ -65,29 +71,36 @@ export function Contact() {
     <section
       id="contact"
       aria-labelledby="contact-heading"
-      className="relative scroll-mt-20 bg-background py-20 sm:py-28"
+      className="relative scroll-mt-20 bg-muted/30 py-20 sm:py-28 overflow-hidden"
     >
-      <div className="mx-auto max-w-3xl px-4 sm:px-6 md:px-10">
-        <div className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-medium tracking-[0.18em] text-muted-foreground uppercase">
-            Get in touch
-          </p>
-          <h2
-            id="contact-heading"
-            className="mt-3 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl"
-          >
-            Contact
-          </h2>
-          <p className="mt-3 text-base text-muted-foreground sm:text-lg">
-            Have a project or question? Send a message and I&apos;ll get back to
-            you.
-          </p>
-        </div>
+      {/* Decorative floating mail icon */}
+      <div className="absolute top-10 right-10 opacity-[0.03] dark:opacity-[0.05] pointer-events-none hidden lg:block z-0">
+        <motion.div
+          animate={{
+            y: [0, -15, 0],
+            rotate: [0, 10, -5, 0],
+          }}
+          transition={{
+            duration: 12,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        >
+          <Mail className="size-60" />
+        </motion.div>
+      </div>
+
+      <div className="mx-auto max-w-3xl px-4 sm:px-6 md:px-10 relative z-10">
+        <SectionHeading
+          eyebrow="Get in touch"
+          title="Contact"
+          description="Have a project or question? Send a message and I'll get back to you."
+        />
 
         <form
           onSubmit={onSubmit}
           noValidate
-          className="mt-12 space-y-5 rounded-2xl border border-border bg-muted/50 p-5 shadow-sm sm:mt-14 sm:p-8"
+          className="mt-12 space-y-5 rounded-2xl border border-border bg-card/80 p-5 shadow-sm sm:mt-14 sm:p-8 backdrop-blur-sm"
         >
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
             <div className="space-y-2">
@@ -98,6 +111,7 @@ export function Contact() {
                 placeholder="Your name"
                 aria-invalid={Boolean(errors.name)}
                 disabled={isSubmitting}
+                className="focus:border-teal-500 focus:ring-4 focus:ring-teal-500/20 transition-all duration-300 bg-card/50"
                 {...register("name")}
               />
               {errors.name ? (
@@ -114,6 +128,7 @@ export function Contact() {
                 placeholder="you@example.com"
                 aria-invalid={Boolean(errors.email)}
                 disabled={isSubmitting}
+                className="focus:border-teal-500 focus:ring-4 focus:ring-teal-500/20 transition-all duration-300 bg-card/50"
                 {...register("email")}
               />
               {errors.email ? (
@@ -131,6 +146,7 @@ export function Contact() {
               placeholder="What's this about?"
               aria-invalid={Boolean(errors.subject)}
               disabled={isSubmitting}
+              className="focus:border-teal-500 focus:ring-4 focus:ring-teal-500/20 transition-all duration-300 bg-card/50"
               {...register("subject")}
             />
             {errors.subject ? (
@@ -146,7 +162,7 @@ export function Contact() {
               id="contact-message"
               rows={6}
               placeholder="Tell me a bit about your project or question…"
-              className="min-h-32 resize-y"
+              className="min-h-32 resize-y focus:border-teal-500 focus:ring-4 focus:ring-teal-500/20 transition-all duration-300 bg-card/50"
               aria-invalid={Boolean(errors.message)}
               disabled={isSubmitting}
               {...register("message")}
@@ -161,13 +177,21 @@ export function Contact() {
           <Button
             type="submit"
             size="lg"
-            className="w-full sm:w-auto"
+            className={cn(
+              "w-full sm:w-auto shadow-sm transition-all duration-300",
+              isSuccess ? "bg-emerald-600 hover:bg-emerald-700 text-white" : ""
+            )}
             disabled={isSubmitting}
           >
             {isSubmitting ? (
               <>
                 <Loader2 className="animate-spin" data-icon="inline-start" />
                 Sending…
+              </>
+            ) : isSuccess ? (
+              <>
+                <Check className="size-4 animate-bounce" data-icon="inline-start" />
+                Sent!
               </>
             ) : (
               <>

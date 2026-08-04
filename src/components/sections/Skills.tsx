@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, useInView, useReducedMotion } from "framer-motion";
+import CountUp from "react-countup";
 import {
   Tabs,
   TabsContent,
@@ -12,6 +13,7 @@ import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { getSkillIcon } from "@/lib/skill-icons";
 import type { SkillCategoryData, SkillData } from "@/lib/skills";
+import { SectionHeading } from "@/components/layout/SectionHeading";
 
 type SkillsProps = {
   categories: SkillCategoryData[];
@@ -51,6 +53,7 @@ function SkillProgress({
         className={cn(
           "w-full gap-1.5 [&_[data-slot=progress-track]]:h-1.5",
           "[&_[data-slot=progress-indicator]]:duration-700 [&_[data-slot=progress-indicator]]:ease-out",
+          "[&_[data-slot=progress-indicator]]:bg-gradient-to-r [&_[data-slot=progress-indicator]]:from-teal-500 [&_[data-slot=progress-indicator]]:to-indigo-500"
         )}
       />
     </div>
@@ -67,22 +70,36 @@ function SkillCard({
   const Icon = getSkillIcon(skill.iconKey);
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 shadow-sm transition-colors hover:border-foreground/30">
+    <motion.div
+      whileHover={reduceMotion ? {} : { y: -5 }}
+      transition={{ duration: 0.2, ease: "easeOut" }}
+      className="group flex flex-col gap-3 rounded-xl border border-border bg-card p-4 shadow-sm transition-all duration-300 hover:border-foreground/20 hover:shadow-md"
+    >
       <div className="flex items-center gap-3">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-border bg-muted/50 text-foreground/80">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-border bg-muted/50 text-foreground/80 transition-transform duration-300 group-hover:rotate-6 group-hover:scale-110">
           <Icon className="size-5" aria-hidden />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium text-foreground">
+          <p className="truncate text-sm font-medium text-foreground group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
             {skill.name}
           </p>
-          <p className="text-xs tabular-nums text-muted-foreground">
-            {skill.proficiency}%
+          <p className="text-xs tabular-nums text-muted-foreground font-medium">
+            {reduceMotion ? (
+              <span>{skill.proficiency}%</span>
+            ) : (
+              <CountUp
+                end={skill.proficiency}
+                duration={1.5}
+                suffix="%"
+                enableScrollSpy
+                scrollSpyOnce
+              />
+            )}
           </p>
         </div>
       </div>
       <SkillProgress value={skill.proficiency} reduceMotion={reduceMotion} />
-    </div>
+    </motion.div>
   );
 }
 
@@ -122,51 +139,54 @@ function SkillGrid({
 export function Skills({ categories }: SkillsProps) {
   const reduceMotion = useReducedMotion();
 
+  const defaultValue = categories.length > 0
+    ? categoryValue(categories[0].categoryName, categories[0].id)
+    : "";
+
+  const [activeTab, setActiveTab] = useState(defaultValue);
+
   if (!categories.length) {
     return null;
   }
-
-  const defaultValue = categoryValue(
-    categories[0].categoryName,
-    categories[0].id,
-  );
 
   return (
     <section
       id="skills"
       aria-labelledby="skills-heading"
-      className="relative scroll-mt-20 bg-muted/50 py-20 sm:py-28"
+      className="relative scroll-mt-20 bg-background py-20 sm:py-28"
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6 md:px-10">
-        <div className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-medium tracking-[0.18em] text-muted-foreground uppercase">
-            Toolkit
-          </p>
-          <h2
-            id="skills-heading"
-            className="mt-3 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl"
-          >
-            Skills
-          </h2>
-          <p className="mt-3 text-base text-muted-foreground sm:text-lg">
-            Languages, frameworks, and tools I reach for most often.
-          </p>
-        </div>
+        <SectionHeading
+          eyebrow="Toolkit"
+          title="Skills"
+          description="Languages, frameworks, and tools I reach for most often."
+        />
 
-        <Tabs defaultValue={defaultValue} className="mt-12 sm:mt-14">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-12 sm:mt-14">
           <TabsList
             variant="line"
             className="mx-auto flex h-auto w-full max-w-4xl flex-wrap justify-center gap-1 bg-transparent p-0"
           >
-            {categories.map((category) => (
-              <TabsTrigger
-                key={category.id}
-                value={categoryValue(category.categoryName, category.id)}
-                className="rounded-full px-3 py-1.5 text-xs sm:text-sm"
-              >
-                {category.categoryName}
-              </TabsTrigger>
-            ))}
+            {categories.map((category) => {
+              const value = categoryValue(category.categoryName, category.id);
+              const isActive = activeTab === value;
+              return (
+                <TabsTrigger
+                  key={category.id}
+                  value={value}
+                  className="relative rounded-full px-4 py-2 text-xs sm:text-sm font-medium transition-colors hover:text-foreground/80 data-active:text-teal-600 dark:data-active:text-teal-400 group-data-[variant=line]/tabs-list:data-active:after:opacity-0"
+                >
+                  {isActive && !reduceMotion && (
+                    <motion.span
+                      layoutId="activeTabIndicator"
+                      className="absolute inset-0 bg-teal-500/10 border border-teal-500/20 dark:bg-teal-500/20 dark:border-teal-500/30 rounded-full z-0"
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    />
+                  )}
+                  <span className="relative z-10">{category.categoryName}</span>
+                </TabsTrigger>
+              );
+            })}
           </TabsList>
 
           {categories.map((category) => (

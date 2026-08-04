@@ -8,6 +8,8 @@ import {
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import type { ExperienceData } from "@/lib/experience";
+import { getSkillIcon } from "@/lib/skill-icons";
+import { SectionHeading } from "@/components/layout/SectionHeading";
 
 type WorkExperienceProps = {
   items: ExperienceData[];
@@ -38,30 +40,25 @@ export function WorkExperience({ items }: WorkExperienceProps) {
     <section
       id="experience"
       aria-labelledby="experience-heading"
-      className="relative scroll-mt-20 bg-muted/50 py-20 sm:py-28"
+      className="relative scroll-mt-20 bg-muted/40 py-20 sm:py-28"
     >
       <div className="mx-auto max-w-3xl px-4 sm:px-6 md:px-10">
-        <div className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-medium tracking-[0.18em] text-muted-foreground uppercase">
-            Work
-          </p>
-          <h2
-            id="experience-heading"
-            className="mt-3 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl"
-          >
-            Experience
-          </h2>
-          <p className="mt-3 text-base text-muted-foreground sm:text-lg">
-            Roles, impact, and the tools used along the way.
-          </p>
-        </div>
+        <SectionHeading
+          eyebrow="Work"
+          title="Experience"
+          description="Roles, impact, and the tools used along the way."
+        />
 
         <Accordion
           defaultValue={defaultOpenId ? [defaultOpenId] : []}
           className="mt-12 rounded-2xl border border-border bg-card/80 px-4 shadow-sm backdrop-blur-sm sm:mt-14 sm:px-5"
         >
           {items.map((item) => (
-            <AccordionItem key={item.id} value={item.id} className="border-border">
+            <AccordionItem
+              key={item.id}
+              value={item.id}
+              className="border-border border-l-2 border-l-transparent data-[state=open]:border-l-teal-500 data-[open]:border-l-teal-500 transition-all duration-300 pl-2 sm:pl-4"
+            >
               <AccordionTrigger className="py-4 hover:no-underline sm:py-5">
                 <div className="pr-4">
                   <p className="text-base font-semibold tracking-tight text-foreground sm:text-lg">
@@ -99,11 +96,15 @@ export function WorkExperience({ items }: WorkExperienceProps) {
 
                 {item.techStack.length > 0 ? (
                   <div className="mt-4 flex flex-wrap gap-2">
-                    {item.techStack.map((tech) => (
-                      <Badge key={tech} variant="secondary">
-                        {tech}
-                      </Badge>
-                    ))}
+                    {item.techStack.map((tech) => {
+                      const Icon = getSkillIcon(tech);
+                      return (
+                        <Badge key={tech} variant="secondary" className="flex items-center gap-1.5 px-2.5 py-1">
+                          <Icon className="size-3.5" />
+                          {tech}
+                        </Badge>
+                      );
+                    })}
                   </div>
                 ) : null}
               </AccordionContent>
