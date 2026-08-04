@@ -8,7 +8,7 @@ export interface IAiInteraction extends Document {
   prompt: string;
   systemInstruction?: string;
   response: string;
-  model: string;
+  modelName: string;
   /** 1-based key slot from GEMINI_API_KEY_1..6 that produced the response. */
   keySlot: number;
   status: AiInteractionStatus;
@@ -25,7 +25,7 @@ const AiInteractionSchema = new Schema<IAiInteraction>(
     prompt: { type: String, required: true },
     systemInstruction: { type: String, default: "" },
     response: { type: String, default: "" },
-    model: { type: String, required: true, trim: true },
+    modelName: { type: String, required: true, trim: true },
     keySlot: { type: Number, required: true, min: 1, max: 6 },
     status: {
       type: String,

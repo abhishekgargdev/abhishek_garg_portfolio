@@ -8,7 +8,7 @@ export type ResumeSocialLink = {
 export type ResumeAbout = {
   name: string;
   title: string;
-  tagline: string;
+  taglines: string[];
   bio: string;
   profileImageUrl: string;
   resumeFileUrl: string;

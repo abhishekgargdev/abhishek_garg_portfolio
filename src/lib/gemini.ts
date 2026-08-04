@@ -187,7 +187,11 @@ async function persistInteraction(input: {
 }): Promise<string | undefined> {
   try {
     await connectDB();
-    const doc = await AiInteraction.create(input);
+    const { model, ...rest } = input;
+    const doc = await AiInteraction.create({
+      ...rest,
+      modelName: model,
+    });
     return String(doc._id);
   } catch (error) {
     console.error("[gemini] Failed to persist AiInteraction:", error);
@@ -364,7 +368,7 @@ export async function listAiInteractions(params?: {
     purpose: doc.purpose,
     prompt: doc.prompt,
     response: doc.response,
-    model: doc.model,
+    model: doc.modelName,
     keySlot: doc.keySlot,
     status: doc.status,
     errorMessage: doc.errorMessage ?? "",

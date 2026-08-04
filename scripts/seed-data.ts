@@ -29,8 +29,12 @@ const SEED = {
     name: "Abhishek Garg",
     title:
       "Senior Full Stack Engineer | MERN | Next.js | Node.js | TypeScript",
-    tagline:
+    taglines: [
       "Building scalable, AI-powered web applications with modern full-stack architectures",
+      "Leading full-stack teams to ship production-grade MERN and Next.js products",
+      "Architecting microservices, real-time systems, and AI-powered applications",
+      "Delivering measurable impact with 99.9% uptime and faster release cycles",
+    ],
     bio: "Senior Full Stack Engineer with 4+ years of progressive experience designing and delivering scalable, production-grade web and mobile-adjacent applications using the MERN stack, Next.js, TypeScript, NestJS, Golang, and FastAPI. Proven track record leading cross-functional teams, owning client relationships, and architecting microservices, real-time systems, and AI-powered applications (OpenAI GPT-4, Anthropic Claude API). Delivered measurable impact including a 40% reduction in application load times, a 30% reduction in deployment time, and 99.9% uptime across client and enterprise systems. Recognized with multiple performance awards, including Outstanding Achiever and Valuable Contributor, at Talentelgia Technologies.",
     profileImageUrl: "",
     resumeFileUrl: "",
@@ -561,8 +565,13 @@ async function seedAboutMe(counts: CountSummary) {
   const { stats: _stats, ...about } = SEED.aboutMe;
   const result = await AboutMe.findOneAndUpdate(
     { email: about.email.toLowerCase() },
-    { $set: about },
-    { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true },
+    {
+      $set: {
+        ...about,
+        tagline: "",
+      },
+    },
+    { upsert: true, returnDocument: "after", setDefaultsOnInsert: true },
   );
   counts.AboutMe = result ? 1 : 0;
 }

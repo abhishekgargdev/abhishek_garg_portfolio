@@ -17,7 +17,7 @@ export {
 const FALLBACK_ABOUT: AboutMeData = {
   name: "Abhishek Garg",
   title: "Full Stack Developer",
-  tagline: "",
+  taglines: [],
   bio: "",
   profileImageUrl: "",
   resumeFileUrl: "",

@@ -1,10 +1,11 @@
 import { connectDB } from "@/lib/db";
+import { normalizeTaglines } from "@/lib/about-taglines";
 import AboutMe from "@/models/AboutMe";
 
 export type AboutMeData = {
   name: string;
   title: string;
-  tagline: string;
+  taglines: string[];
   bio: string;
   profileImageUrl: string;
   resumeFileUrl: string;
@@ -23,7 +24,7 @@ export async function getAboutMe(): Promise<AboutMeData | null> {
   return {
     name: doc.name,
     title: doc.title,
-    tagline: doc.tagline,
+    taglines: normalizeTaglines(doc.tagline, doc.taglines),
     bio: doc.bio,
     profileImageUrl: doc.profileImageUrl ?? "",
     resumeFileUrl: doc.resumeFileUrl ?? "",

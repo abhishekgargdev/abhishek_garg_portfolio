@@ -40,7 +40,7 @@ async function updateRecord(request: Request, context: RouteContext) {
     const Model = getAdminModel(resource);
 
     const updated = await Model.findByIdAndUpdate(id, body, {
-      new: true,
+      returnDocument: "after",
       runValidators: true,
     }).lean();
 

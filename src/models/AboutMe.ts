@@ -8,7 +8,9 @@ export interface ISocialLink {
 export interface IAboutMe extends Document {
   name: string;
   title: string;
+  /** @deprecated Prefer taglines. Kept as a denormalized first tagline for legacy validators. */
   tagline: string;
+  taglines: string[];
   bio: string;
   profileImageUrl: string;
   resumeFileUrl: string;
@@ -32,7 +34,8 @@ const AboutMeSchema = new Schema<IAboutMe>(
   {
     name: { type: String, required: true, trim: true },
     title: { type: String, required: true, trim: true },
-    tagline: { type: String, required: true, trim: true },
+    tagline: { type: String, default: "", trim: true },
+    taglines: { type: [String], default: [] },
     bio: { type: String, required: true },
     profileImageUrl: { type: String, default: "" },
     resumeFileUrl: { type: String, default: "" },
@@ -44,8 +47,33 @@ const AboutMeSchema = new Schema<IAboutMe>(
   { timestamps: true },
 );
 
-const AboutMe: Model<IAboutMe> =
-  mongoose.models.AboutMe ||
-  mongoose.model<IAboutMe>("AboutMe", AboutMeSchema);
+// Keep legacy `tagline` populated from the first rotating line so older
+// required validators / consumers never see an empty required path.
+AboutMeSchema.pre("validate", function (next) {
+  const taglines = Array.isArray(this.taglines)
+    ? this.taglines.map((line) => String(line).trim()).filter(Boolean)
+    : [];
+
+  if (taglines.length) {
+    this.taglines = taglines;
+    this.tagline = taglines[0];
+  } else if (typeof this.tagline === "string" && this.tagline.trim()) {
+    this.taglines = [this.tagline.trim()];
+  } else {
+    this.tagline = this.tagline?.trim() || "";
+  }
+
+  next();
+});
+
+// Next.js HMR can keep a stale compiled model (e.g. old required tagline).
+if (mongoose.models.AboutMe) {
+  delete mongoose.models.AboutMe;
+}
+
+const AboutMe: Model<IAboutMe> = mongoose.model<IAboutMe>(
+  "AboutMe",
+  AboutMeSchema,
+);
 
 export default AboutMe;
