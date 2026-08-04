@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { Achievements } from "@/components/sections/Achievements";
 import { CareerJourney } from "@/components/sections/CareerJourney";
 import { Certifications } from "@/components/sections/Certifications";
