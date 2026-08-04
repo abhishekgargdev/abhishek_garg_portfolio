@@ -10,6 +10,18 @@ export const TIMELINE_CATEGORIES = [
 
 export type TimelineCategory = (typeof TIMELINE_CATEGORIES)[number];
 
+export type TimelineEntryData = {
+  id: string;
+  category: TimelineCategory;
+  role: string;
+  company: string;
+  startDate: string;
+  endDate: string | null;
+  description: string;
+  link: string;
+  order: number;
+};
+
 export const TIMELINE_CATEGORY_LABELS: Record<TimelineCategory, string> = {
   experience: "Experience",
   education: "Education",

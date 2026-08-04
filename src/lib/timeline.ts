@@ -1,11 +1,14 @@
 import { connectDB } from "@/lib/db";
 import {
   normalizeTimelineCategory,
-  type TimelineCategory,
+  type TimelineEntryData,
 } from "@/lib/timeline-types";
 import TimelineEntry from "@/models/TimelineEntry";
 
-export type { TimelineCategory } from "@/lib/timeline-types";
+export type {
+  TimelineCategory,
+  TimelineEntryData,
+} from "@/lib/timeline-types";
 export {
   TIMELINE_CATEGORIES,
   TIMELINE_CATEGORY_LABELS,
@@ -13,18 +16,6 @@ export {
   isTimelineCategory,
   normalizeTimelineCategory,
 } from "@/lib/timeline-types";
-
-export type TimelineEntryData = {
-  id: string;
-  category: TimelineCategory;
-  role: string;
-  company: string;
-  startDate: string;
-  endDate: string | null;
-  description: string;
-  link: string;
-  order: number;
-};
 
 export async function getTimelineEntries(): Promise<TimelineEntryData[]> {
   await connectDB();

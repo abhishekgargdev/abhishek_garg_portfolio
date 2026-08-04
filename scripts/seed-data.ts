@@ -58,31 +58,103 @@ const SEED = {
 
   timelineEntries: [
     {
+      category: "experience" as const,
       role: "Senior AI Engineer",
       company: "Talentelgia Technologies",
       startDate: "2026-06-01",
       endDate: null as string | null,
       description:
         "Designing and developing AI-powered chatbot solutions handling ~8,000+ customer conversations per month, reducing response time by ~35%.",
+      link: "",
       order: 1,
     },
     {
+      category: "experience" as const,
       role: "Senior Software Engineer",
       company: "Talentelgia Technologies",
       startDate: "2026-01-01",
       endDate: "2026-05-31",
       description:
         "Built the backend for a real-time multiplayer gaming app (1,000+ concurrent players) and a healthcare data platform serving 2,000+ active users.",
+      link: "",
       order: 2,
     },
     {
+      category: "experience" as const,
       role: "Senior Software Engineer L1 (Promoted through 5 Levels)",
       company: "Talentelgia Technologies",
       startDate: "2022-01-01",
       endDate: "2025-12-31",
       description:
         "Progressed from Software Engineering Intern to Senior Software Engineer L1 over 4 years, leading teams of 3-5 engineers across multiple enterprise projects.",
+      link: "",
       order: 3,
+    },
+    {
+      category: "education" as const,
+      role: "Master of Computer Applications (MCA)",
+      company: "Chandigarh University",
+      startDate: "2020-07-01",
+      endDate: "2022-06-30",
+      description:
+        "Distinguished Guest Speaker and Shield of Honor recipient (2022). CUCAT Scholarship awardee; ranked in top 5 for innovative JARVIS AI project.",
+      link: "",
+      order: 4,
+    },
+    {
+      category: "education" as const,
+      role: "Bachelor of Arts in Mathematics",
+      company: "Kurukshetra University",
+      startDate: "2017-07-01",
+      endDate: "2020-10-31",
+      description:
+        "2nd Rank Overall in B.A. program; 1st Rank in Mathematics at university level. Graduated with distinction.",
+      link: "",
+      order: 5,
+    },
+    {
+      category: "achievement" as const,
+      role: "Outstanding Achiever Award",
+      company: "Talentelgia Technologies",
+      startDate: "2025-01-01",
+      endDate: "2025-01-01",
+      description:
+        "Recognized for exceptional technical contributions and high-impact project delivery.",
+      link: "",
+      order: 6,
+    },
+    {
+      category: "achievement" as const,
+      role: "Shield of Honor & Distinguished Guest Speaker",
+      company: "Chandigarh University",
+      startDate: "2022-06-01",
+      endDate: "2022-06-01",
+      description:
+        "Distinguished Guest Speaker; awarded Shield of Honor and CUCAT Scholarship for academic excellence.",
+      link: "",
+      order: 7,
+    },
+    {
+      category: "certificate" as const,
+      role: "Docker & Kubernetes",
+      company: "Chandigarh University",
+      startDate: "2022-01-01",
+      endDate: "2022-01-01",
+      description:
+        "Hands-on certification covering containerization, orchestration, and deployment workflows.",
+      link: "",
+      order: 8,
+    },
+    {
+      category: "certificate" as const,
+      role: "AWS CloudFormation",
+      company: "Udemy",
+      startDate: "2023-01-01",
+      endDate: "2023-01-01",
+      description:
+        "Infrastructure as code with AWS CloudFormation for repeatable cloud deployments.",
+      link: "",
+      order: 9,
     },
   ],
 
@@ -625,18 +697,20 @@ async function seedTimeline(counts: CountSummary) {
   let n = 0;
   for (const entry of SEED.timelineEntries) {
     await TimelineEntry.findOneAndUpdate(
-      { role: entry.role, company: entry.company },
+      { role: entry.role, company: entry.company, category: entry.category },
       {
         $set: {
+          category: entry.category,
           role: entry.role,
           company: entry.company,
           startDate: toRequiredDate(entry.startDate),
           endDate: toDate(entry.endDate),
           description: entry.description,
+          link: entry.link ?? "",
           order: entry.order,
         },
       },
-      { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true },
+      { upsert: true, returnDocument: "after", setDefaultsOnInsert: true },
     );
     n += 1;
   }

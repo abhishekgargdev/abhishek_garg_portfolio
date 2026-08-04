@@ -253,6 +253,11 @@ export function CrudFormDialog<TSchema extends z.ZodType>({
                       />
                     )}
                   />
+                  {field.description ? (
+                    <p className="text-xs text-muted-foreground">
+                      {field.description}
+                    </p>
+                  ) : null}
                   {message ? (
                     <p className="text-sm text-destructive">{message}</p>
                   ) : null}

@@ -20,16 +20,15 @@ import { getCertifications } from "@/lib/certifications";
 import { getEducationRecords } from "@/lib/education";
 import { getExperienceRecords } from "@/lib/experience";
 import { getExperienceTenure } from "@/lib/experience-tenure";
+import { buildJourneyItems } from "@/lib/journey-utils";
 import { getProjects } from "@/lib/projects";
 import { getSkillCategories } from "@/lib/skills";
 import { getStats } from "@/lib/stats";
-import { getTimelineEntries } from "@/lib/timeline";
 
 export default async function Home() {
   const [
     about,
     tenure,
-    timeline,
     stats,
     education,
     experience,
@@ -45,10 +44,6 @@ export default async function Home() {
     getExperienceTenure().catch((error) => {
       console.error("[home] Failed to load ExperienceTenure:", error);
       return null;
-    }),
-    getTimelineEntries().catch((error) => {
-      console.error("[home] Failed to load TimelineEntry:", error);
-      return [] as Awaited<ReturnType<typeof getTimelineEntries>>;
     }),
     getStats().catch((error) => {
       console.error("[home] Failed to load Stats:", error);
@@ -80,6 +75,13 @@ export default async function Home() {
     }),
   ]);
 
+  const journey = buildJourneyItems({
+    experience,
+    education,
+    certifications,
+    achievements,
+  });
+
   return (
     <>
       <SiteHeader />
@@ -93,7 +95,7 @@ export default async function Home() {
           <StatsCounters stats={stats} />
         </FadeInSection>
         <FadeInSection>
-          <CareerJourney entries={timeline} />
+          <CareerJourney items={journey} />
         </FadeInSection>
         <FadeInSection>
           <WorkExperience items={experience} />
