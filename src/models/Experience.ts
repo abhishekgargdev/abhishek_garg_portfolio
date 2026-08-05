@@ -3,6 +3,7 @@ import mongoose, { Document, Model, Schema } from "mongoose";
 export interface IExperience extends Document {
   role: string;
   company: string;
+  description?: string;
   startDate: Date;
   endDate: Date | null;
   bullets: string[];
@@ -16,6 +17,7 @@ const ExperienceSchema = new Schema<IExperience>(
   {
     role: { type: String, required: true, trim: true },
     company: { type: String, required: true, trim: true },
+    description: { type: String, trim: true, default: "" },
     startDate: { type: Date, required: true },
     endDate: { type: Date, default: null },
     bullets: { type: [String], default: [] },

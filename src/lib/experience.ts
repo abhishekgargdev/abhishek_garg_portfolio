@@ -5,6 +5,7 @@ export type ExperienceData = {
   id: string;
   role: string;
   company: string;
+  description: string;
   startDate: string;
   endDate: string | null;
   bullets: string[];
@@ -21,6 +22,7 @@ export async function getExperienceRecords(): Promise<ExperienceData[]> {
     id: String(doc._id),
     role: doc.role,
     company: doc.company,
+    description: doc.description ?? "",
     startDate: new Date(doc.startDate).toISOString(),
     endDate: doc.endDate ? new Date(doc.endDate).toISOString() : null,
     bullets: doc.bullets ?? [],

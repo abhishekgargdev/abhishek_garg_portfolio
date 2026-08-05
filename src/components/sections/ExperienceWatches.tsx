@@ -26,10 +26,12 @@ function UnitCell({
   label,
   value,
   accent,
+  isPlaceholder = false,
 }: {
   label: string;
-  value: number;
+  value?: number;
   accent: string;
+  isPlaceholder?: boolean;
 }) {
   return (
     <div className="flex flex-col items-center gap-1">
@@ -38,9 +40,10 @@ function UnitCell({
           "relative flex min-w-[2.75rem] items-center justify-center rounded-xl border px-2 py-2 font-mono text-lg font-semibold tabular-nums sm:min-w-[3.25rem] sm:text-xl md:text-2xl",
           "bg-background/80 shadow-sm backdrop-blur-sm",
           accent,
+          isPlaceholder && "animate-pulse bg-muted/50 border-dashed text-transparent select-none",
         )}
       >
-        {pad(value)}
+        {isPlaceholder ? "00" : pad(value ?? 0)}
       </div>
       <span className="text-[0.65rem] font-medium tracking-[0.14em] text-muted-foreground uppercase">
         {label}
@@ -99,15 +102,17 @@ function WatchCard({
   parts,
   variant,
   reduceMotion,
+  isPlaceholder = false,
 }: {
   label: string;
   subtitle: string;
-  parts: DurationParts;
+  parts: DurationParts | null;
   variant: "total" | "relevant";
   reduceMotion: boolean | null;
+  isPlaceholder?: boolean;
 }) {
   const isTotal = variant === "total";
-  const yearProgress = Math.min(parts.months / 12, 1);
+  const yearProgress = isPlaceholder || !parts ? 0.08 : Math.min(parts.months / 12, 1);
   const Icon = isTotal ? Timer : BriefcaseBusiness;
 
   return (
@@ -160,13 +165,18 @@ function WatchCard({
         <div className="mx-auto grid size-40 place-items-center sm:size-44">
           <div className="relative size-full">
             <AnalogRing
-              progress={yearProgress || 0.08}
+              progress={yearProgress}
               colorClass={isTotal ? "stroke-teal-500" : "stroke-sky-500"}
               reduceMotion={reduceMotion}
             />
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-              <p className="font-mono text-4xl font-semibold tracking-tight text-foreground tabular-nums sm:text-5xl">
-                {parts.years}
+              <p
+                className={cn(
+                  "font-mono text-4xl font-semibold tracking-tight text-foreground tabular-nums sm:text-5xl",
+                  isPlaceholder && "animate-pulse bg-muted/50 rounded text-transparent px-2 select-none",
+                )}
+              >
+                {isPlaceholder || !parts ? "0" : parts.years}
               </p>
               <p className="mt-0.5 text-[0.65rem] font-medium tracking-[0.16em] text-muted-foreground uppercase">
                 Years
@@ -178,7 +188,8 @@ function WatchCard({
         <div className="grid grid-cols-5 gap-2 sm:gap-3">
           <UnitCell
             label="Mo"
-            value={parts.months}
+            value={parts?.months}
+            isPlaceholder={isPlaceholder}
             accent={
               isTotal
                 ? "border-teal-200/80 dark:border-teal-900/40"
@@ -187,22 +198,26 @@ function WatchCard({
           />
           <UnitCell
             label="Days"
-            value={parts.days}
+            value={parts?.days}
+            isPlaceholder={isPlaceholder}
             accent="border-border"
           />
           <UnitCell
             label="Hrs"
-            value={parts.hours}
+            value={parts?.hours}
+            isPlaceholder={isPlaceholder}
             accent="border-border"
           />
           <UnitCell
             label="Min"
-            value={parts.minutes}
+            value={parts?.minutes}
+            isPlaceholder={isPlaceholder}
             accent="border-border"
           />
           <UnitCell
             label="Sec"
-            value={parts.seconds}
+            value={parts?.seconds}
+            isPlaceholder={isPlaceholder}
             accent={
               isTotal
                 ? "border-teal-300/80 text-teal-700 dark:border-teal-800 dark:text-teal-300"
@@ -217,9 +232,12 @@ function WatchCard({
 
 export function ExperienceWatches({ tenure }: ExperienceWatchesProps) {
   const reduceMotion = useReducedMotion();
-  const [now, setNow] = useState(() => new Date());
+  const [mounted, setMounted] = useState(false);
+  const [now, setNow] = useState<Date | null>(null);
 
   useEffect(() => {
+    setMounted(true);
+    setNow(new Date());
     if (!tenure || reduceMotion) return;
     const id = window.setInterval(() => setNow(new Date()), 1000);
     return () => window.clearInterval(id);
@@ -235,18 +253,18 @@ export function ExperienceWatches({ tenure }: ExperienceWatchesProps) {
   );
 
   const totalParts = useMemo(() => {
-    if (!tenure) return null;
+    if (!tenure || !now) return null;
     if (!totalPeriods.length) return emptyDurationParts();
     return sumPeriodDurations(totalPeriods, now);
   }, [tenure, totalPeriods, now]);
 
   const relevantParts = useMemo(() => {
-    if (!tenure) return null;
+    if (!tenure || !now) return null;
     if (!relevantPeriods.length) return emptyDurationParts();
     return sumPeriodDurations(relevantPeriods, now);
   }, [tenure, relevantPeriods, now]);
 
-  if (!tenure || !totalParts || !relevantParts) {
+  if (!tenure) {
     return null;
   }
 
@@ -306,6 +324,7 @@ export function ExperienceWatches({ tenure }: ExperienceWatchesProps) {
             parts={totalParts}
             variant="total"
             reduceMotion={reduceMotion}
+            isPlaceholder={!mounted || !now}
           />
           <WatchCard
             label={tenure.relevantLabel}
@@ -317,6 +336,7 @@ export function ExperienceWatches({ tenure }: ExperienceWatchesProps) {
             parts={relevantParts}
             variant="relevant"
             reduceMotion={reduceMotion}
+            isPlaceholder={!mounted || !now}
           />
         </div>
       </div>

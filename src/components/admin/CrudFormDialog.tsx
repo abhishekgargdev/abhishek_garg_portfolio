@@ -1,6 +1,5 @@
 "use client";
-
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   Controller,
   useForm,
@@ -10,9 +9,18 @@ import {
 } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { z } from "zod";
-import { Loader2 } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  Loader2,
+  Plus,
+  Search,
+  Trash2,
+  X,
+} from "lucide-react";
 import { CloudinaryUploader } from "@/components/admin/CloudinaryUploader";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -25,6 +33,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import type { UploadSection } from "@/lib/upload-sections";
+import { getSkillIcon } from "@/lib/skill-icons";
 
 export type CrudFieldType =
   | "text"
@@ -34,6 +43,7 @@ export type CrudFieldType =
   | "date"
   | "textarea"
   | "string-list"
+  | "tech-select"
   | "image"
   | "select";
 
@@ -65,6 +75,313 @@ function toDateInputValue(value: unknown): string {
   const date = value instanceof Date ? value : new Date(String(value));
   if (Number.isNaN(date.getTime())) return "";
   return date.toISOString().slice(0, 10);
+}
+
+const TECH_SUGGESTIONS = [
+  { key: "typescript", label: "TypeScript" },
+  { key: "javascript", label: "JavaScript" },
+  { key: "python", label: "Python" },
+  { key: "go", label: "Go" },
+  { key: "rust", label: "Rust" },
+  { key: "react", label: "React" },
+  { key: "nextjs", label: "Next.js" },
+  { key: "nodejs", label: "Node.js" },
+  { key: "express", label: "Express" },
+  { key: "nestjs", label: "NestJS" },
+  { key: "django", label: "Django" },
+  { key: "flask", label: "Flask" },
+  { key: "fastapi", label: "FastAPI" },
+  { key: "graphql", label: "GraphQL" },
+  { key: "mongodb", label: "MongoDB" },
+  { key: "postgresql", label: "PostgreSQL" },
+  { key: "mysql", label: "MySQL" },
+  { key: "redis", label: "Redis" },
+  { key: "firebase", label: "Firebase" },
+  { key: "supabase", label: "Supabase" },
+  { key: "docker", label: "Docker" },
+  { key: "kubernetes", label: "Kubernetes" },
+  { key: "aws", label: "AWS" },
+  { key: "git", label: "Git" },
+  { key: "github", label: "GitHub" },
+  { key: "githubactions", label: "GitHub Actions" },
+  { key: "tailwindcss", label: "TailwindCSS" },
+  { key: "framermotion", label: "Framer Motion" },
+  { key: "electron", label: "Electron" },
+  { key: "openai", label: "OpenAI" },
+  { key: "promptengineering", label: "Prompt Engineering" },
+];
+
+function StringListInput({
+  value = [],
+  onChange,
+  placeholder,
+  disabled,
+}: {
+  value: string[];
+  onChange: (val: string[]) => void;
+  placeholder?: string;
+  disabled?: boolean;
+}) {
+  const list = Array.isArray(value) ? value : [];
+
+  const handleUpdate = (index: number, text: string) => {
+    const copy = [...list];
+    copy[index] = text;
+    onChange(copy);
+  };
+
+  const handleAdd = () => {
+    onChange([...list, ""]);
+  };
+
+  const handleRemove = (index: number) => {
+    onChange(list.filter((_, i) => i !== index));
+  };
+
+  const handleMove = (index: number, direction: "up" | "down") => {
+    if (direction === "up" && index === 0) return;
+    if (direction === "down" && index === list.length - 1) return;
+    const copy = [...list];
+    const targetIndex = direction === "up" ? index - 1 : index + 1;
+    const temp = copy[index];
+    copy[index] = copy[targetIndex];
+    copy[targetIndex] = temp;
+    onChange(copy);
+  };
+
+  return (
+    <div className="space-y-2">
+      {list.map((item, index) => (
+        <div key={index} className="flex items-center gap-2">
+          <span className="w-5 shrink-0 text-right font-mono text-xs text-muted-foreground animate-in fade-in duration-200">
+            {index + 1}.
+          </span>
+          <Input
+            value={item}
+            onChange={(e) => handleUpdate(index, e.target.value)}
+            placeholder={placeholder ?? `Item ${index + 1}`}
+            disabled={disabled}
+            className="h-9 flex-1 text-sm bg-background/50 dark:bg-input/20"
+          />
+          <div className="flex shrink-0 items-center gap-0.5">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="size-7"
+              disabled={index === 0 || disabled}
+              onClick={() => handleMove(index, "up")}
+              title="Move up"
+            >
+              <ChevronUp className="size-3.5" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="size-7"
+              disabled={index === list.length - 1 || disabled}
+              onClick={() => handleMove(index, "down")}
+              title="Move down"
+            >
+              <ChevronDown className="size-3.5" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="size-7 text-destructive hover:text-destructive hover:bg-destructive/10 dark:hover:bg-destructive/20"
+              disabled={disabled}
+              onClick={() => handleRemove(index)}
+              title="Delete item"
+            >
+              <Trash2 className="size-3.5" />
+            </Button>
+          </div>
+        </div>
+      ))}
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        onClick={handleAdd}
+        disabled={disabled}
+        className="mt-1 h-8 w-full border-dashed text-xs text-muted-foreground hover:text-foreground"
+      >
+        <Plus className="mr-1 size-3.5" />
+        Add Item
+      </Button>
+    </div>
+  );
+}
+
+function TechStackSelect({
+  value = [],
+  onChange,
+  disabled,
+}: {
+  value: string[];
+  onChange: (val: string[]) => void;
+  disabled?: boolean;
+}) {
+  const [search, setSearch] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+  const list = Array.isArray(value) ? value : [];
+
+  const handleAdd = (tech: string) => {
+    const trimmed = tech.trim();
+    if (!trimmed) return;
+    if (!list.some((t) => t.toLowerCase() === trimmed.toLowerCase())) {
+      onChange([...list, trimmed]);
+    }
+    setSearch("");
+    setIsOpen(false);
+  };
+
+  const handleRemove = (tech: string) => {
+    onChange(list.filter((t) => t !== tech));
+  };
+
+  const filteredSuggestions = TECH_SUGGESTIONS.filter(
+    (s) =>
+      s.label.toLowerCase().includes(search.toLowerCase()) &&
+      !list.some((t) => t.toLowerCase() === s.label.toLowerCase()),
+  );
+
+  const POPULAR_ITEMS = [
+    "TypeScript",
+    "React",
+    "Next.js",
+    "Node.js",
+    "Docker",
+    "AWS",
+    "TailwindCSS",
+  ];
+
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-wrap gap-1.5 min-h-[2.5rem] p-1.5 rounded-lg border border-input bg-background/50 dark:bg-input/10">
+        {list.length === 0 ? (
+          <span className="text-xs text-muted-foreground pl-1 py-1">
+            No items selected
+          </span>
+        ) : (
+          list.map((tech) => {
+            const Icon = getSkillIcon(tech);
+            return (
+              <Badge
+                key={tech}
+                variant="secondary"
+                className="flex items-center gap-1.5 pl-2 pr-1 py-0.5 text-xs font-normal"
+              >
+                <Icon className="size-3.5" />
+                <span>{tech}</span>
+                <button
+                  type="button"
+                  onClick={() => handleRemove(tech)}
+                  disabled={disabled}
+                  className="rounded-full p-0.5 hover:bg-muted-foreground/20 text-muted-foreground hover:text-foreground shrink-0 cursor-pointer"
+                >
+                  <X className="size-3" />
+                </button>
+              </Badge>
+            );
+          })
+        )}
+      </div>
+
+      <div className="relative">
+        <div className="relative flex items-center">
+          <Search className="absolute left-3 size-4 text-muted-foreground pointer-events-none" />
+          <Input
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setIsOpen(true);
+            }}
+            onFocus={() => setIsOpen(true)}
+            placeholder="Search or add technology..."
+            disabled={disabled}
+            className="pl-9 h-9 bg-background/50 dark:bg-input/20"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                if (search.trim()) {
+                  const exactMatch = TECH_SUGGESTIONS.find(
+                    (s) => s.label.toLowerCase() === search.trim().toLowerCase(),
+                  );
+                  handleAdd(exactMatch ? exactMatch.label : search);
+                }
+              }
+            }}
+          />
+        </div>
+
+        {isOpen && (search.trim() || filteredSuggestions.length > 0) && (
+          <>
+            <div
+              className="fixed inset-0 z-30"
+              onClick={() => setIsOpen(false)}
+            />
+            <div className="absolute z-40 mt-1 w-full max-h-60 overflow-y-auto rounded-lg border bg-popover text-popover-foreground shadow-md p-1 animate-in fade-in slide-in-from-top-1 duration-150">
+              {filteredSuggestions.map((s) => {
+                const Icon = getSkillIcon(s.key);
+                return (
+                  <button
+                    key={s.key}
+                    type="button"
+                    onClick={() => handleAdd(s.label)}
+                    className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground text-left cursor-pointer"
+                  >
+                    <Icon className="size-4" />
+                    <span>{s.label}</span>
+                  </button>
+                );
+              })}
+              {search.trim() &&
+                !filteredSuggestions.some(
+                  (s) => s.label.toLowerCase() === search.trim().toLowerCase(),
+                ) && (
+                  <button
+                    type="button"
+                    onClick={() => handleAdd(search)}
+                    className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-primary hover:bg-accent hover:text-accent-foreground text-left font-medium cursor-pointer"
+                  >
+                    <Plus className="size-4" />
+                    <span>Add custom &quot;{search}&quot;</span>
+                  </button>
+                )}
+            </div>
+          </>
+        )}
+      </div>
+
+      <div className="flex flex-wrap items-center gap-1.5">
+        <span className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground mr-1 select-none">
+          Quick Add:
+        </span>
+        {POPULAR_ITEMS.map((item) => {
+          const isSelected = list.some(
+            (t) => t.toLowerCase() === item.toLowerCase(),
+          );
+          const Icon = getSkillIcon(item);
+          if (isSelected) return null;
+          return (
+            <button
+              key={item}
+              type="button"
+              disabled={disabled}
+              onClick={() => handleAdd(item)}
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[11px] hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
+            >
+              <Icon className="size-3" />
+              {item}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
 
 export function CrudFormDialog<TSchema extends z.ZodType>({
@@ -153,24 +470,46 @@ export function CrudFormDialog<TSchema extends z.ZodType>({
                     control={control}
                     name={field.name}
                     render={({ field: controllerField }) => (
-                      <Textarea
-                        id={String(field.name)}
-                        placeholder={
-                          field.placeholder ?? "One item per line"
-                        }
+                      <StringListInput
+                        placeholder={field.placeholder}
                         disabled={submitting}
-                        aria-invalid={Boolean(message)}
                         value={
                           Array.isArray(controllerField.value)
-                            ? controllerField.value.join("\n")
-                            : ""
+                            ? controllerField.value
+                            : []
                         }
-                        onChange={(event) => {
-                          const lines = event.target.value
-                            .split("\n")
-                            .map((line) => line.trimEnd());
-                          controllerField.onChange(lines);
-                        }}
+                        onChange={(val) => controllerField.onChange(val)}
+                      />
+                    )}
+                  />
+                  {field.description ? (
+                    <p className="text-xs text-muted-foreground">
+                      {field.description}
+                    </p>
+                  ) : null}
+                  {message ? (
+                    <p className="text-sm text-destructive">{message}</p>
+                  ) : null}
+                </div>
+              );
+            }
+
+            if (field.type === "tech-select") {
+              return (
+                <div key={String(field.name)} className="space-y-2">
+                  <Label htmlFor={String(field.name)}>{field.label}</Label>
+                  <Controller
+                    control={control}
+                    name={field.name}
+                    render={({ field: controllerField }) => (
+                      <TechStackSelect
+                        disabled={submitting}
+                        value={
+                          Array.isArray(controllerField.value)
+                            ? controllerField.value
+                            : []
+                        }
+                        onChange={(val) => controllerField.onChange(val)}
                       />
                     )}
                   />

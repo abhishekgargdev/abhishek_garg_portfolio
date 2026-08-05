@@ -6,6 +6,7 @@ import { AdminResourcePage } from "@/components/admin/AdminResourcePage";
 const schema = z.object({
   role: z.string().trim().min(1),
   company: z.string().trim().min(1),
+  description: z.string().trim().optional().default(""),
   startDate: z.string().min(1),
   endDate: z.string().optional().nullable(),
   bullets: z.array(z.string()).default([]),
@@ -17,6 +18,7 @@ type ExperienceRow = {
   id: string;
   role: string;
   company: string;
+  description: string;
   startDate: string;
   endDate: string | null;
   bullets: string[];
@@ -34,6 +36,7 @@ export default function AdminExperiencePage() {
       emptyValues={{
         role: "",
         company: "",
+        description: "",
         startDate: "",
         endDate: "",
         bullets: [],
@@ -53,19 +56,25 @@ export default function AdminExperiencePage() {
       fields={[
         { name: "role", label: "Role", type: "text" },
         { name: "company", label: "Company", type: "text" },
+        {
+          name: "description",
+          label: "Description / Summary",
+          type: "textarea",
+          placeholder: "Brief overall summary of this role...",
+        },
         { name: "startDate", label: "Start date", type: "date" },
         { name: "endDate", label: "End date", type: "date" },
         {
           name: "bullets",
           label: "Achievements",
           type: "string-list",
-          description: "One bullet per line",
+          description: "Separate list items of achievements",
         },
         {
           name: "techStack",
           label: "Tech stack",
-          type: "string-list",
-          description: "One technology per line",
+          type: "tech-select",
+          description: "Select technologies used in this role",
         },
         { name: "order", label: "Order", type: "number" },
       ]}
