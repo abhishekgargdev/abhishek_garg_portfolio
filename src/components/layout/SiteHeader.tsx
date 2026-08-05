@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -43,6 +44,7 @@ function scrollToSection(id: string, reduceMotion: boolean) {
 }
 
 export function SiteHeader() {
+  const pathname = usePathname();
   const [activeId, setActiveId] = useState<string>("about");
   const [mobileOpen, setMobileOpen] = useState(false);
   const [reduceMotion, setReduceMotion] = useState(false);
@@ -111,10 +113,12 @@ export function SiteHeader() {
     <header className="sticky top-0 z-50 border-b border-border/80 bg-background/85 backdrop-blur-md">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6 md:px-10">
         <a
-          href="#about"
+          href={pathname === "/" ? "#about" : "/#about"}
           onClick={(event) => {
-            event.preventDefault();
-            handleNav("about");
+            if (pathname === "/") {
+              event.preventDefault();
+              handleNav("about");
+            }
           }}
           className="shrink-0 text-sm font-semibold tracking-tight text-foreground"
         >
@@ -126,7 +130,7 @@ export function SiteHeader() {
             {SITE_NAV.map((item) => (
               <NavigationMenuItem key={item.id}>
                 <NavigationMenuLink
-                  href={`#${item.id}`}
+                  href={pathname === "/" ? `#${item.id}` : `/#${item.id}`}
                   active={activeId === item.id}
                   aria-current={activeId === item.id ? "location" : undefined}
                   className={cn(
@@ -135,8 +139,10 @@ export function SiteHeader() {
                     activeId === item.id && "bg-muted text-foreground",
                   )}
                   onClick={(event) => {
-                    event.preventDefault();
-                    handleNav(item.id);
+                    if (pathname === "/") {
+                      event.preventDefault();
+                      handleNav(item.id);
+                    }
                   }}
                 >
                   {item.label}
@@ -164,7 +170,14 @@ export function SiteHeader() {
                   <button
                     key={item.id}
                     type="button"
-                    onClick={() => handleNav(item.id)}
+                    onClick={() => {
+                      if (pathname === "/") {
+                        handleNav(item.id);
+                      } else {
+                        setMobileOpen(false);
+                        window.location.href = `/#${item.id}`;
+                      }
+                    }}
                     className={cn(
                       buttonVariants({
                         variant: activeId === item.id ? "secondary" : "ghost",

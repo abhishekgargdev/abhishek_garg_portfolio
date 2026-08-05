@@ -70,6 +70,16 @@ export async function POST(request: Request, context: RouteContext) {
       }
     }
 
+    if (resource === "projects" && body.slug) {
+      const exists = await Model.findOne({ slug: body.slug }).lean();
+      if (exists) {
+        return NextResponse.json(
+          { error: "Slug is already taken by another project" },
+          { status: 409 },
+        );
+      }
+    }
+
     const created = await Model.create(body);
     return NextResponse.json(
       { item: serializeAdminDoc(created.toObject()) },

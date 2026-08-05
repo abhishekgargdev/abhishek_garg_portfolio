@@ -39,6 +39,16 @@ async function updateRecord(request: Request, context: RouteContext) {
     await connectDB();
     const Model = getAdminModel(resource);
 
+    if (resource === "projects" && body.slug) {
+      const exists = await Model.findOne({ slug: body.slug, _id: { $ne: id } }).lean();
+      if (exists) {
+        return NextResponse.json(
+          { error: "Slug is already taken by another project" },
+          { status: 409 },
+        );
+      }
+    }
+
     const updated = await Model.findByIdAndUpdate(id, body, {
       returnDocument: "after",
       runValidators: true,
