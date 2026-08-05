@@ -1,15 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { motion, useInView, useReducedMotion } from "framer-motion";
-import CountUp from "react-countup";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
-import { Progress } from "@/components/ui/progress";
+import { useState } from "react";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { getSkillIcon } from "@/lib/skill-icons";
 import type { SkillCategoryData, SkillData } from "@/lib/skills";
@@ -19,46 +11,28 @@ type SkillsProps = {
   categories: SkillCategoryData[];
 };
 
-function categoryValue(name: string, id: string): string {
-  return `${name}-${id}`.toLowerCase().replace(/\s+/g, "-");
-}
+const containerVariants = {
+  hidden: {},
+  show: {
+    transition: {
+      staggerChildren: 0.05,
+    },
+  },
+};
 
-function SkillProgress({
-  value,
-  reduceMotion,
-}: {
-  value: number;
-  reduceMotion: boolean | null;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, amount: 0.6 });
-  const [displayValue, setDisplayValue] = useState(
-    reduceMotion ? value : 0,
-  );
-
-  useEffect(() => {
-    if (reduceMotion) {
-      setDisplayValue(value);
-      return;
-    }
-    if (isInView) {
-      setDisplayValue(value);
-    }
-  }, [isInView, reduceMotion, value]);
-
-  return (
-    <div ref={ref} className="w-full">
-      <Progress
-        value={displayValue}
-        className={cn(
-          "w-full gap-1.5 [&_[data-slot=progress-track]]:h-1.5",
-          "[&_[data-slot=progress-indicator]]:duration-700 [&_[data-slot=progress-indicator]]:ease-out",
-          "[&_[data-slot=progress-indicator]]:bg-gradient-to-r [&_[data-slot=progress-indicator]]:from-teal-500 [&_[data-slot=progress-indicator]]:to-indigo-500"
-        )}
-      />
-    </div>
-  );
-}
+const itemVariants = {
+  hidden: { opacity: 0, scale: 0.95, y: 15 },
+  show: {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    transition: {
+      type: "spring" as const,
+      stiffness: 100,
+      damping: 15,
+    },
+  },
+};
 
 function SkillCard({
   skill,
@@ -71,34 +45,23 @@ function SkillCard({
 
   return (
     <motion.div
-      whileHover={reduceMotion ? {} : { y: -5 }}
+      variants={reduceMotion ? undefined : itemVariants}
+      whileHover={reduceMotion ? {} : { y: -4, scale: 1.03 }}
       transition={{ duration: 0.2, ease: "easeOut" }}
-      className="group flex flex-col gap-3 rounded-xl border border-border bg-card p-4 shadow-sm transition-all duration-300 hover:border-foreground/20 hover:shadow-md"
+      className={cn(
+        "group flex flex-col items-center justify-center text-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-sm transition-all duration-300 select-none aspect-square min-h-[115px]",
+        "hover:border-teal-500/25 hover:shadow-md hover:shadow-teal-500/[0.03] dark:hover:border-teal-500/20",
+      )}
     >
-      <div className="flex items-center gap-3">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-border bg-muted/50 text-foreground/80 transition-transform duration-300 group-hover:rotate-6 group-hover:scale-110">
-          <Icon className="size-5" aria-hidden />
-        </span>
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium text-foreground group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
-            {skill.name}
-          </p>
-          <p className="text-xs tabular-nums text-muted-foreground font-medium">
-            {reduceMotion ? (
-              <span>{skill.proficiency}%</span>
-            ) : (
-              <CountUp
-                end={skill.proficiency}
-                duration={1.5}
-                suffix="%"
-                enableScrollSpy
-                scrollSpyOnce
-              />
-            )}
-          </p>
-        </div>
-      </div>
-      <SkillProgress value={skill.proficiency} reduceMotion={reduceMotion} />
+      <span className="flex size-12 shrink-0 items-center justify-center rounded-xl border border-border bg-muted/40 text-foreground/80 transition-transform duration-700 ease-in-out group-hover:rotate-[360deg] group-hover:bg-teal-500/5 group-hover:border-teal-500/20">
+        <Icon
+          className="size-5.5 transition-colors group-hover:text-teal-600 dark:group-hover:text-teal-400"
+          aria-hidden
+        />
+      </span>
+      <p className="text-xs sm:text-sm font-semibold text-foreground group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors leading-tight break-words max-w-full px-1">
+        {skill.name}
+      </p>
     </motion.div>
   );
 }
@@ -112,18 +75,18 @@ function SkillGrid({
 }) {
   if (!skills.length) {
     return (
-      <p className="py-8 text-center text-sm text-muted-foreground">
+      <div className="py-12 text-center text-sm text-muted-foreground select-none">
         No skills in this category yet.
-      </p>
+      </div>
     );
   }
 
   return (
     <motion.div
-      className="grid grid-cols-1 gap-3 min-[380px]:grid-cols-2 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4"
-      initial={reduceMotion ? false : { opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: reduceMotion ? 0 : 0.55, ease: [0.22, 1, 0.36, 1] }}
+      variants={reduceMotion ? undefined : containerVariants}
+      initial={reduceMotion ? false : "hidden"}
+      animate="show"
+      className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5"
     >
       {skills.map((skill) => (
         <SkillCard
@@ -138,16 +101,16 @@ function SkillGrid({
 
 export function Skills({ categories }: SkillsProps) {
   const reduceMotion = useReducedMotion();
-
-  const defaultValue = categories.length > 0
-    ? categoryValue(categories[0].categoryName, categories[0].id)
-    : "";
-
-  const [activeTab, setActiveTab] = useState(defaultValue);
+  const [activeCategoryId, setActiveCategoryId] = useState(
+    categories.length > 0 ? categories[0].id : "",
+  );
 
   if (!categories.length) {
     return null;
   }
+
+  const activeCategory =
+    categories.find((c) => c.id === activeCategoryId) || categories[0];
 
   return (
     <section
@@ -162,46 +125,73 @@ export function Skills({ categories }: SkillsProps) {
           description="Languages, frameworks, and tools I reach for most often."
         />
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-12 sm:mt-14">
-          <TabsList
-            variant="line"
-            className="mx-auto flex h-auto w-full max-w-4xl flex-wrap justify-center gap-1 bg-transparent p-0"
-          >
+        <div className="mt-12 grid grid-cols-1 gap-8 lg:grid-cols-[240px_1fr] sm:mt-14 items-start">
+          {/* Sidebar / Top navigation */}
+          <div className="flex overflow-x-auto lg:overflow-x-visible pb-3.5 lg:pb-0 scrollbar-none border-b lg:border-b-0 lg:border-r border-border/80 lg:pr-6 flex-row lg:flex-col gap-1.5 justify-start shrink-0 select-none">
             {categories.map((category) => {
-              const value = categoryValue(category.categoryName, category.id);
-              const isActive = activeTab === value;
+              const isActive = activeCategoryId === category.id;
               return (
-                <TabsTrigger
+                <button
                   key={category.id}
-                  value={value}
-                  className="relative rounded-full px-4 py-2 text-xs sm:text-sm font-medium transition-colors hover:text-foreground/80 data-active:text-teal-600 dark:data-active:text-teal-400 group-data-[variant=line]/tabs-list:data-active:after:opacity-0"
+                  type="button"
+                  onClick={() => setActiveCategoryId(category.id)}
+                  className={cn(
+                    "relative flex items-center justify-between rounded-full lg:rounded-xl px-4 py-2 text-xs sm:text-sm font-semibold transition-all shrink-0 outline-none cursor-pointer",
+                    isActive
+                      ? "text-teal-600 dark:text-teal-400"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/30",
+                  )}
                 >
                   {isActive && !reduceMotion && (
                     <motion.span
-                      layoutId="activeTabIndicator"
-                      className="absolute inset-0 bg-teal-500/10 border border-teal-500/20 dark:bg-teal-500/20 dark:border-teal-500/30 rounded-full z-0"
-                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                      layoutId="activeCategoryPill"
+                      className="absolute inset-0 bg-teal-500/10 border border-teal-500/20 dark:bg-teal-500/20 dark:border-teal-500/30 rounded-full lg:rounded-xl z-0"
+                      transition={{
+                        type: "spring",
+                        stiffness: 350,
+                        damping: 25,
+                      }}
                     />
                   )}
+
                   <span className="relative z-10">{category.categoryName}</span>
-                </TabsTrigger>
+
+                  {category.skills?.length > 0 && (
+                    <span
+                      className={cn(
+                        "relative z-10 ml-2 hidden lg:inline-flex size-5 items-center justify-center rounded-full text-[10px] font-bold border transition-colors",
+                        isActive
+                          ? "bg-teal-500 text-white border-transparent"
+                          : "bg-muted text-muted-foreground border-border",
+                      )}
+                    >
+                      {category.skills.length}
+                    </span>
+                  )}
+                </button>
               );
             })}
-          </TabsList>
+          </div>
 
-          {categories.map((category) => (
-            <TabsContent
-              key={category.id}
-              value={categoryValue(category.categoryName, category.id)}
-              className="mt-8 outline-none"
-            >
-              <SkillGrid
-                skills={category.skills}
-                reduceMotion={reduceMotion}
-              />
-            </TabsContent>
-          ))}
-        </Tabs>
+          {/* Grid Panel area */}
+          <div className="min-w-0 flex-1">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeCategoryId}
+                initial={reduceMotion ? {} : { opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={reduceMotion ? {} : { opacity: 0, x: -10 }}
+                transition={{ duration: 0.2, ease: "easeInOut" }}
+                className="outline-none"
+              >
+                <SkillGrid
+                  skills={activeCategory.skills}
+                  reduceMotion={reduceMotion}
+                />
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </div>
       </div>
     </section>
   );
