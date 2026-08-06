@@ -171,7 +171,7 @@ export function FloatingTechIcons({
   return (
     <div
       aria-hidden
-      className={cn("pointer-events-none absolute inset-0 z-20", className)}
+      className={cn("pointer-events-none absolute inset-0 z-20 hidden lg:block", className)}
     >
       {TECH_ORBIT.map((tech) => {
         const Icon = tech.Icon;

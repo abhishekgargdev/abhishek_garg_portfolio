@@ -37,7 +37,7 @@ function UnitCell({
     <div className="flex flex-col items-center gap-1">
       <div
         className={cn(
-          "relative flex min-w-[2.75rem] items-center justify-center rounded-xl border px-2 py-2 font-mono text-lg font-semibold tabular-nums sm:min-w-[3.25rem] sm:text-xl md:text-2xl",
+          "relative flex min-w-[2.35rem] min-[375px]:min-w-[2.75rem] items-center justify-center rounded-xl border px-1 py-1.5 min-[375px]:px-2 min-[375px]:py-2 font-mono text-sm min-[375px]:text-lg font-semibold tabular-nums sm:min-w-[3.25rem] sm:text-xl md:text-2xl",
           "bg-background/80 shadow-sm backdrop-blur-sm",
           accent,
           isPlaceholder && "animate-pulse bg-muted/50 border-dashed text-transparent select-none",
@@ -185,7 +185,7 @@ function WatchCard({
           </div>
         </div>
 
-        <div className="grid grid-cols-5 gap-2 sm:gap-3">
+        <div className="grid grid-cols-5 gap-1 min-[375px]:gap-2 sm:gap-3">
           <UnitCell
             label="Mo"
             value={parts?.months}

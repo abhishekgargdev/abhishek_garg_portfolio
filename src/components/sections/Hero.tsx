@@ -112,7 +112,7 @@ export function Hero({ about, preview = false }: HeroProps) {
           </motion.p>
 
           <motion.h1
-            className="font-heading max-w-2xl text-4xl leading-[1.05] font-semibold tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl"
+            className="font-heading max-w-2xl text-3xl min-[375px]:text-4xl leading-[1.05] font-semibold tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl"
             initial={reduceMotion ? false : { opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{
@@ -227,7 +227,7 @@ export function Hero({ about, preview = false }: HeroProps) {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
         >
-          <div className="group relative flex items-center justify-center size-[18rem] sm:size-[22rem] md:size-[24rem] lg:size-[28rem] px-6 py-8 sm:px-8 sm:py-10 lg:px-10">
+          <div className="group relative flex items-center justify-center size-60 min-[375px]:size-72 sm:size-80 lg:size-[28rem] px-6 py-8 sm:px-8 sm:py-10 lg:px-10">
             {!reduceMotion && (
               <div className="absolute inset-4 rounded-full bg-gradient-to-tr from-teal-500 via-sky-500 to-indigo-500 opacity-20 blur-2xl transition duration-1000 group-hover:opacity-35 group-hover:duration-200" />
             )}
@@ -236,13 +236,13 @@ export function Hero({ about, preview = false }: HeroProps) {
               <>
                 {/* Orbit Path 1 */}
                 <motion.div
-                  className="absolute border border-dashed border-muted-foreground/20 rounded-full pointer-events-none size-[112%]"
+                  className="absolute border border-dashed border-muted-foreground/20 rounded-full pointer-events-none size-[112%] hidden sm:block"
                   animate={{ rotate: 360 }}
                   transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
                 />
                 {/* Orbit Path 2 */}
                 <motion.div
-                  className="absolute border border-dotted border-muted-foreground/15 rounded-full pointer-events-none size-[124%]"
+                  className="absolute border border-dotted border-muted-foreground/15 rounded-full pointer-events-none size-[124%] hidden sm:block"
                   animate={{ rotate: -360 }}
                   transition={{ duration: 55, repeat: Infinity, ease: "linear" }}
                 />
