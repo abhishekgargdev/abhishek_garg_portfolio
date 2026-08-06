@@ -58,6 +58,17 @@ const aboutSchema = z.object({
   phone: z.string().default(""),
   email: z.email("Enter a valid email"),
   socialLinks: z.record(z.string(), z.string()).default(emptySocialLinkRecord()),
+  beyondCodeBio: z.string().optional().default(""),
+  beyondCodeImageUrl: z.string().optional().default(""),
+  beyondCodeTraits: z
+    .array(
+      z.object({
+        title: z.string().trim().min(1, "Title is required"),
+        description: z.string().trim().min(1, "Description is required"),
+        icon: z.string().trim().min(1, "Icon name is required"),
+      }),
+    )
+    .default([]),
 });
 
 type AboutFormValues = z.infer<typeof aboutSchema>;
@@ -75,6 +86,9 @@ type AboutRow = {
   phone: string;
   email: string;
   socialLinks: { platform: string; url: string }[];
+  beyondCodeBio?: string;
+  beyondCodeImageUrl?: string;
+  beyondCodeTraits?: { title: string; description: string; icon: string }[];
 };
 
 const FIELD_LABELS: Record<
@@ -110,6 +124,9 @@ function HeroPreview({ values }: { values: AboutFormValues }) {
       phone: values.phone,
       email: values.email,
       socialLinks: recordToSocialLinks(values.socialLinks),
+      beyondCodeBio: values.beyondCodeBio || "",
+      beyondCodeImageUrl: values.beyondCodeImageUrl || "",
+      beyondCodeTraits: values.beyondCodeTraits || [],
     }),
     [values],
   );
@@ -144,6 +161,9 @@ export function AboutMeEditor() {
       phone: "",
       email: "",
       socialLinks: emptySocialLinkRecord(),
+      beyondCodeBio: "",
+      beyondCodeImageUrl: "",
+      beyondCodeTraits: [],
     },
   });
 
@@ -160,6 +180,15 @@ export function AboutMeEditor() {
   const { fields, append, remove } = useFieldArray({
     control,
     name: "taglines",
+  });
+
+  const {
+    fields: traitFields,
+    append: appendTrait,
+    remove: removeTrait,
+  } = useFieldArray({
+    control,
+    name: "beyondCodeTraits",
   });
 
   const values = watch();
@@ -192,6 +221,9 @@ export function AboutMeEditor() {
           phone: row.phone ?? "",
           email: row.email,
           socialLinks: socialLinksToRecord(row.socialLinks ?? []),
+          beyondCodeBio: row.beyondCodeBio ?? "",
+          beyondCodeImageUrl: row.beyondCodeImageUrl ?? "",
+          beyondCodeTraits: row.beyondCodeTraits ?? [],
         });
       } else {
         setRecordId(null);
@@ -206,6 +238,9 @@ export function AboutMeEditor() {
           phone: "",
           email: "",
           socialLinks: emptySocialLinkRecord(),
+          beyondCodeBio: "",
+          beyondCodeImageUrl: "",
+          beyondCodeTraits: [],
         });
       }
     } catch (error) {
@@ -565,6 +600,94 @@ export function AboutMeEditor() {
                     }
                     disabled={saving}
                   />
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Beyond the Code</CardTitle>
+                  <CardDescription>
+                    Configure the &quot;Beyond the Code&quot; section layout and traits.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="beyondCodeBio">Beyond the Code Summary</Label>
+                    <Textarea
+                      id="beyondCodeBio"
+                      rows={4}
+                      placeholder="e.g. When I'm not coding, you can find me writing articles, playing mathematics riddles, or hiking..."
+                      {...register("beyondCodeBio")}
+                    />
+                  </div>
+
+                  <CloudinaryUploader
+                    section="about"
+                    label="Beyond the Code Section Image"
+                    value={values.beyondCodeImageUrl || ""}
+                    onUploadComplete={(url) =>
+                      setValue("beyondCodeImageUrl", url, {
+                        shouldDirty: true,
+                        shouldValidate: true,
+                      })
+                    }
+                    disabled={saving}
+                  />
+
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between gap-2">
+                      <Label>Interests & Traits</Label>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => appendTrait({ title: "", description: "", icon: "sparkles" })}
+                      >
+                        <Plus className="mr-1 size-3.5" />
+                        Add Trait
+                      </Button>
+                    </div>
+
+                    <div className="space-y-4">
+                      {traitFields.map((field, index) => (
+                        <div key={field.id} className="relative rounded-lg border border-border p-4 space-y-3 bg-muted/20">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon-sm"
+                            className="absolute right-2 top-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+                            onClick={() => removeTrait(index)}
+                          >
+                            <Trash2 className="size-4" />
+                          </Button>
+                          <div className="grid gap-3 sm:grid-cols-2">
+                            <div className="space-y-1">
+                              <Label className="text-xs">Title</Label>
+                              <Input
+                                placeholder="e.g. Problem Solving"
+                                {...register(`beyondCodeTraits.${index}.title`)}
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <Label className="text-xs">Icon Key (Lucide icon name)</Label>
+                              <Input
+                                placeholder="e.g. Brain, Code, Cpu, Trophy"
+                                {...register(`beyondCodeTraits.${index}.icon`)}
+                              />
+                            </div>
+                            <div className="space-y-1 sm:col-span-2">
+                              <Label className="text-xs">Short Description</Label>
+                              <Textarea
+                                rows={2}
+                                placeholder="A brief description of this trait..."
+                                {...register(`beyondCodeTraits.${index}.description`)}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </div>

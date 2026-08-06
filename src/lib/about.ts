@@ -13,6 +13,9 @@ export type AboutMeData = {
   location: string;
   phone: string;
   email: string;
+  beyondCodeBio?: string;
+  beyondCodeImageUrl?: string;
+  beyondCodeTraits?: { title: string; description: string; icon: string }[];
 };
 
 export async function getAboutMe(): Promise<AboutMeData | null> {
@@ -35,5 +38,12 @@ export async function getAboutMe(): Promise<AboutMeData | null> {
     location: doc.location ?? "",
     phone: doc.phone ?? "",
     email: doc.email,
+    beyondCodeBio: doc.beyondCodeBio ?? "",
+    beyondCodeImageUrl: doc.beyondCodeImageUrl ?? "",
+    beyondCodeTraits: (doc.beyondCodeTraits ?? []).map((trait) => ({
+      title: trait.title,
+      description: trait.description,
+      icon: trait.icon,
+    })),
   };
 }

@@ -48,6 +48,30 @@ const SEED = {
     location: "Kaithal, Haryana, India (Open to Relocation)",
     phone: "+91-8708292063",
     email: "abhishekgarg2063@gmail.com",
+    beyondCodeBio: "Outside the digital realm of databases, servers, and components, I am passionate about exploring things that keep me creative, active, and grounded. Whether it is solving logical mathematics puzzles, diving into scientific blogs, or sharing knowledge with the dev community, I find joy in continuous discovery.",
+    beyondCodeImageUrl: "",
+    beyondCodeTraits: [
+      {
+        title: "Problem Solving",
+        description: "Applying logical thinking and analytical skills to resolve complex architectural challenges.",
+        icon: "Brain",
+      },
+      {
+        title: "Collaboration",
+        description: "Fostering productive team environments and aligning stakeholder visions.",
+        icon: "Users",
+      },
+      {
+        title: "Clean Code",
+        description: "Writing self-documenting, maintainable, and test-driven implementations.",
+        icon: "Code",
+      },
+      {
+        title: "Continuous Learning",
+        description: "Constantly upgrading my tech stack and learning emerging AI technologies.",
+        icon: "Sparkles",
+      },
+    ],
     stats: {
       yearsExperience: 4,
       projectsDelivered: 8,
@@ -753,6 +777,18 @@ async function seedExperience(counts: CountSummary) {
   counts.Experience = n;
 }
 
+function slugify(text: string): string {
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-") // Replace spaces with -
+    .replace(/[^\w\-]+/g, "") // Remove all non-word chars
+    .replace(/\-\-+/g, "-") // Replace multiple - with single -
+    .replace(/^-+/, "") // Trim - from start of text
+    .replace(/-+$/, ""); // Trim - from end of text
+}
+
 async function seedProjects(counts: CountSummary) {
   let n = 0;
   for (const item of SEED.projects) {
@@ -761,6 +797,7 @@ async function seedProjects(counts: CountSummary) {
       {
         $set: {
           title: item.title,
+          slug: slugify(item.title),
           techStack: [...item.techStack],
           description: item.description,
           bullets: [...item.bullets],

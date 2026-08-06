@@ -222,21 +222,38 @@ export function Hero({ about, preview = false }: HeroProps) {
         </div>
 
         <motion.div
-          className="order-1 flex justify-center lg:order-2 lg:justify-end"
+          className="order-1 flex justify-center items-center lg:order-2 lg:justify-end"
           initial={reduceMotion ? false : { opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
         >
-          <div className="group relative w-full max-w-sm px-6 py-8 sm:max-w-md sm:px-8 sm:py-10 lg:max-w-lg lg:px-10">
+          <div className="group relative flex items-center justify-center size-[18rem] sm:size-[22rem] md:size-[24rem] lg:size-[28rem] px-6 py-8 sm:px-8 sm:py-10 lg:px-10">
             {!reduceMotion && (
-              <div className="absolute inset-6 rounded-[2rem] bg-gradient-to-tr from-teal-500 via-sky-500 to-indigo-500 opacity-20 blur-xl transition duration-1000 group-hover:opacity-35 group-hover:duration-200 sm:inset-8 lg:inset-10" />
+              <div className="absolute inset-4 rounded-full bg-gradient-to-tr from-teal-500 via-sky-500 to-indigo-500 opacity-20 blur-2xl transition duration-1000 group-hover:opacity-35 group-hover:duration-200" />
+            )}
+
+            {!reduceMotion && (
+              <>
+                {/* Orbit Path 1 */}
+                <motion.div
+                  className="absolute border border-dashed border-muted-foreground/20 rounded-full pointer-events-none size-[112%]"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+                />
+                {/* Orbit Path 2 */}
+                <motion.div
+                  className="absolute border border-dotted border-muted-foreground/15 rounded-full pointer-events-none size-[124%]"
+                  animate={{ rotate: -360 }}
+                  transition={{ duration: 55, repeat: Infinity, ease: "linear" }}
+                />
+              </>
             )}
 
             <FloatingTechIcons reduceMotion={reduceMotion} />
 
             <motion.div
-              className="relative z-10 aspect-[4/5] w-full overflow-hidden rounded-[2rem] border border-border shadow-[0_30px_80px_-40px_rgba(24,24,27,0.55)]"
-              animate={reduceMotion ? {} : { y: [0, -10, 0] }}
+              className="relative z-10 aspect-square w-full overflow-hidden rounded-full border-4 border-card shadow-[0_20px_50px_-20px_rgba(24,24,27,0.45)]"
+              animate={reduceMotion ? {} : { y: [0, -8, 0] }}
               transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
             >
               <Image
@@ -244,12 +261,12 @@ export function Hero({ about, preview = false }: HeroProps) {
                 alt={name}
                 fill
                 priority={!preview}
-                sizes="(max-width: 1024px) 90vw, 480px"
+                sizes="(max-width: 1024px) 80vw, 400px"
                 className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-[1.03]"
               />
               <div
                 aria-hidden
-                className="pointer-events-none absolute inset-0 bg-gradient-to-t from-foreground/25 via-transparent to-transparent"
+                className="pointer-events-none absolute inset-0 bg-gradient-to-t from-foreground/10 via-transparent to-transparent"
               />
             </motion.div>
           </div>

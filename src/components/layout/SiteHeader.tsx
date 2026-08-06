@@ -25,6 +25,7 @@ import { cn } from "@/lib/utils";
 export const SITE_NAV = [
   { id: "about", label: "About" },
   { id: "journey", label: "Journey" },
+  { id: "beyond", label: "Beyond the Code" },
   { id: "experience", label: "Experience" },
   { id: "education", label: "Education" },
   { id: "projects", label: "Projects" },

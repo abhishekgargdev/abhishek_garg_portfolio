@@ -14,6 +14,8 @@ import { WorkExperience } from "@/components/sections/WorkExperience";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { FadeInSection } from "@/components/motion/FadeInSection";
 import { VisualEffects } from "@/components/layout/VisualEffects";
+import { BeyondCode } from "@/components/sections/BeyondCode";
+import { SiteFooter } from "@/components/layout/SiteFooter";
 import { getAboutMe } from "@/lib/about";
 import { getAchievements } from "@/lib/achievements";
 import { getCertifications } from "@/lib/certifications";
@@ -98,6 +100,9 @@ export default async function Home() {
           <CareerJourney items={journey} />
         </FadeInSection>
         <FadeInSection>
+          <BeyondCode about={about} />
+        </FadeInSection>
+        <FadeInSection>
           <WorkExperience items={experience} />
         </FadeInSection>
         <FadeInSection>
@@ -116,9 +121,10 @@ export default async function Home() {
           <Certifications items={certifications} />
         </FadeInSection>
         <FadeInSection>
-          <Contact />
+          <Contact about={about} />
         </FadeInSection>
       </main>
+      <SiteFooter about={about} />
     </>
   );
 }

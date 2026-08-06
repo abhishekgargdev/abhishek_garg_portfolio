@@ -5,6 +5,12 @@ export interface ISocialLink {
   url: string;
 }
 
+export interface IBeyondCodeTrait {
+  title: string;
+  description: string;
+  icon: string;
+}
+
 export interface IAboutMe extends Document {
   name: string;
   title: string;
@@ -18,6 +24,9 @@ export interface IAboutMe extends Document {
   location: string;
   phone: string;
   email: string;
+  beyondCodeBio?: string;
+  beyondCodeImageUrl?: string;
+  beyondCodeTraits?: IBeyondCodeTrait[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -26,6 +35,15 @@ const SocialLinkSchema = new Schema<ISocialLink>(
   {
     platform: { type: String, required: true, trim: true },
     url: { type: String, required: true, trim: true },
+  },
+  { _id: false },
+);
+
+const BeyondCodeTraitSchema = new Schema<IBeyondCodeTrait>(
+  {
+    title: { type: String, required: true, trim: true },
+    description: { type: String, required: true, trim: true },
+    icon: { type: String, required: true, trim: true },
   },
   { _id: false },
 );
@@ -43,6 +61,9 @@ const AboutMeSchema = new Schema<IAboutMe>(
     location: { type: String, default: "" },
     phone: { type: String, default: "" },
     email: { type: String, required: true, trim: true, lowercase: true },
+    beyondCodeBio: { type: String, default: "" },
+    beyondCodeImageUrl: { type: String, default: "" },
+    beyondCodeTraits: { type: [BeyondCodeTraitSchema], default: [] },
   },
   { timestamps: true },
 );
