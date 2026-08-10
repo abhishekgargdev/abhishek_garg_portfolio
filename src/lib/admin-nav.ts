@@ -1,6 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import {
   Award,
+  Brain,
   Briefcase,
   FileText,
   FolderKanban,
@@ -22,6 +23,7 @@ export type AdminNavItem = {
 
 export const ADMIN_NAV: AdminNavItem[] = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin/ai-assistant", label: "AI Assistant", icon: Brain },
   { href: "/admin/about", label: "About", icon: UserRound },
   { href: "/admin/experience-clocks", label: "Experience Clocks", icon: Timer },
   { href: "/admin/timeline", label: "Timeline", icon: Route },

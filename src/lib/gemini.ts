@@ -11,7 +11,7 @@ const KEY_ENV_NAMES = [
   "GEMINI_API_KEY_6",
 ] as const;
 
-const DEFAULT_MODEL = "gemini-2.5-flash";
+const DEFAULT_MODEL = "gemini-flash-latest";
 const MAX_ATTEMPTS_PER_CALL = 6;
 /** Temporary cooldown after rate-limit / quota errors (ms). */
 const KEY_COOLDOWN_MS = 60_000;
