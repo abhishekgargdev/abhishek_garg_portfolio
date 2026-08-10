@@ -111,5 +111,6 @@ export function resumeFilename(name: string): string {
     .trim()
     .replace(/[^a-zA-Z0-9]+/g, "_")
     .replace(/^_+|_+$/g, "");
-  return `${safe || "Abhishek_Garg"}_Resume.pdf`;
+  const dateStr = new Date().toISOString().slice(0, 10);
+  return `${safe || "Abhishek_Garg"}_${dateStr}.pdf`;
 }
