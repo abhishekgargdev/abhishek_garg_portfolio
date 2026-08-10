@@ -2,6 +2,17 @@
   "name": "portfolio",
   "version": "0.1.0",
   "private": true,
+  "description": "A premium developer portfolio, CMS, and admin dashboard built with Next.js, React, TypeScript, TailwindCSS, MongoDB, and integrated with Gemini AI.",
+  "author": "Abhishek Garg <abhishekgargdev959@gmail.com> (https://github.com/Abhishek2063)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Abhishek2063/portfolio.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Abhishek2063/portfolio/issues"
+  },
+  "homepage": "https://github.com/Abhishek2063/portfolio#readme",
   "scripts": {
     "dev": "next dev",
     "build": "next build --webpack",
