@@ -8,6 +8,7 @@ const schema = z.object({
   provider: z.string().trim().min(1),
   date: z.string().min(1),
   credentialUrl: z.string().optional().default(""),
+  imageUrl: z.string().optional().default(""),
   order: z.coerce.number().int().default(0),
 });
 
@@ -17,6 +18,7 @@ type CertificationRow = {
   provider: string;
   date: string;
   credentialUrl: string;
+  imageUrl?: string;
   order: number;
 };
 
@@ -32,6 +34,7 @@ export default function AdminCertificationsPage() {
         provider: "",
         date: "",
         credentialUrl: "",
+        imageUrl: "",
         order: 0,
       }}
       columns={[
@@ -54,6 +57,12 @@ export default function AdminCertificationsPage() {
         { name: "provider", label: "Provider", type: "text" },
         { name: "date", label: "Date", type: "date" },
         { name: "credentialUrl", label: "Credential URL", type: "url" },
+        {
+          name: "imageUrl",
+          label: "Certificate Image",
+          type: "image",
+          uploadSection: "certifications",
+        },
         { name: "order", label: "Order", type: "number" },
       ]}
       toFormValues={(row) => ({

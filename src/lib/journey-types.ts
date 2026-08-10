@@ -24,6 +24,7 @@ export type JourneyItem = {
   highlights?: string[];
   /** Certification credential URL */
   credentialUrl?: string;
+  imageUrl?: string;
 };
 
 export const JOURNEY_TYPE_LABELS: Record<JourneyType, string> = {

@@ -102,6 +102,7 @@ export function buildJourneyItems(input: {
       endDate: item.date,
       order: item.order,
       credentialUrl: item.credentialUrl || undefined,
+      imageUrl: item.imageUrl || undefined,
     });
   }
 
@@ -115,6 +116,7 @@ export function buildJourneyItems(input: {
       startDate: item.date,
       endDate: item.date,
       order: item.order,
+      imageUrl: item.imageUrl || undefined,
     });
   }
 

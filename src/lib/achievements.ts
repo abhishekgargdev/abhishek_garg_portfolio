@@ -7,6 +7,7 @@ export type AchievementData = {
   description: string;
   date: string;
   order: number;
+  imageUrl?: string;
 };
 
 export async function getAchievements(): Promise<AchievementData[]> {
@@ -20,5 +21,6 @@ export async function getAchievements(): Promise<AchievementData[]> {
     description: doc.description,
     date: new Date(doc.date).toISOString(),
     order: doc.order,
+    imageUrl: doc.imageUrl || "",
   }));
 }

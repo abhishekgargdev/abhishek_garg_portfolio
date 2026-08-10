@@ -15,6 +15,7 @@ import {
   useScroll,
   useSpring,
 } from "framer-motion";
+import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import {
   Award,
   Briefcase,
@@ -22,6 +23,8 @@ import {
   ExternalLink,
   GraduationCap,
   Trophy,
+  Maximize2,
+  X as XIcon,
   type LucideProps,
 } from "lucide-react";
 import { SectionHeading } from "@/components/layout/SectionHeading";
@@ -164,11 +167,13 @@ function EntryCard({
   isLeft,
   reduceMotion,
   index,
+  onSelectImage,
 }: {
   item: JourneyItem;
   isLeft: boolean;
   reduceMotion: boolean | null;
   index: number;
+  onSelectImage?: (url: string) => void;
 }) {
   const accent = TYPE_ACCENT[item.type];
   const Icon = TYPE_ICON[item.type];
@@ -237,6 +242,26 @@ function EntryCard({
             {item.subtitle}
           </p>
         ) : null}
+
+        {item.imageUrl && (
+          <div
+            className="mt-3.5 relative aspect-[16/10] w-full overflow-hidden bg-muted border border-border/50 rounded-xl cursor-pointer"
+            onClick={() => onSelectImage?.(item.imageUrl!)}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={item.imageUrl}
+              alt={item.title}
+              className="size-full object-cover transition-transform duration-500 ease-out hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+              <span className="flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-xs font-bold text-black shadow-md backdrop-blur translate-y-3 hover:translate-y-0 transition-transform duration-300">
+                View Certificate
+                <Maximize2 className="size-3.5" />
+              </span>
+            </div>
+          </div>
+        )}
 
         {item.type === "education" && highlights.length > 0 ? (
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
@@ -319,12 +344,14 @@ function TimelineItem({
   reduceMotion,
   isActive,
   onActive,
+  onSelectImage,
 }: {
   item: JourneyItem;
   index: number;
   reduceMotion: boolean | null;
   isActive: boolean;
   onActive: (id: string) => void;
+  onSelectImage?: (url: string) => void;
 }) {
   const isLeft = index % 2 === 0;
   const itemRef = useRef<HTMLLIElement>(null);
@@ -376,6 +403,7 @@ function TimelineItem({
             isLeft
             reduceMotion={reduceMotion}
             index={index}
+            onSelectImage={onSelectImage}
           />
         ) : null}
       </div>
@@ -398,6 +426,7 @@ function TimelineItem({
             isLeft={false}
             reduceMotion={reduceMotion}
             index={index}
+            onSelectImage={onSelectImage}
           />
         ) : null}
       </div>
@@ -409,6 +438,7 @@ function TimelineItem({
           isLeft={false}
           reduceMotion={reduceMotion}
           index={index}
+          onSelectImage={onSelectImage}
         />
       </div>
     </motion.li>
@@ -471,6 +501,8 @@ export function CareerJourney({ items }: CareerJourneyProps) {
   if (!items.length) {
     return null;
   }
+
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   return (
     <section
@@ -582,6 +614,7 @@ export function CareerJourney({ items }: CareerJourneyProps) {
                   reduceMotion={reduceMotion}
                   isActive={activeId === item.id}
                   onActive={setActiveId}
+                  onSelectImage={setSelectedImage}
                 />
               ))}
             </AnimatePresence>
@@ -607,6 +640,27 @@ export function CareerJourney({ items }: CareerJourneyProps) {
           ) : null}
         </div>
       </div>
+
+      <DialogPrimitive.Root open={!!selectedImage} onOpenChange={(open) => !open && setSelectedImage(null)}>
+        <DialogPrimitive.Portal>
+          <DialogPrimitive.Backdrop className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md duration-300 data-[open]:animate-in data-[open]:fade-in-0 data-[closed]:animate-out data-[closed]:fade-out-0" />
+          <DialogPrimitive.Popup className="fixed top-1/2 left-1/2 z-50 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl p-4 outline-none focus:outline-none flex flex-col items-center justify-center data-[open]:animate-in data-[open]:fade-in-0 data-[open]:zoom-in-95 data-[closed]:animate-out data-[closed]:fade-out-0 data-[closed]:zoom-out-95 duration-200">
+            {selectedImage && (
+              <div className="relative max-h-[85vh] w-full flex items-center justify-center">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={selectedImage}
+                  alt="Certificate Preview"
+                  className="max-h-[80vh] w-auto max-w-full object-contain rounded-lg border border-white/10 shadow-2xl"
+                />
+                <DialogPrimitive.Close className="absolute -top-12 right-0 text-white/70 hover:text-white transition-colors cursor-pointer bg-white/10 hover:bg-white/20 p-2 rounded-full outline-none focus:outline-none">
+                  <XIcon className="size-5" />
+                </DialogPrimitive.Close>
+              </div>
+            )}
+          </DialogPrimitive.Popup>
+        </DialogPrimitive.Portal>
+      </DialogPrimitive.Root>
     </section>
   );
 }

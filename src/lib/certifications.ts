@@ -7,6 +7,7 @@ export type CertificationData = {
   provider: string;
   date: string;
   credentialUrl: string;
+  imageUrl?: string;
   order: number;
 };
 
@@ -21,6 +22,7 @@ export async function getCertifications(): Promise<CertificationData[]> {
     provider: doc.provider,
     date: new Date(doc.date).toISOString(),
     credentialUrl: doc.credentialUrl ?? "",
+    imageUrl: doc.imageUrl || "",
     order: doc.order,
   }));
 }

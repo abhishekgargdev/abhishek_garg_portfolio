@@ -7,6 +7,7 @@ const schema = z.object({
   title: z.string().trim().min(1),
   description: z.string().trim().min(1),
   date: z.string().min(1),
+  imageUrl: z.string().optional().default(""),
   order: z.coerce.number().int().default(0),
 });
 
@@ -15,6 +16,7 @@ type AchievementRow = {
   title: string;
   description: string;
   date: string;
+  imageUrl?: string;
   order: number;
 };
 
@@ -29,6 +31,7 @@ export default function AdminAchievementsPage() {
         title: "",
         description: "",
         date: "",
+        imageUrl: "",
         order: 0,
       }}
       columns={[
@@ -49,6 +52,12 @@ export default function AdminAchievementsPage() {
         { name: "title", label: "Title", type: "text" },
         { name: "description", label: "Description", type: "textarea" },
         { name: "date", label: "Date", type: "date" },
+        {
+          name: "imageUrl",
+          label: "Certificate Image",
+          type: "image",
+          uploadSection: "achievements",
+        },
         { name: "order", label: "Order", type: "number" },
       ]}
       toFormValues={(row) => ({

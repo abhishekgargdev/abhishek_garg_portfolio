@@ -1,7 +1,20 @@
 "use client";
 
+import { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { Trophy, Award, Users, Star, Mic, Zap, Sparkles, type LucideIcon } from "lucide-react";
+import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
+import {
+  Trophy,
+  Award,
+  Users,
+  Star,
+  Mic,
+  Zap,
+  Sparkles,
+  Maximize2,
+  X as XIcon,
+  type LucideIcon,
+} from "lucide-react";
 import {
   Card,
   CardDescription,
@@ -95,6 +108,7 @@ function formatDate(iso: string): string {
 
 export function Achievements({ items }: AchievementsProps) {
   const reduceMotion = useReducedMotion();
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   if (!items.length) {
     return null;
@@ -136,19 +150,39 @@ export function Achievements({ items }: AchievementsProps) {
               >
                 <Card
                   className={cn(
-                    "relative h-full overflow-hidden border border-border bg-card/85 shadow-sm backdrop-blur-sm",
+                    "relative h-full overflow-hidden border border-border bg-card/85 shadow-sm backdrop-blur-sm flex flex-col",
                     "transition-all duration-300 hover:shadow-md hover:border-foreground/20 hover:-translate-y-1.5 group",
                   )}
                 >
                   {/* Subtle CSS shine sweep line */}
                   <div className="absolute inset-0 w-[200%] h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-out pointer-events-none" />
 
+                  {item.imageUrl && (
+                    <div
+                      className="relative aspect-[16/10] w-full overflow-hidden bg-muted border-b border-border/50 cursor-pointer"
+                      onClick={() => setSelectedImage(item.imageUrl!)}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={item.imageUrl}
+                        alt={item.title}
+                        className="size-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                        <span className="flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-xs font-bold text-black shadow-md backdrop-blur translate-y-3 group-hover:translate-y-0 transition-transform duration-300">
+                          View Certificate
+                          <Maximize2 className="size-3.5" />
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
                   <div
                     aria-hidden
                     className={cn("pointer-events-none absolute -right-6 -top-6 size-24 rounded-full blur-2xl opacity-40 transition-opacity duration-300 group-hover:opacity-60", theme.glowClass)}
                   />
 
-                  <CardHeader className="relative gap-3 relative z-10">
+                  <CardHeader className="relative gap-3 relative z-10 flex-1">
                     <span className={cn("flex size-11 items-center justify-center rounded-full border shadow-sm transition-all duration-300 group-hover:scale-105", theme.badgeClass)}>
                       <Icon className="size-5" aria-hidden />
                     </span>
@@ -170,6 +204,27 @@ export function Achievements({ items }: AchievementsProps) {
           })}
         </motion.div>
       </div>
+
+      <DialogPrimitive.Root open={!!selectedImage} onOpenChange={(open) => !open && setSelectedImage(null)}>
+        <DialogPrimitive.Portal>
+          <DialogPrimitive.Backdrop className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md duration-300 data-[open]:animate-in data-[open]:fade-in-0 data-[closed]:animate-out data-[closed]:fade-out-0" />
+          <DialogPrimitive.Popup className="fixed top-1/2 left-1/2 z-50 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl p-4 outline-none focus:outline-none flex flex-col items-center justify-center data-[open]:animate-in data-[open]:fade-in-0 data-[open]:zoom-in-95 data-[closed]:animate-out data-[closed]:fade-out-0 data-[closed]:zoom-out-95 duration-200">
+            {selectedImage && (
+              <div className="relative max-h-[85vh] w-full flex items-center justify-center">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={selectedImage}
+                  alt="Certificate Preview"
+                  className="max-h-[80vh] w-auto max-w-full object-contain rounded-lg border border-white/10 shadow-2xl"
+                />
+                <DialogPrimitive.Close className="absolute -top-12 right-0 text-white/70 hover:text-white transition-colors cursor-pointer bg-white/10 hover:bg-white/20 p-2 rounded-full outline-none focus:outline-none">
+                  <XIcon className="size-5" />
+                </DialogPrimitive.Close>
+              </div>
+            )}
+          </DialogPrimitive.Popup>
+        </DialogPrimitive.Portal>
+      </DialogPrimitive.Root>
     </section>
   );
 }

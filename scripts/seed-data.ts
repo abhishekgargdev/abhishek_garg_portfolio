@@ -506,6 +506,7 @@ const SEED = {
       description:
         "Recognized for exceptional technical contributions and high-impact project delivery at Talentelgia Technologies.",
       date: "",
+      imageUrl: "",
       order: 1,
     },
     {
@@ -513,6 +514,7 @@ const SEED = {
       description:
         "Honored for outstanding cross-functional teamwork and collaboration.",
       date: "",
+      imageUrl: "",
       order: 2,
     },
     {
@@ -520,6 +522,7 @@ const SEED = {
       description:
         "Acknowledged for significant contributions to product quality and rapid growth.",
       date: "",
+      imageUrl: "",
       order: 3,
     },
     {
@@ -527,6 +530,7 @@ const SEED = {
       description:
         "Acknowledged for significant contributions to product quality and rapid growth.",
       date: "",
+      imageUrl: "",
       order: 4,
     },
     {
@@ -534,6 +538,7 @@ const SEED = {
       description:
         "Distinguished Guest Speaker at Chandigarh University; awarded Shield of Honor (2022) and CUCAT Scholarship.",
       date: "2022",
+      imageUrl: "",
       order: 5,
     },
     {
@@ -541,6 +546,7 @@ const SEED = {
       description:
         "Kurukshetra University — 1st Rank in Mathematics and 2nd Rank Overall in B.A. program.",
       date: "2020",
+      imageUrl: "",
       order: 6,
     },
   ],
@@ -551,6 +557,7 @@ const SEED = {
       provider: "Udemy",
       date: "",
       credentialUrl: "",
+      imageUrl: "",
       order: 1,
     },
     {
@@ -558,6 +565,7 @@ const SEED = {
       provider: "Udemy",
       date: "",
       credentialUrl: "",
+      imageUrl: "",
       order: 2,
     },
     {
@@ -565,6 +573,7 @@ const SEED = {
       provider: "Udemy",
       date: "",
       credentialUrl: "",
+      imageUrl: "",
       order: 3,
     },
     {
@@ -572,6 +581,7 @@ const SEED = {
       provider: "Chandigarh University",
       date: "",
       credentialUrl: "",
+      imageUrl: "",
       order: 4,
     },
     {
@@ -579,6 +589,7 @@ const SEED = {
       provider: "Great Learning",
       date: "",
       credentialUrl: "",
+      imageUrl: "",
       order: 5,
     },
     {
@@ -586,6 +597,7 @@ const SEED = {
       provider: "Google (Coursera)",
       date: "",
       credentialUrl: "",
+      imageUrl: "",
       order: 6,
     },
     {
@@ -593,6 +605,7 @@ const SEED = {
       provider: "Udemy",
       date: "",
       credentialUrl: "",
+      imageUrl: "",
       order: 7,
     },
     {
@@ -600,6 +613,7 @@ const SEED = {
       provider: "Udemy",
       date: "",
       credentialUrl: "",
+      imageUrl: "",
       order: 8,
     },
     {
@@ -607,6 +621,7 @@ const SEED = {
       provider: "Udemy",
       date: "",
       credentialUrl: "",
+      imageUrl: "",
       order: 9,
     },
     {
@@ -614,6 +629,7 @@ const SEED = {
       provider: "Udemy",
       date: "",
       credentialUrl: "",
+      imageUrl: "",
       order: 10,
     },
     {
@@ -621,6 +637,7 @@ const SEED = {
       provider: "Udemy / Simplilearn",
       date: "",
       credentialUrl: "",
+      imageUrl: "",
       order: 11,
     },
     {
@@ -628,6 +645,7 @@ const SEED = {
       provider: "Udemy / Simplilearn",
       date: "",
       credentialUrl: "",
+      imageUrl: "",
       order: 12,
     },
   ],
@@ -843,6 +861,7 @@ async function seedAchievements(counts: CountSummary) {
           title: item.title,
           description: item.description,
           date: toRequiredDate(item.date),
+          imageUrl: item.imageUrl,
           order: item.order,
         },
       },
@@ -864,6 +883,7 @@ async function seedCertifications(counts: CountSummary) {
           provider: item.provider,
           date: toRequiredDate(item.date),
           credentialUrl: item.credentialUrl,
+          imageUrl: item.imageUrl,
           order: item.order,
         },
       },
