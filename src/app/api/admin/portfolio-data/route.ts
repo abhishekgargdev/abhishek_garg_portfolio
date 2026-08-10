@@ -50,6 +50,8 @@ export async function GET() {
         email: aboutMeDoc.email,
         profileImageUrl: aboutMeDoc.profileImageUrl,
         resumeFileUrl: aboutMeDoc.resumeFileUrl,
+        portfolioUrl: aboutMeDoc.portfolioUrl || "",
+        openSourceContributions: aboutMeDoc.openSourceContributions || [],
         socialLinks: aboutMeDoc.socialLinks || [],
       } : null,
       experience: experiences.map((doc) => ({

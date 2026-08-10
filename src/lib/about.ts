@@ -9,6 +9,8 @@ export type AboutMeData = {
   bio: string;
   profileImageUrl: string;
   resumeFileUrl: string;
+  portfolioUrl: string;
+  openSourceContributions: string[];
   socialLinks: { platform: string; url: string }[];
   location: string;
   phone: string;
@@ -31,6 +33,8 @@ export async function getAboutMe(): Promise<AboutMeData | null> {
     bio: doc.bio,
     profileImageUrl: doc.profileImageUrl ?? "",
     resumeFileUrl: doc.resumeFileUrl ?? "",
+    portfolioUrl: doc.portfolioUrl ?? "",
+    openSourceContributions: doc.openSourceContributions ?? [],
     socialLinks: (doc.socialLinks ?? []).map((link) => ({
       platform: link.platform,
       url: link.url,

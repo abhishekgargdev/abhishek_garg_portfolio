@@ -33,6 +33,8 @@ type AboutMeForm = {
   email: string;
   bio: string;
   beyondCodeBio: string;
+  portfolioUrl: string;
+  openSourceContributions: string[];
   taglines: string[];
   socialLinks: { platform: string; url: string }[];
 };
@@ -239,7 +241,16 @@ export default function AiAssistantPage() {
       if (!response.ok) {
         throw new Error("Failed to load portfolio data");
       }
-      setAboutMe(data.aboutMe);
+      setAboutMe(
+        data.aboutMe
+          ? {
+              ...data.aboutMe,
+              portfolioUrl: data.aboutMe.portfolioUrl ?? "",
+              openSourceContributions:
+                data.aboutMe.openSourceContributions ?? [],
+            }
+          : null,
+      );
       setExperience(data.experience || []);
       setProjects(data.projects || []);
       setSkills(data.skills || []);

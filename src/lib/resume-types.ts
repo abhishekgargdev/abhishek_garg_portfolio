@@ -12,6 +12,8 @@ export type ResumeAbout = {
   bio: string;
   profileImageUrl: string;
   resumeFileUrl: string;
+  portfolioUrl: string;
+  openSourceContributions: string[];
   socialLinks: ResumeSocialLink[];
   location: string;
   phone: string;

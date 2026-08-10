@@ -21,6 +21,8 @@ const FALLBACK_ABOUT: AboutMeData = {
   bio: "",
   profileImageUrl: "",
   resumeFileUrl: "",
+  portfolioUrl: "",
+  openSourceContributions: [],
   socialLinks: [],
   location: "",
   phone: "",

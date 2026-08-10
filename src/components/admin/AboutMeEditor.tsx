@@ -54,6 +54,8 @@ const aboutSchema = z.object({
   bio: z.string().trim().min(1, "Bio is required"),
   profileImageUrl: z.string().default(""),
   resumeFileUrl: z.string().default(""),
+  portfolioUrl: z.string().default(""),
+  openSourceContributions: z.string().default(""),
   location: z.string().default(""),
   phone: z.string().default(""),
   email: z.email("Enter a valid email"),
@@ -82,6 +84,8 @@ type AboutRow = {
   bio: string;
   profileImageUrl: string;
   resumeFileUrl: string;
+  portfolioUrl?: string;
+  openSourceContributions?: string[];
   location: string;
   phone: string;
   email: string;
@@ -104,6 +108,17 @@ const FIELD_LABELS: Record<
   email: "Email",
 };
 
+function linesToArray(value: string): string[] {
+  return value
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+}
+
+function arrayToLines(value: string[] | undefined): string {
+  return (value ?? []).join("\n");
+}
+
 function toTaglineFields(taglines: string[]) {
   const cleaned = taglines.map((line) => line.trim()).filter(Boolean);
   return (cleaned.length ? cleaned : [""]).map((value) => ({ value }));
@@ -120,6 +135,8 @@ function HeroPreview({ values }: { values: AboutFormValues }) {
       bio: values.bio,
       profileImageUrl: values.profileImageUrl,
       resumeFileUrl: values.resumeFileUrl,
+      portfolioUrl: values.portfolioUrl,
+      openSourceContributions: linesToArray(values.openSourceContributions),
       location: values.location,
       phone: values.phone,
       email: values.email,
@@ -157,6 +174,8 @@ export function AboutMeEditor() {
       bio: "",
       profileImageUrl: "",
       resumeFileUrl: "",
+      portfolioUrl: "",
+      openSourceContributions: "",
       location: "",
       phone: "",
       email: "",
@@ -217,6 +236,8 @@ export function AboutMeEditor() {
           bio: row.bio,
           profileImageUrl: row.profileImageUrl ?? "",
           resumeFileUrl: row.resumeFileUrl ?? "",
+          portfolioUrl: row.portfolioUrl ?? "",
+          openSourceContributions: arrayToLines(row.openSourceContributions),
           location: row.location ?? "",
           phone: row.phone ?? "",
           email: row.email,
@@ -265,6 +286,7 @@ export function AboutMeEditor() {
     return {
       ...rest,
       taglines: cleanedTaglines,
+      openSourceContributions: linesToArray(rest.openSourceContributions),
       // Keep legacy field synced so Mongoose validators never see an empty
       // required `tagline` from an older compiled schema.
       tagline: cleanedTaglines[0] ?? "",
@@ -542,6 +564,42 @@ export function AboutMeEditor() {
                   <div className="space-y-2">
                     <Label htmlFor="location">Location</Label>
                     <Input id="location" {...register("location")} />
+                  </div>
+                  <div className="space-y-2 sm:col-span-2">
+                    <Label htmlFor="portfolioUrl">Portfolio URL</Label>
+                    <Input
+                      id="portfolioUrl"
+                      type="url"
+                      placeholder="https://abhishekgarg.dev"
+                      {...register("portfolioUrl")}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Shown on your generated resume PDF contact line. Kept in
+                      sync with the Resume Builder.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Resume extras</CardTitle>
+                  <CardDescription>
+                    Open source bullets appear on your resume PDF. Edit the full
+                    resume layout under Admin → Resume.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <Label htmlFor="openSourceContributions">
+                      Open source contributions
+                    </Label>
+                    <Textarea
+                      id="openSourceContributions"
+                      rows={4}
+                      placeholder="One contribution per line"
+                      {...register("openSourceContributions")}
+                    />
                   </div>
                 </CardContent>
               </Card>

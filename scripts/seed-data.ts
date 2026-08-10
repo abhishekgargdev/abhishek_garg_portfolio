@@ -38,6 +38,11 @@ const SEED = {
     bio: "Senior Full Stack Engineer with 4+ years of progressive experience designing and delivering scalable, production-grade web and mobile-adjacent applications using the MERN stack, Next.js, TypeScript, NestJS, Golang, and FastAPI. Proven track record leading cross-functional teams, owning client relationships, and architecting microservices, real-time systems, and AI-powered applications (OpenAI GPT-4, Anthropic Claude API). Delivered measurable impact including a 40% reduction in application load times, a 30% reduction in deployment time, and 99.9% uptime across client and enterprise systems. Recognized with multiple performance awards, including Outstanding Achiever and Valuable Contributor, at Talentelgia Technologies.",
     profileImageUrl: "",
     resumeFileUrl: "",
+    portfolioUrl: "https://abhishekgarg.dev",
+    openSourceContributions: [
+      "Contributed bug fixes and performance improvements to React ecosystem UI component libraries.",
+      "Published reusable npm utilities for API error handling and response normalization; open-sourced boilerplates for NestJS and FastAPI microservices on GitHub.",
+    ],
     socialLinks: [
       {
         platform: "LinkedIn",
@@ -253,6 +258,7 @@ const SEED = {
         "Contributed to a healthcare diagnostics and treatment platform built with Next.js and Golang, supporting 500+ patient records with improved workflow turnaround.",
         "Achieved a 40% reduction in application load times through Redis caching, database indexing, and code refactoring; integrated Stripe, Paddle, PayPal, and Razorpay across multiple SaaS products processing thousands of transactions monthly.",
         "Mentored 6+ junior and mid-level developers; established coding standards, TDD practices, and code review processes; delivered all sprint milestones on time with zero critical post-release defects.",
+        "Earned Outstanding Achiever, IT Team Spirit of the Quarter, Valuable Contributor, and Bright Beginner awards.",
       ],
       techStack: [
         "React.js",
@@ -520,7 +526,7 @@ const SEED = {
     {
       title: "Valuable Contributor Award",
       description:
-        "Acknowledged for significant contributions to product quality and rapid growth.",
+        "Acknowledged for significant contributions to product quality and rapid professional growth.",
       date: "",
       imageUrl: "",
       order: 3,
@@ -528,7 +534,7 @@ const SEED = {
     {
       title: "Bright Beginner Award",
       description:
-        "Acknowledged for significant contributions to product quality and rapid growth.",
+        "Recognized for exceptional early-career performance and rapid skill development.",
       date: "",
       imageUrl: "",
       order: 4,

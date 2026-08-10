@@ -11,100 +11,116 @@ export type ResumeTemplateProps = {
 };
 
 const colors = {
-  ink: "#18181b",
-  muted: "#52525b",
-  line: "#d4d4d8",
-  accent: "#0f766e",
+  ink: "#111111",
+  muted: "#444444",
+  line: "#cccccc",
 };
 
 const styles = StyleSheet.create({
   page: {
-    paddingTop: 36,
-    paddingBottom: 36,
-    paddingHorizontal: 40,
-    fontSize: 9.5,
+    paddingTop: 32,
+    paddingBottom: 32,
+    paddingHorizontal: 42,
+    fontSize: 9,
     fontFamily: "Helvetica",
     color: colors.ink,
-    lineHeight: 1.35,
+    lineHeight: 1.38,
   },
   header: {
-    marginBottom: 14,
+    marginBottom: 10,
+    textAlign: "center",
   },
   name: {
-    fontSize: 22,
+    fontSize: 20,
     fontFamily: "Helvetica-Bold",
-    letterSpacing: 0.4,
+    letterSpacing: 0.6,
+    textTransform: "uppercase",
     color: colors.ink,
+    lineHeight: 1.15,
   },
   title: {
-    marginTop: 3,
-    fontSize: 11,
-    color: colors.accent,
-    fontFamily: "Helvetica-Bold",
+    marginTop: 4,
+    fontSize: 10,
+    color: colors.muted,
+    fontFamily: "Helvetica",
+    lineHeight: 1.25,
   },
   contactRow: {
     marginTop: 6,
-    flexDirection: "row",
-    flexWrap: "wrap",
+    fontSize: 8.2,
+    color: colors.muted,
+    textAlign: "center",
+    lineHeight: 1.45,
   },
   contactItem: {
-    fontSize: 8.5,
     color: colors.muted,
-    marginRight: 10,
-    marginBottom: 2,
+  },
+  contactSeparator: {
+    color: colors.line,
   },
   section: {
-    marginTop: 12,
+    marginTop: 10,
   },
   sectionTitle: {
-    fontSize: 10.5,
+    fontSize: 10,
     fontFamily: "Helvetica-Bold",
     textTransform: "uppercase",
-    letterSpacing: 1,
+    letterSpacing: 0.8,
     color: colors.ink,
-    marginBottom: 5,
-    paddingBottom: 3,
-    borderBottomWidth: 1,
+    marginBottom: 4,
+    paddingBottom: 2,
+    borderBottomWidth: 0.75,
     borderBottomColor: colors.line,
   },
   summary: {
     color: colors.muted,
-    fontSize: 9.5,
+    fontSize: 9,
+    textAlign: "justify",
   },
-  skillRow: {
-    marginBottom: 3,
+  skillBullet: {
     flexDirection: "row",
+    marginBottom: 2.5,
+    paddingLeft: 2,
   },
-  skillLabel: {
-    width: 92,
+  skillDot: {
+    width: 10,
     fontFamily: "Helvetica-Bold",
     color: colors.ink,
   },
-  skillValue: {
+  skillText: {
     flex: 1,
     color: colors.muted,
+    fontSize: 9,
+  },
+  skillLabel: {
+    fontFamily: "Helvetica-Bold",
+    color: colors.ink,
   },
   entry: {
-    marginBottom: 8,
+    marginBottom: 7,
   },
   entryHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "flex-start",
   },
   entryTitle: {
     fontFamily: "Helvetica-Bold",
-    fontSize: 10,
+    fontSize: 9.5,
     flexGrow: 1,
-    paddingRight: 10,
-  },
-  entryMeta: {
-    fontSize: 8.5,
-    color: colors.muted,
-    marginTop: 1,
+    paddingRight: 12,
+    color: colors.ink,
   },
   entryDate: {
     fontSize: 8.5,
     color: colors.muted,
+    fontFamily: "Helvetica-Bold",
+    flexShrink: 0,
+  },
+  entryCompany: {
+    fontSize: 8.5,
+    color: colors.muted,
+    marginTop: 1,
   },
   bullet: {
     flexDirection: "row",
@@ -113,16 +129,23 @@ const styles = StyleSheet.create({
   },
   bulletDot: {
     width: 10,
-    color: colors.accent,
+    color: colors.ink,
   },
   bulletText: {
     flex: 1,
     color: colors.muted,
+    fontSize: 9,
+    textAlign: "justify",
   },
-  techLine: {
-    marginTop: 2,
-    fontSize: 8.5,
+  projectTitleLine: {
+    fontFamily: "Helvetica-Bold",
+    fontSize: 9.5,
     color: colors.ink,
+    marginBottom: 1,
+  },
+  projectTech: {
+    fontFamily: "Helvetica",
+    color: colors.muted,
   },
 });
 
@@ -145,8 +168,8 @@ function Bullets({ items }: { items: string[] }) {
   if (!items.length) return null;
   return (
     <View>
-      {items.map((item) => (
-        <View key={item} style={styles.bullet}>
+      {items.map((item, index) => (
+        <View key={`${item}-${index}`} style={styles.bullet}>
           <Text style={styles.bulletDot}>•</Text>
           <Text style={styles.bulletText}>{item}</Text>
         </View>
@@ -155,16 +178,39 @@ function Bullets({ items }: { items: string[] }) {
   );
 }
 
-export function ResumeTemplate({ data }: ResumeTemplateProps) {
-  const { about, experience, projects, education, certifications, achievements, skills } =
-    data;
+function formatContactUrl(url: string): string {
+  return url.replace(/^https?:\/\//, "").replace(/\/$/, "");
+}
 
-  const contactParts = [
-    about.email,
-    about.phone,
-    about.location,
-    ...about.socialLinks.map((link) => link.url),
-  ].filter(Boolean);
+export function ResumeTemplate({ data }: ResumeTemplateProps) {
+  const {
+    about,
+    experience,
+    projects,
+    education,
+    certifications,
+    achievements,
+    skills,
+  } = data;
+
+  const contactParts: string[] = [];
+  if (about.location) contactParts.push(about.location);
+  if (about.phone) contactParts.push(about.phone);
+  if (about.email) contactParts.push(about.email);
+  if (about.portfolioUrl) contactParts.push(formatContactUrl(about.portfolioUrl));
+  for (const link of about.socialLinks) {
+    if (link.url) contactParts.push(formatContactUrl(link.url));
+  }
+
+  const certificationBullets = certifications.map((item) => {
+    const date = item.date ? ` (${formatResumeMonthYear(item.date)})` : "";
+    return `${item.title} — ${item.provider}${date}`;
+  });
+
+  const achievementBullets = achievements.map((item) => {
+    if (item.description) return `${item.title} — ${item.description}`;
+    return item.title;
+  });
 
   return (
     <Document
@@ -177,13 +223,14 @@ export function ResumeTemplate({ data }: ResumeTemplateProps) {
           <Text style={styles.name}>{about.name}</Text>
           <Text style={styles.title}>{about.title}</Text>
           {contactParts.length > 0 ? (
-            <View style={styles.contactRow}>
-              {contactParts.map((part) => (
-                <Text key={part} style={styles.contactItem}>
+            <Text style={styles.contactRow}>
+              {contactParts.map((part, index) => (
+                <Text key={`${part}-${index}`} style={styles.contactItem}>
+                  {index > 0 ? <Text style={styles.contactSeparator}>  |  </Text> : null}
                   {part}
                 </Text>
               ))}
-            </View>
+            </Text>
           ) : null}
         </View>
 
@@ -196,9 +243,10 @@ export function ResumeTemplate({ data }: ResumeTemplateProps) {
         {skills.length > 0 ? (
           <Section title="Technical Skills">
             {skills.map((category) => (
-              <View key={category.id} style={styles.skillRow}>
-                <Text style={styles.skillLabel}>{category.categoryName}</Text>
-                <Text style={styles.skillValue}>
+              <View key={category.id} style={styles.skillBullet}>
+                <Text style={styles.skillDot}>•</Text>
+                <Text style={styles.skillText}>
+                  <Text style={styles.skillLabel}>{category.categoryName}: </Text>
                   {category.skills.map((skill) => skill.name).join(", ")}
                 </Text>
               </View>
@@ -211,17 +259,13 @@ export function ResumeTemplate({ data }: ResumeTemplateProps) {
             {experience.map((job) => (
               <View key={job.id} style={styles.entry} wrap={false}>
                 <View style={styles.entryHeader}>
-                  <Text style={styles.entryTitle}>
-                    {job.role} — {job.company}
-                  </Text>
+                  <Text style={styles.entryTitle}>{job.role}</Text>
                   <Text style={styles.entryDate}>
                     {formatResumeDateRange(job.startDate, job.endDate)}
                   </Text>
                 </View>
-                {job.techStack.length > 0 ? (
-                  <Text style={styles.techLine}>
-                    Tech: {job.techStack.join(", ")}
-                  </Text>
+                {job.company ? (
+                  <Text style={styles.entryCompany}>{job.company}</Text>
                 ) : null}
                 <Bullets items={job.bullets} />
               </View>
@@ -233,17 +277,15 @@ export function ResumeTemplate({ data }: ResumeTemplateProps) {
           <Section title="Independent Projects">
             {projects.map((project) => (
               <View key={project.id} style={styles.entry} wrap={false}>
-                <View style={styles.entryHeader}>
-                  <Text style={styles.entryTitle}>{project.title}</Text>
-                </View>
-                {project.description ? (
-                  <Text style={styles.entryMeta}>{project.description}</Text>
-                ) : null}
-                {project.techStack.length > 0 ? (
-                  <Text style={styles.techLine}>
-                    Tech: {project.techStack.join(", ")}
-                  </Text>
-                ) : null}
+                <Text style={styles.projectTitleLine}>
+                  {project.title}
+                  {project.techStack.length > 0 ? (
+                    <Text style={styles.projectTech}>
+                      {" "}
+                      | {project.techStack.join(", ")}
+                    </Text>
+                  ) : null}
+                </Text>
                 <Bullets items={project.bullets} />
               </View>
             ))}
@@ -258,42 +300,30 @@ export function ResumeTemplate({ data }: ResumeTemplateProps) {
                   <Text style={styles.entryTitle}>{item.degree}</Text>
                   <Text style={styles.entryDate}>{item.year}</Text>
                 </View>
-                <Text style={styles.entryMeta}>{item.institution}</Text>
+                {item.institution ? (
+                  <Text style={styles.entryCompany}>{item.institution}</Text>
+                ) : null}
                 <Bullets items={item.highlights} />
               </View>
             ))}
           </Section>
         ) : null}
 
-        {certifications.length > 0 ? (
+        {certificationBullets.length > 0 ? (
           <Section title="Certifications">
-            {certifications.map((item) => (
-              <View key={item.id} style={styles.entry} wrap={false}>
-                <View style={styles.entryHeader}>
-                  <Text style={styles.entryTitle}>{item.title}</Text>
-                  <Text style={styles.entryDate}>
-                    {formatResumeMonthYear(item.date)}
-                  </Text>
-                </View>
-                <Text style={styles.entryMeta}>{item.provider}</Text>
-              </View>
-            ))}
+            <Bullets items={certificationBullets} />
           </Section>
         ) : null}
 
-        {achievements.length > 0 ? (
-          <Section title="Achievements">
-            {achievements.map((item) => (
-              <View key={item.id} style={styles.entry} wrap={false}>
-                <View style={styles.entryHeader}>
-                  <Text style={styles.entryTitle}>{item.title}</Text>
-                  <Text style={styles.entryDate}>
-                    {formatResumeMonthYear(item.date)}
-                  </Text>
-                </View>
-                <Text style={styles.entryMeta}>{item.description}</Text>
-              </View>
-            ))}
+        {achievementBullets.length > 0 ? (
+          <Section title="Achievements & Awards">
+            <Bullets items={achievementBullets} />
+          </Section>
+        ) : null}
+
+        {about.openSourceContributions && about.openSourceContributions.length > 0 ? (
+          <Section title="Open Source Contributions">
+            <Bullets items={about.openSourceContributions} />
           </Section>
         ) : null}
       </Page>

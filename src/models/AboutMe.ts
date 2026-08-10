@@ -20,6 +20,8 @@ export interface IAboutMe extends Document {
   bio: string;
   profileImageUrl: string;
   resumeFileUrl: string;
+  portfolioUrl: string;
+  openSourceContributions: string[];
   socialLinks: ISocialLink[];
   location: string;
   phone: string;
@@ -57,6 +59,8 @@ const AboutMeSchema = new Schema<IAboutMe>(
     bio: { type: String, required: true },
     profileImageUrl: { type: String, default: "" },
     resumeFileUrl: { type: String, default: "" },
+    portfolioUrl: { type: String, default: "" },
+    openSourceContributions: { type: [String], default: [] },
     socialLinks: { type: [SocialLinkSchema], default: [] },
     location: { type: String, default: "" },
     phone: { type: String, default: "" },
