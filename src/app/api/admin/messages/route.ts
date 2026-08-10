@@ -23,6 +23,8 @@ export async function GET() {
         subject: doc.subject,
         message: doc.message,
         isRead: doc.isRead,
+        replyMessage: doc.replyMessage || null,
+        repliedAt: doc.repliedAt ? new Date(doc.repliedAt).toISOString() : null,
         createdAt: new Date(doc.createdAt).toISOString(),
       })),
     });

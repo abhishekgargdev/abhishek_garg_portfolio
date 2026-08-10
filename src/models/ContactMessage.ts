@@ -6,6 +6,8 @@ export interface IContactMessage extends Document {
   subject: string;
   message: string;
   isRead: boolean;
+  replyMessage?: string;
+  repliedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -17,12 +19,19 @@ const ContactMessageSchema = new Schema<IContactMessage>(
     subject: { type: String, required: true, trim: true },
     message: { type: String, required: true },
     isRead: { type: Boolean, default: false },
+    replyMessage: { type: String },
+    repliedAt: { type: Date },
   },
   { timestamps: true },
 );
 
-const ContactMessage: Model<IContactMessage> =
-  mongoose.models.ContactMessage ||
-  mongoose.model<IContactMessage>("ContactMessage", ContactMessageSchema);
+if (mongoose.models.ContactMessage) {
+  delete mongoose.models.ContactMessage;
+}
+
+const ContactMessage: Model<IContactMessage> = mongoose.model<IContactMessage>(
+  "ContactMessage",
+  ContactMessageSchema,
+);
 
 export default ContactMessage;

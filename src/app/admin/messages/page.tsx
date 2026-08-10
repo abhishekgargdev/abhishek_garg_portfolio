@@ -15,7 +15,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -40,6 +40,8 @@ type ContactMessageRow = {
   subject: string;
   message: string;
   isRead: boolean;
+  replyMessage?: string;
+  repliedAt?: string;
   createdAt: string;
 };
 
@@ -59,6 +61,8 @@ export default function AdminMessagesPage() {
   const [selected, setSelected] = useState<ContactMessageRow | null>(null);
   const [deleting, setDeleting] = useState<ContactMessageRow | null>(null);
   const [busy, setBusy] = useState(false);
+  const [replyText, setReplyText] = useState("");
+  const [replying, setReplying] = useState(false);
 
   const fetchMessages = useCallback(async () => {
     setLoading(true);
@@ -87,6 +91,7 @@ export default function AdminMessagesPage() {
 
   const openMessage = async (message: ContactMessageRow) => {
     setSelected(message);
+    setReplyText("");
 
     if (message.isRead) return;
 
@@ -108,6 +113,48 @@ export default function AdminMessagesPage() {
       );
     } catch {
       // Non-blocking: reading still works even if mark-read fails.
+    }
+  };
+
+  const sendReply = async () => {
+    if (!selected || !replyText.trim()) return;
+    setReplying(true);
+    try {
+      const response = await fetch(`/api/admin/messages/${selected.id}/reply`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: replyText }),
+      });
+      const data = (await response.json()) as {
+        item?: ContactMessageRow;
+        error?: string;
+      };
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to send reply");
+      }
+      toast.success("Reply sent successfully");
+      
+      const nowStr = new Date().toISOString();
+      
+      setItems((prev) =>
+        prev.map((item) =>
+          item.id === selected.id
+            ? { ...item, isRead: true, replyMessage: replyText, repliedAt: nowStr }
+            : item,
+        ),
+      );
+      setSelected((prev) =>
+        prev && prev.id === selected.id
+          ? { ...prev, isRead: true, replyMessage: replyText, repliedAt: nowStr }
+          : prev,
+      );
+      setReplyText("");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to send reply",
+      );
+    } finally {
+      setReplying(false);
     }
   };
 
@@ -210,7 +257,10 @@ export default function AdminMessagesPage() {
                         {item.subject}
                       </span>
                       {!item.isRead ? (
-                        <Badge variant="secondary">New</Badge>
+                        <Badge variant="secondary" className="bg-teal-50 text-teal-700 hover:bg-teal-50 border-teal-200">New</Badge>
+                      ) : null}
+                      {item.repliedAt ? (
+                        <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-50">Replied</Badge>
                       ) : null}
                     </div>
                   </TableCell>
@@ -244,7 +294,7 @@ export default function AdminMessagesPage() {
           if (!open) setSelected(null);
         }}
       >
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-lg gap-5">
           {selected ? (
             <>
               <DialogHeader>
@@ -254,19 +304,59 @@ export default function AdminMessagesPage() {
                   {formatDateTime(selected.createdAt)}
                 </DialogDescription>
               </DialogHeader>
-              <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-4 text-sm leading-relaxed whitespace-pre-wrap text-zinc-700">
-                {selected.message}
+
+              <div className="space-y-4">
+                <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-4 text-sm leading-relaxed whitespace-pre-wrap text-zinc-700">
+                  {selected.message}
+                </div>
+
+                {selected.replyMessage ? (
+                  <div className="rounded-xl border border-emerald-100 bg-emerald-50/30 p-4 text-sm leading-relaxed text-zinc-700 animate-in fade-in duration-300">
+                    <p className="font-semibold text-xs text-emerald-700 uppercase tracking-wide mb-1">
+                      Your Reply on {formatDateTime(selected.repliedAt!)}
+                    </p>
+                    <p className="whitespace-pre-wrap">{selected.replyMessage}</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2 flex flex-col">
+                    <label htmlFor="admin-reply-textarea" className="text-xs font-semibold text-zinc-500 uppercase tracking-wide">
+                      Compose Email Reply
+                    </label>
+                    <textarea
+                      id="admin-reply-textarea"
+                      rows={4}
+                      value={replyText}
+                      onChange={(e) => setReplyText(e.target.value)}
+                      disabled={replying}
+                      placeholder="Type your response here..."
+                      className="w-full rounded-lg border border-zinc-200 p-3 text-sm focus:border-teal-500 focus:outline-none bg-white text-zinc-800 disabled:opacity-50 transition-colors placeholder:text-zinc-400"
+                    />
+                  </div>
+                )}
               </div>
-              <div className="flex justify-end gap-2">
-                <a
-                  href={`mailto:${selected.email}?subject=${encodeURIComponent(`Re: ${selected.subject}`)}`}
-                  className={cn(buttonVariants({ variant: "outline" }))}
+
+              <div className="flex justify-end gap-2 border-t border-zinc-100 pt-3">
+                {!selected.replyMessage ? (
+                  <Button
+                    type="button"
+                    onClick={sendReply}
+                    disabled={!replyText.trim() || replying}
+                  >
+                    {replying ? "Sending..." : "Send Reply"}
+                  </Button>
+                ) : null}
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={replying}
+                  onClick={() => setSelected(null)}
                 >
-                  Reply
-                </a>
+                  Close
+                </Button>
                 <Button
                   type="button"
                   variant="destructive"
+                  disabled={replying}
                   onClick={() => {
                     setDeleting(selected);
                   }}

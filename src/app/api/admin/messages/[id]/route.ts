@@ -43,6 +43,8 @@ export async function PATCH(request: Request, context: RouteContext) {
         subject: updated.subject,
         message: updated.message,
         isRead: updated.isRead,
+        replyMessage: updated.replyMessage || null,
+        repliedAt: updated.repliedAt ? new Date(updated.repliedAt).toISOString() : null,
         createdAt: new Date(updated.createdAt).toISOString(),
       },
     });
