@@ -6,6 +6,7 @@ import {
   serializeAdminDoc,
 } from "@/lib/admin-resources";
 import { connectDB } from "@/lib/db";
+import { syncOnCreate, reconcileDatabase } from "@/lib/sync";
 
 export const runtime = "nodejs";
 
@@ -30,6 +31,11 @@ export async function GET(_request: Request, context: RouteContext) {
 
   try {
     await connectDB();
+    if (["timeline", "experience", "education", "certifications", "achievements"].includes(resource)) {
+      reconcileDatabase().catch((err) =>
+        console.error("[Sync] Background reconcileDatabase failed:", err)
+      );
+    }
     const Model = getAdminModel(resource);
     const docs = await Model.find().sort(sortForResource(resource)).lean();
     return NextResponse.json({
@@ -81,6 +87,7 @@ export async function POST(request: Request, context: RouteContext) {
     }
 
     const created = await Model.create(body);
+    await syncOnCreate(resource, created);
     return NextResponse.json(
       { item: serializeAdminDoc(created.toObject()) },
       { status: 201 },
