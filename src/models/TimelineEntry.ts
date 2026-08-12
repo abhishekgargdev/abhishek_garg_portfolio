@@ -16,6 +16,7 @@ export interface ITimelineEntry extends Document {
   /** Optional external link (credential URL, etc.) */
   link: string;
   order: number;
+  linkedId?: mongoose.Types.ObjectId | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -36,6 +37,7 @@ const TimelineEntrySchema = new Schema<ITimelineEntry>(
     description: { type: String, required: true },
     link: { type: String, default: "", trim: true },
     order: { type: Number, required: true, default: 0 },
+    linkedId: { type: Schema.Types.ObjectId, default: null, index: true },
   },
   { timestamps: true },
 );

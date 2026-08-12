@@ -7,6 +7,7 @@ import {
   serializeAdminDoc,
 } from "@/lib/admin-resources";
 import { connectDB } from "@/lib/db";
+import { syncOnUpdate, syncOnDelete } from "@/lib/sync";
 
 export const runtime = "nodejs";
 
@@ -58,6 +59,8 @@ async function updateRecord(request: Request, context: RouteContext) {
       return NextResponse.json({ error: "Record not found" }, { status: 404 });
     }
 
+    await syncOnUpdate(resource, id, body);
+
     return NextResponse.json({
       item: serializeAdminDoc(updated as Record<string, unknown>),
     });
@@ -90,6 +93,8 @@ export async function DELETE(_request: Request, context: RouteContext) {
     if (!deleted) {
       return NextResponse.json({ error: "Record not found" }, { status: 404 });
     }
+
+    await syncOnDelete(resource, deleted);
 
     return NextResponse.json({ message: "Deleted" });
   } catch (error) {
