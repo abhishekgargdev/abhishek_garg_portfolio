@@ -65,7 +65,7 @@ export async function syncOnCreate(resource: string, doc: any) {
           degree: doc.role,
           institution: doc.company,
           year: getYearString(doc.startDate, doc.endDate),
-          highlights: doc.description ? doc.description.split("\n").map(h => h.trim()).filter(Boolean) : [],
+          highlights: doc.description ? doc.description.split("\n").map((h: string) => h.trim()).filter(Boolean) : [],
         });
         await TimelineEntry.findByIdAndUpdate(id, { linkedId: edu._id });
       } else if (category === "certificate") {

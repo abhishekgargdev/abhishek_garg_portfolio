@@ -17,9 +17,11 @@ import {
   Loader2,
   Plus,
   Search,
+  Sparkles,
   Trash2,
   X,
 } from "lucide-react";
+import { toast } from "sonner";
 import { CloudinaryUploader } from "@/components/admin/CloudinaryUploader";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -50,7 +52,9 @@ export type CrudFieldType =
   | "multi-image"
   | "results-list"
   | "image"
-  | "select";
+  | "select"
+  | "markdown"
+  | "links-list";
 
 export type CrudFieldConfig<T extends FieldValues> = {
   name: Path<T>;
@@ -62,6 +66,8 @@ export type CrudFieldConfig<T extends FieldValues> = {
   /** Options for `type: "select"`. */
   options?: { value: string; label: string }[];
   tab?: string;
+  /** Show an AI generate button (used by `markdown` fields). */
+  aiGenerate?: boolean;
 };
 
 type CrudFormDialogProps<TSchema extends z.ZodType> = {
@@ -602,6 +608,88 @@ function ResultsListInput({
   );
 }
 
+function LinksListInput({
+  value = [],
+  onChange,
+  disabled,
+}: {
+  value: { label: string; url: string }[];
+  onChange: (val: { label: string; url: string }[]) => void;
+  disabled?: boolean;
+}) {
+  const list = Array.isArray(value) ? value : [];
+
+  const handleUpdate = (index: number, key: "label" | "url", text: string) => {
+    const copy = [...list];
+    copy[index] = { ...copy[index], [key]: text };
+    onChange(copy);
+  };
+
+  return (
+    <div className="space-y-3">
+      {list.map((item, index) => (
+        <div
+          key={index}
+          className="rounded-lg border bg-muted/10 p-3 space-y-2"
+        >
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              Link {index + 1}
+            </span>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="size-7 text-destructive hover:bg-destructive/10 hover:text-destructive"
+              disabled={disabled}
+              onClick={() => onChange(list.filter((_, i) => i !== index))}
+              title="Remove link"
+            >
+              <Trash2 className="size-3.5" />
+            </Button>
+          </div>
+          <div className="grid flex-1 grid-cols-1 gap-2 sm:grid-cols-2">
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">
+                Label (what this URL is for)
+              </Label>
+              <Input
+                value={item.label}
+                onChange={(e) => handleUpdate(index, "label", e.target.value)}
+                placeholder="e.g. Documentation, Figma, App Store"
+                disabled={disabled}
+                className="h-9 text-sm"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">URL</Label>
+              <Input
+                value={item.url}
+                onChange={(e) => handleUpdate(index, "url", e.target.value)}
+                placeholder="https://..."
+                type="url"
+                disabled={disabled}
+                className="h-9 text-sm"
+              />
+            </div>
+          </div>
+        </div>
+      ))}
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        onClick={() => onChange([...list, { label: "", url: "" }])}
+        disabled={disabled}
+        className="mt-1 h-8 w-full border-dashed text-xs text-muted-foreground hover:text-foreground"
+      >
+        <Plus className="mr-1 size-3.5" />
+        Add Link
+      </Button>
+    </div>
+  );
+}
+
 export function CrudFormDialog<TSchema extends z.ZodType>({
   open,
   onOpenChange,
@@ -824,6 +912,72 @@ export function CrudFormDialog<TSchema extends z.ZodType>({
       );
     }
 
+    if (field.type === "links-list") {
+      return (
+        <div key={String(field.name)} className="space-y-2">
+          <Label htmlFor={String(field.name)}>{field.label}</Label>
+          <Controller
+            control={control}
+            name={field.name}
+            render={({ field: controllerField }) => (
+              <LinksListInput
+                disabled={submitting}
+                value={
+                  Array.isArray(controllerField.value)
+                    ? controllerField.value
+                    : []
+                }
+                onChange={(val) => controllerField.onChange(val)}
+              />
+            )}
+          />
+          {field.description ? (
+            <p className="text-xs text-muted-foreground">{field.description}</p>
+          ) : null}
+          {message ? (
+            <p className="text-sm text-destructive">{message}</p>
+          ) : null}
+        </div>
+      );
+    }
+
+    if (field.type === "markdown") {
+      return (
+        <div key={String(field.name)} className="space-y-2">
+          <div className="flex items-center justify-between gap-2">
+            <Label htmlFor={String(field.name)}>{field.label}</Label>
+            {field.aiGenerate ? (
+              <GenerateReadmeButton
+                disabled={submitting}
+                getProject={() => watch()}
+                onGenerated={(markdown) =>
+                  setValue(field.name, markdown as never, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                }
+              />
+            ) : null}
+          </div>
+          <Textarea
+            id={String(field.name)}
+            placeholder={field.placeholder}
+            disabled={submitting}
+            rows={16}
+            className="min-h-[280px] font-mono text-xs leading-relaxed"
+            aria-invalid={Boolean(message)}
+            {...register(field.name)}
+          />
+          {field.description ? (
+            <p className="text-xs text-muted-foreground">{field.description}</p>
+          ) : null}
+          {message ? (
+            <p className="text-sm text-destructive">{message}</p>
+          ) : null}
+        </div>
+      );
+    }
+
     if (field.type === "textarea") {
       return (
         <div key={String(field.name)} className="space-y-2">
@@ -835,6 +989,9 @@ export function CrudFormDialog<TSchema extends z.ZodType>({
             aria-invalid={Boolean(message)}
             {...register(field.name)}
           />
+          {field.description ? (
+            <p className="text-xs text-muted-foreground">{field.description}</p>
+          ) : null}
           {message ? (
             <p className="text-sm text-destructive">{message}</p>
           ) : null}
@@ -914,7 +1071,7 @@ export function CrudFormDialog<TSchema extends z.ZodType>({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           {description ? (
@@ -975,6 +1132,65 @@ export function CrudFormDialog<TSchema extends z.ZodType>({
         </form>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function GenerateReadmeButton({
+  disabled,
+  getProject,
+  onGenerated,
+}: {
+  disabled?: boolean;
+  getProject: () => unknown;
+  onGenerated: (markdown: string) => void;
+}) {
+  const [loading, setLoading] = useState(false);
+
+  const generate = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch("/api/admin/projects/generate-readme", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ project: getProject() }),
+      });
+      const data = (await response.json()) as {
+        readmeMd?: string;
+        error?: string;
+      };
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to generate README");
+      }
+      if (!data.readmeMd?.trim()) {
+        throw new Error("AI returned an empty README");
+      }
+      onGenerated(data.readmeMd);
+      toast.success("README generated — review and save");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to generate README",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      size="sm"
+      disabled={disabled || loading}
+      onClick={() => void generate()}
+      className="h-7 text-xs text-teal-700"
+    >
+      {loading ? (
+        <Loader2 className="mr-1 size-3.5 animate-spin" />
+      ) : (
+        <Sparkles className="mr-1 size-3.5" />
+      )}
+      {loading ? "Generating…" : "Generate with AI"}
+    </Button>
   );
 }
 

@@ -5,6 +5,11 @@ export interface IProjectResult {
   value: string;
 }
 
+export interface IProjectLink {
+  label: string;
+  url: string;
+}
+
 export interface IProject extends Document {
   title: string;
   slug: string;
@@ -25,6 +30,9 @@ export interface IProject extends Document {
   videoUrl?: string;
   liveUrl: string;
   githubUrl: string;
+  links: IProjectLink[];
+  directoryStructure: string;
+  readmeMd: string;
   projectType: "personal" | "professional";
   company: string;
   teamSize: string;
@@ -38,6 +46,14 @@ const ProjectResultSchema = new Schema<IProjectResult>(
   {
     label: { type: String, required: true, trim: true },
     value: { type: String, required: true, trim: true },
+  },
+  { _id: false },
+);
+
+const ProjectLinkSchema = new Schema<IProjectLink>(
+  {
+    label: { type: String, required: true, trim: true },
+    url: { type: String, required: true, trim: true },
   },
   { _id: false },
 );
@@ -71,6 +87,11 @@ const ProjectSchema = new Schema<IProject>(
     features: { type: [String], default: [] },
     results: { type: [ProjectResultSchema], default: [] },
     videoUrl: { type: String, default: "" },
+    liveUrl: { type: String, default: "" },
+    githubUrl: { type: String, default: "" },
+    links: { type: [ProjectLinkSchema], default: [] },
+    directoryStructure: { type: String, default: "" },
+    readmeMd: { type: String, default: "" },
     projectType: {
       type: String,
       enum: ["personal", "professional"],
@@ -84,8 +105,13 @@ const ProjectSchema = new Schema<IProject>(
   { timestamps: true },
 );
 
-const Project: Model<IProject> =
-  mongoose.models.Project ||
-  mongoose.model<IProject>("Project", ProjectSchema);
+if (mongoose.models.Project) {
+  delete mongoose.models.Project;
+}
+
+const Project: Model<IProject> = mongoose.model<IProject>(
+  "Project",
+  ProjectSchema,
+);
 
 export default Project;

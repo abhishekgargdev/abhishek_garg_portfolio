@@ -1,26 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   ArrowLeft,
+  ArrowUpRight,
   Briefcase,
   Building2,
   Calendar,
   CheckCircle2,
-  ChevronLeft,
-  ChevronRight,
   ExternalLink,
+  FileText,
   Info,
   Layers,
   Sparkles,
   User,
   Users,
-  X,
 } from "lucide-react";
 import { FaGithub } from "react-icons/fa";
+import { MarkdownDocument } from "@/components/markdown/MarkdownDocument";
+import { ProjectImageSlider } from "@/components/projects/ProjectImageSlider";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { getSkillIcon } from "@/lib/skill-icons";
@@ -36,9 +35,6 @@ export function ProjectDetailView({
   project,
   recommended,
 }: ProjectDetailViewProps) {
-  const [activeImageIdx, setActiveImageIdx] = useState(0);
-  const [lightboxOpen, setLightboxOpen] = useState(false);
-
   const gallery =
     Array.isArray(project.images) && project.images.length > 0
       ? project.images
@@ -46,363 +42,294 @@ export function ProjectDetailView({
         ? [project.imageUrl]
         : [];
 
-  const handlePrevImage = (e?: React.MouseEvent) => {
-    e?.stopPropagation();
-    setActiveImageIdx((prev) => (prev === 0 ? gallery.length - 1 : prev - 1));
-  };
-
-  const handleNextImage = (e?: React.MouseEvent) => {
-    e?.stopPropagation();
-    setActiveImageIdx((prev) => (prev === gallery.length - 1 ? 0 : prev + 1));
-  };
-
-  useEffect(() => {
-    if (!lightboxOpen) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowLeft") handlePrevImage();
-      if (e.key === "ArrowRight") handleNextImage();
-      if (e.key === "Escape") setLightboxOpen(false);
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [lightboxOpen, gallery.length]);
+  const extraLinks = project.links ?? [];
+  const hasReadme = Boolean(project.readmeMd?.trim());
 
   return (
-    <div className="min-h-screen bg-background pb-20">
-      {/* Decorative background glows */}
+    <div className="relative min-h-screen bg-background pb-24">
       <div
         aria-hidden
-        className="pointer-events-none absolute left-0 top-0 h-[600px] w-full bg-[radial-gradient(ellipse_at_top,_rgba(20,184,166,0.06),_rgba(14,165,233,0.04),_transparent_70%)]"
+        className="pointer-events-none absolute inset-x-0 top-0 h-[420px] bg-[radial-gradient(ellipse_at_top,_rgba(20,184,166,0.08),_transparent_70%)]"
       />
 
-      <div className="relative mx-auto max-w-5xl px-4 pt-8 sm:px-6 md:px-10">
-        {/* Back Link */}
+      <div className="relative mx-auto max-w-6xl px-4 pt-8 sm:px-6 lg:px-8">
         <Link
           href="/#projects"
-          className="group inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground mb-8 select-none"
+          className="group mb-8 inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="size-4 transition-transform group-hover:-translate-x-1" />
           Back to Projects
         </Link>
 
-        {/* Hero Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
+        <motion.header
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start mb-12"
+          className="mb-8"
         >
-          {/* Cover / Main Image */}
-          <div className="md:col-span-7 relative aspect-[16/10] w-full overflow-hidden rounded-2xl border border-border bg-muted shadow-sm group cursor-pointer"
-               onClick={() => gallery.length > 0 && setLightboxOpen(true)}>
-            {gallery.length > 0 ? (
-              <Image
-                src={gallery[activeImageIdx]}
-                alt={project.title}
-                fill
-                priority
-                sizes="(max-width: 768px) 100vw, 60vw"
-                className="object-cover transition-transform duration-500 group-hover:scale-102"
-              />
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-teal-500/20 to-sky-500/20 text-muted-foreground font-mono text-sm uppercase">
-                {project.title}
-              </div>
-            )}
-            
-            {gallery.length > 1 && (
-              <div className="absolute bottom-3 right-3 rounded-md bg-black/60 px-2.5 py-1 text-xs text-white font-mono select-none">
-                {activeImageIdx + 1} / {gallery.length}
-              </div>
-            )}
+          <div className="flex flex-wrap items-center gap-2">
+            {project.category ? (
+              <Badge
+                variant="outline"
+                className="border-teal-500/30 bg-teal-500/5 text-[10px] font-semibold uppercase tracking-wider text-teal-600 dark:text-teal-400"
+              >
+                {project.category}
+              </Badge>
+            ) : null}
+            {project.status ? (
+              <Badge
+                className={cn(
+                  "border-none px-2 py-0.5 text-[10px] font-bold uppercase",
+                  project.status === "completed"
+                    ? "bg-teal-500 text-white"
+                    : project.status === "ongoing"
+                      ? "bg-amber-500 text-white"
+                      : "bg-sky-500 text-white",
+                )}
+              >
+                {project.status === "completed"
+                  ? "Completed"
+                  : project.status === "ongoing"
+                    ? "In Progress"
+                    : "Concept"}
+              </Badge>
+            ) : null}
+            {project.projectType === "professional" ? (
+              <Badge variant="secondary" className="text-[10px] uppercase">
+                Professional
+              </Badge>
+            ) : null}
           </div>
 
-          {/* Details column */}
-          <div className="md:col-span-5 flex flex-col justify-between h-full gap-5">
-            <div>
-              {/* Category & Status Badges */}
-              <div className="flex flex-wrap items-center gap-2 mb-3">
-                {project.category && (
-                  <Badge variant="outline" className="border-teal-500/30 bg-teal-500/5 text-teal-600 dark:text-teal-400 font-semibold text-[10px] uppercase select-none">
-                    {project.category}
-                  </Badge>
-                )}
-                {project.status && (
-                  <Badge
-                    className={cn(
-                      "text-[10px] font-bold border-none uppercase py-0.5 px-2 select-none",
-                      project.status === "completed"
-                        ? "bg-teal-500 text-white"
-                        : project.status === "ongoing"
-                          ? "bg-amber-500 text-white"
-                          : "bg-blue-500 text-white"
-                    )}
-                  >
-                    {project.status === "completed" ? "Completed" : project.status === "ongoing" ? "In Progress" : "Concept"}
-                  </Badge>
-                )}
-              </div>
+          <h1 className="mt-3 max-w-4xl text-3xl font-extrabold tracking-tight text-foreground sm:text-5xl">
+            {project.title}
+          </h1>
+          {project.projectType === "professional" && project.company ? (
+            <p className="mt-2 flex items-center gap-1.5 text-sm font-semibold text-teal-600 dark:text-teal-400">
+              <Building2 className="size-4" />
+              Built at {project.company}
+            </p>
+          ) : null}
+          <p className="mt-4 max-w-3xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+            {project.description}
+          </p>
+        </motion.header>
 
-              <h1 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
-                {project.title}
-              </h1>
-              {project.projectType === "professional" && project.company && (
-                <p className="text-sm font-semibold text-teal-600 dark:text-teal-400 mt-1 select-none flex items-center gap-1.5">
-                  <Building2 className="size-4" />
-                  Built at {project.company}
-                </p>
-              )}
-
-              <p className="mt-3 text-base text-muted-foreground leading-relaxed">
-                {project.description}
-              </p>
-
-              {/* Meta Roles */}
-              <div className="mt-6 space-y-2.5 text-sm font-medium border-y border-border/60 py-4 dark:border-white/5">
-                {project.role && (
-                  <div className="flex items-center gap-2 text-foreground/90">
-                    <User className="size-4.5 text-teal-500 shrink-0" />
-                    <span className="text-muted-foreground mr-1.5">My Role:</span>
-                    {project.role}
-                  </div>
-                )}
-                {project.projectType === "professional" && project.teamSize && (
-                  <div className="flex items-center gap-2 text-foreground/90">
-                    <Users className="size-4.5 text-indigo-500 shrink-0" />
-                    <span className="text-muted-foreground mr-1.5">Team Size:</span>
-                    {project.teamSize}
-                  </div>
-                )}
-                {project.duration && (
-                  <div className="flex items-center gap-2 text-foreground/90">
-                    <Calendar className="size-4.5 text-sky-500 shrink-0" />
-                    <span className="text-muted-foreground mr-1.5">Duration:</span>
-                    {project.duration}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Links buttons */}
-            <div className="flex flex-wrap gap-3 mt-2">
-              {project.liveUrl && (
-                <Link
-                  href={project.liveUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={cn(
-                    buttonVariants({ size: "default" }),
-                    "flex-1 min-w-[130px] justify-center bg-gradient-to-r from-teal-600 to-sky-600 hover:from-teal-500 hover:to-sky-500 transition-all duration-300 shadow-sm"
-                  )}
-                >
-                  <ExternalLink data-icon="inline-start" />
-                  Live Demo
-                </Link>
-              )}
-              {project.githubUrl && (
-                <Link
-                  href={project.githubUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={cn(
-                    buttonVariants({ variant: "outline", size: "default" }),
-                    "flex-1 min-w-[130px] justify-center hover:bg-muted/50 transition-all duration-300"
-                  )}
-                >
-                  <FaGithub data-icon="inline-start" />
-                  GitHub Repository
-                </Link>
-              )}
-            </div>
-          </div>
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
+          className="mb-8"
+        >
+          <ProjectImageSlider images={gallery} title={project.title} />
         </motion.div>
 
-        {/* Thumbnail slider (if multi-images exist) */}
-        {gallery.length > 1 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex items-center gap-2.5 overflow-x-auto pb-4 mb-12 scrollbar-none"
-          >
-            {gallery.map((url, index) => (
-              <button
-                key={url}
-                onClick={() => setActiveImageIdx(index)}
-                className={cn(
-                  "relative aspect-video w-24 shrink-0 overflow-hidden rounded-md border-2 transition-all duration-300 outline-none cursor-pointer",
-                  activeImageIdx === index
-                    ? "border-teal-500 scale-95 shadow-sm"
-                    : "border-transparent opacity-60 hover:opacity-100"
-                )}
-              >
-                <Image
-                  src={url}
-                  alt={`Thumbnail ${index + 1}`}
-                  fill
-                  className="object-cover"
-                />
-              </button>
-            ))}
-          </motion.div>
-        )}
+        <div className="mb-10 flex flex-wrap gap-2.5">
+          {project.liveUrl ? (
+            <Link
+              href={project.liveUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn(
+                buttonVariants(),
+                "bg-gradient-to-r from-teal-600 to-sky-600 shadow-sm hover:from-teal-500 hover:to-sky-500",
+              )}
+            >
+              <ExternalLink data-icon="inline-start" />
+              Live Demo
+            </Link>
+          ) : null}
+          {project.githubUrl ? (
+            <Link
+              href={project.githubUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={buttonVariants({ variant: "outline" })}
+            >
+              <FaGithub data-icon="inline-start" />
+              GitHub
+            </Link>
+          ) : null}
+          {extraLinks.map((link) => (
+            <Link
+              key={`${link.label}-${link.url}`}
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={buttonVariants({ variant: "secondary" })}
+            >
+              <ArrowUpRight data-icon="inline-start" />
+              {link.label}
+            </Link>
+          ))}
+        </div>
 
-        {/* Story details layout */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
-          {/* Case study panels (Problem, Solution, Video) */}
-          <div className="md:col-span-8 space-y-8">
-            {/* Problem & Solution side-by-side or stacked card */}
-            {(project.problem || project.solution) && (
-              <motion.div
-                initial={{ opacity: 0, y: 15 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="grid grid-cols-1 sm:grid-cols-2 gap-6"
-              >
-                {project.problem && (
-                  <div className="rounded-2xl border border-border/80 bg-card/40 p-6 shadow-sm backdrop-blur-sm relative overflow-hidden">
-                    <div className="absolute top-0 left-0 w-1.5 h-full bg-amber-500/80" />
-                    <h3 className="text-lg font-bold text-foreground mb-2.5 flex items-center gap-2 select-none">
-                      <Info className="size-4.5 text-amber-500" />
-                      The Challenge
-                    </h3>
-                    <p className="text-sm leading-relaxed text-muted-foreground">
-                      {project.problem}
-                    </p>
+        <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
+          <div className="space-y-8 lg:col-span-8">
+            {hasReadme ? (
+              <section className="rounded-3xl border border-border bg-card/70 p-6 shadow-sm sm:p-8">
+                <div className="mb-6 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                  <FileText className="size-4 text-teal-500" />
+                  Project README
+                </div>
+                <MarkdownDocument content={project.readmeMd} />
+              </section>
+            ) : (
+              <>
+                {(project.problem || project.solution) && (
+                  <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                    {project.problem ? (
+                      <div className="relative overflow-hidden rounded-2xl border border-border bg-card/70 p-6">
+                        <div className="absolute inset-y-0 left-0 w-1.5 bg-amber-500/80" />
+                        <h3 className="mb-2 flex items-center gap-2 font-bold">
+                          <Info className="size-4 text-amber-500" />
+                          The Challenge
+                        </h3>
+                        <p className="text-sm leading-relaxed text-muted-foreground">
+                          {project.problem}
+                        </p>
+                      </div>
+                    ) : null}
+                    {project.solution ? (
+                      <div className="relative overflow-hidden rounded-2xl border border-border bg-card/70 p-6">
+                        <div className="absolute inset-y-0 left-0 w-1.5 bg-teal-500/80" />
+                        <h3 className="mb-2 flex items-center gap-2 font-bold">
+                          <Sparkles className="size-4 text-teal-500" />
+                          The Solution
+                        </h3>
+                        <p className="text-sm leading-relaxed text-muted-foreground">
+                          {project.solution}
+                        </p>
+                      </div>
+                    ) : null}
                   </div>
                 )}
-                {project.solution && (
-                  <div className="rounded-2xl border border-border/80 bg-card/40 p-6 shadow-sm backdrop-blur-sm relative overflow-hidden">
-                    <div className="absolute top-0 left-0 w-1.5 h-full bg-teal-500/80" />
-                    <h3 className="text-lg font-bold text-foreground mb-2.5 flex items-center gap-2 select-none">
-                      <Sparkles className="size-4.5 text-teal-500" />
-                      The Solution
+
+                {project.features?.length ? (
+                  <div className="rounded-2xl border border-border bg-card/70 p-6 sm:p-8">
+                    <h3 className="mb-4 flex items-center gap-2 font-bold">
+                      <Layers className="size-4 text-sky-500" />
+                      Key Features
                     </h3>
-                    <p className="text-sm leading-relaxed text-muted-foreground">
-                      {project.solution}
-                    </p>
+                    <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      {project.features.map((feature) => (
+                        <li
+                          key={feature}
+                          className="flex items-start gap-2.5 text-sm text-muted-foreground"
+                        >
+                          <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-teal-500" />
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                )}
-              </motion.div>
+                ) : null}
+
+                {project.directoryStructure?.trim() ? (
+                  <div className="rounded-2xl border border-border bg-card/70 p-6">
+                    <h3 className="mb-3 font-bold">Directory structure</h3>
+                    <pre className="overflow-x-auto rounded-xl bg-zinc-950 p-4 font-mono text-[13px] leading-6 text-zinc-100">
+                      {project.directoryStructure}
+                    </pre>
+                  </div>
+                ) : null}
+              </>
             )}
 
-            {/* Video Demonstration Iframe */}
-            {project.videoUrl && (
-              <motion.div
-                initial={{ opacity: 0, y: 15 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="rounded-2xl border border-border/80 bg-card/40 p-4 shadow-sm backdrop-blur-sm"
-              >
-                <h3 className="text-lg font-bold text-foreground mb-3 px-1 select-none">
-                  Project Demonstration
-                </h3>
-                <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-black shadow-inner">
+            {project.videoUrl ? (
+              <div className="rounded-2xl border border-border bg-card/70 p-4">
+                <h3 className="mb-3 px-1 font-bold">Project demonstration</h3>
+                <div className="relative aspect-video overflow-hidden rounded-xl bg-black">
                   <iframe
                     src={project.videoUrl}
-                    title="Project Demo Video"
+                    title={`${project.title} demo`}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowFullScreen
                     className="absolute inset-0 size-full border-none"
                   />
                 </div>
-              </motion.div>
-            )}
+              </div>
+            ) : null}
 
-            {/* Key Features checklist */}
-            {project.features && project.features.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 15 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="rounded-2xl border border-border/80 bg-card/40 p-6 shadow-sm backdrop-blur-sm sm:p-8"
-              >
-                <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2 select-none">
-                  <Layers className="size-4.5 text-sky-500" />
-                  Key Features
-                </h3>
-                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  {project.features.map((feature, idx) => (
-                    <li
-                      key={idx}
-                      className="flex items-start gap-2.5 text-sm leading-relaxed text-muted-foreground"
-                    >
-                      <span className="mt-0.5 text-teal-500 shrink-0 select-none">
-                        <CheckCircle2 className="size-4 opacity-80" />
-                      </span>
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </motion.div>
-            )}
-
-            {/* Responsibilities list */}
-            {project.projectType === "professional" && project.responsibilities && project.responsibilities.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 15 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="rounded-2xl border border-border/80 bg-card/40 p-6 shadow-sm backdrop-blur-sm sm:p-8"
-              >
-                <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2 select-none">
-                  <Briefcase className="size-4.5 text-teal-500" />
+            {project.projectType === "professional" &&
+            project.responsibilities?.length ? (
+              <div className="rounded-2xl border border-border bg-card/70 p-6 sm:p-8">
+                <h3 className="mb-4 flex items-center gap-2 font-bold">
+                  <Briefcase className="size-4 text-teal-500" />
                   Key Responsibilities
                 </h3>
-                <ul className="grid grid-cols-1 gap-3">
-                  {project.responsibilities.map((resp, idx) => (
+                <ul className="space-y-3">
+                  {project.responsibilities.map((item) => (
                     <li
-                      key={idx}
-                      className="flex items-start gap-2.5 text-sm leading-relaxed text-muted-foreground"
+                      key={item}
+                      className="flex items-start gap-2.5 text-sm text-muted-foreground"
                     >
-                      <span className="mt-1.5 text-teal-500 shrink-0 select-none">
-                        <span className="block size-1.5 rounded-full bg-teal-500/80" />
-                      </span>
-                      <span>{resp}</span>
+                      <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-teal-500" />
+                      {item}
                     </li>
                   ))}
                 </ul>
-              </motion.div>
-            )}
+              </div>
+            ) : null}
           </div>
 
-          {/* Sidebar (Results KPI, Tech Stack) */}
-          <div className="md:col-span-4 space-y-6">
-            {/* Impact Metric statistics counters */}
-            {project.results && project.results.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, x: 15 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                className="space-y-4"
-              >
-                {project.results.map((metric, idx) => (
+          <aside className="space-y-5 lg:sticky lg:top-24 lg:col-span-4">
+            <div className="rounded-2xl border border-border bg-card/70 p-5">
+              <h3 className="mb-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                Project facts
+              </h3>
+              <dl className="space-y-3 text-sm">
+                {project.role ? (
+                  <div className="flex items-start gap-2.5">
+                    <User className="mt-0.5 size-4 text-teal-500" />
+                    <div>
+                      <dt className="text-xs text-muted-foreground">Role</dt>
+                      <dd className="font-medium">{project.role}</dd>
+                    </div>
+                  </div>
+                ) : null}
+                {project.duration ? (
+                  <div className="flex items-start gap-2.5">
+                    <Calendar className="mt-0.5 size-4 text-sky-500" />
+                    <div>
+                      <dt className="text-xs text-muted-foreground">Duration</dt>
+                      <dd className="font-medium">{project.duration}</dd>
+                    </div>
+                  </div>
+                ) : null}
+                {project.teamSize ? (
+                  <div className="flex items-start gap-2.5">
+                    <Users className="mt-0.5 size-4 text-indigo-500" />
+                    <div>
+                      <dt className="text-xs text-muted-foreground">Team</dt>
+                      <dd className="font-medium">{project.teamSize}</dd>
+                    </div>
+                  </div>
+                ) : null}
+              </dl>
+            </div>
+
+            {project.results?.length ? (
+              <div className="grid grid-cols-1 gap-3">
+                {project.results.map((metric) => (
                   <div
-                    key={idx}
-                    className="group relative rounded-2xl border border-border/80 bg-gradient-to-br from-card to-muted/10 p-5 shadow-sm hover:border-teal-500/10 transition-all duration-300"
+                    key={`${metric.label}-${metric.value}`}
+                    className="rounded-2xl border border-border bg-gradient-to-br from-card to-muted/20 p-5"
                   >
-                    <p className="font-mono text-3xl font-extrabold tracking-tight text-teal-500 sm:text-4xl">
+                    <p className="font-mono text-3xl font-extrabold text-teal-500">
                       {metric.value}
                     </p>
-                    <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground/80 mt-1 select-none">
+                    <p className="mt-1 text-xs font-bold uppercase tracking-wider text-muted-foreground">
                       {metric.label}
                     </p>
                   </div>
                 ))}
-              </motion.div>
-            )}
+              </div>
+            ) : null}
 
-            {/* Core Technologies Used */}
-            {project.techStack && project.techStack.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, x: 15 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                className="rounded-2xl border border-border/80 bg-card/40 p-6 shadow-sm backdrop-blur-sm"
-              >
-                <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground select-none mb-3">
-                  Technologies Used
+            {project.techStack?.length ? (
+              <div className="rounded-2xl border border-border bg-card/70 p-5">
+                <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  Technologies
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {project.techStack.map((tech) => {
@@ -411,7 +338,7 @@ export function ProjectDetailView({
                       <Badge
                         key={tech}
                         variant="outline"
-                        className="flex items-center gap-1.5 px-3 py-1 text-xs font-normal border-border/80 bg-background/30 backdrop-blur-sm select-none"
+                        className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-normal"
                       >
                         <Icon className="size-3.5 text-muted-foreground" />
                         {tech}
@@ -419,103 +346,38 @@ export function ProjectDetailView({
                     );
                   })}
                 </div>
-              </motion.div>
-            )}
-          </div>
+              </div>
+            ) : null}
+          </aside>
         </div>
 
-        {/* Recommended More Projects */}
-        {recommended.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mt-20 border-t border-border pt-12 dark:border-white/5"
-          >
-            <h2 className="text-2xl font-bold tracking-tight text-foreground select-none">
-              Explore More Projects
+        {recommended.length > 0 ? (
+          <section className="mt-20 border-t border-border pt-12">
+            <h2 className="text-2xl font-bold tracking-tight">
+              Explore more projects
             </h2>
-            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-5 lg:gap-6">
+            <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2">
               {recommended.map((rec) => (
                 <Link
                   key={rec.id}
                   href={`/projects/${rec.slug}`}
-                  className="group block rounded-xl border border-border bg-card/60 p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:border-teal-500/10 dark:bg-card/30"
+                  className="group rounded-2xl border border-border bg-card/70 p-5 transition hover:-translate-y-0.5 hover:border-teal-500/20 hover:shadow-md"
                 >
-                  <p className="text-[10px] uppercase font-bold tracking-wider text-teal-500 select-none">
-                    {rec.category || "Case Study"}
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-teal-500">
+                    {rec.category || "Case study"}
                   </p>
-                  <h3 className="text-base font-bold text-foreground mt-1 group-hover:text-teal-600 dark:group-hover:text-teal-400">
+                  <h3 className="mt-1 text-base font-bold group-hover:text-teal-600 dark:group-hover:text-teal-400">
                     {rec.title}
                   </h3>
-                  <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed truncate">
+                  <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
                     {rec.description}
                   </p>
                 </Link>
               ))}
             </div>
-          </motion.div>
-        )}
+          </section>
+        ) : null}
       </div>
-
-      {/* Lightbox Overlays Portal */}
-      <AnimatePresence>
-        {lightboxOpen && gallery.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setLightboxOpen(false)}
-            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/95 p-4 backdrop-blur-sm cursor-zoom-out"
-          >
-            {/* Close button */}
-            <button
-              onClick={() => setLightboxOpen(false)}
-              className="absolute right-4 top-4 rounded-full p-2 text-white/70 hover:text-white hover:bg-white/10 outline-none cursor-pointer"
-            >
-              <X className="size-6" />
-            </button>
-
-            {/* Slider container */}
-            <div className="relative flex w-full max-w-4xl flex-1 items-center justify-center">
-              {gallery.length > 1 && (
-                <button
-                  onClick={handlePrevImage}
-                  className="absolute left-2 z-10 rounded-full bg-black/60 p-2.5 text-white/80 hover:text-white hover:bg-black/90 outline-none cursor-pointer"
-                  title="Previous image"
-                >
-                  <ChevronLeft className="size-6" />
-                </button>
-              )}
-
-              <div className="relative h-[70vh] w-full">
-                <Image
-                  src={gallery[activeImageIdx]}
-                  alt={`Full size active image`}
-                  fill
-                  sizes="100vw"
-                  className="object-contain select-none"
-                />
-              </div>
-
-              {gallery.length > 1 && (
-                <button
-                  onClick={handleNextImage}
-                  className="absolute right-2 z-10 rounded-full bg-black/60 p-2.5 text-white/80 hover:text-white hover:bg-black/90 outline-none cursor-pointer"
-                  title="Next image"
-                >
-                  <ChevronRight className="size-6" />
-                </button>
-              )}
-            </div>
-
-            {/* Status Info Footer */}
-            <div className="mt-4 text-sm text-white/60 font-mono select-none">
-              {activeImageIdx + 1} of {gallery.length}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }

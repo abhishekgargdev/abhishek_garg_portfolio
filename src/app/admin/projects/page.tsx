@@ -44,6 +44,16 @@ const schema = z.object({
   bullets: z.array(z.string()).default([]),
   liveUrl: z.string().optional().default(""),
   githubUrl: z.string().optional().default(""),
+  links: z
+    .array(
+      z.object({
+        label: z.string().trim().min(1, "Link label is required"),
+        url: z.string().trim().min(1, "Link URL is required"),
+      }),
+    )
+    .default([]),
+  directoryStructure: z.string().optional().default(""),
+  readmeMd: z.string().optional().default(""),
   order: z.coerce.number().int().default(0),
 });
 
@@ -72,6 +82,9 @@ type ProjectRow = {
   bullets: string[];
   liveUrl: string;
   githubUrl: string;
+  links: { label: string; url: string }[];
+  directoryStructure: string;
+  readmeMd: string;
   order: number;
 };
 
@@ -106,6 +119,9 @@ export default function AdminProjectsPage() {
         bullets: [],
         liveUrl: "",
         githubUrl: "",
+        links: [],
+        directoryStructure: "",
+        readmeMd: "",
         order: 0,
       }}
       columns={[
@@ -293,10 +309,40 @@ export default function AdminProjectsPage() {
           tab: "Links & Tech",
         },
         {
+          name: "links",
+          label: "Additional links",
+          type: "links-list",
+          tab: "Links & Tech",
+          description:
+            "Each link needs a label (what it is for) and the URL. Example: Documentation → https://docs.example.com",
+        },
+        {
           name: "order",
           label: "Order / Position",
           type: "number",
           tab: "Links & Tech",
+        },
+
+        {
+          name: "directoryStructure",
+          label: "Directory structure",
+          type: "textarea",
+          tab: "README",
+          placeholder:
+            "src/\n  app/\n  components/\n  lib/\npackage.json",
+          description:
+            "Paste a folder tree. AI will include it in the README.",
+        },
+        {
+          name: "readmeMd",
+          label: "Project README.md",
+          type: "markdown",
+          tab: "README",
+          aiGenerate: true,
+          placeholder:
+            "Fill the other tabs, then generate a professional README with AI. You can edit it before saving.",
+          description:
+            "This markdown is what visitors read on the public project page.",
         },
       ]}
       toFormValues={(row) => ({
@@ -308,6 +354,9 @@ export default function AdminProjectsPage() {
           ? row.responsibilities
           : [],
         results: Array.isArray(row.results) ? row.results : [],
+        links: Array.isArray(row.links) ? row.links : [],
+        directoryStructure: row.directoryStructure ?? "",
+        readmeMd: row.readmeMd ?? "",
       })}
       toPayload={(values) => {
         const isFeatured =
@@ -338,6 +387,17 @@ export default function AdminProjectsPage() {
           techStack: values.techStack
             .map((item: string) => item.trim())
             .filter(Boolean),
+          links: (values.links ?? [])
+            .filter(
+              (item: { label?: string; url?: string }) =>
+                item.label?.trim() && item.url?.trim(),
+            )
+            .map((item: { label: string; url: string }) => ({
+              label: item.label.trim(),
+              url: item.url.trim(),
+            })),
+          directoryStructure: values.directoryStructure?.trim() ?? "",
+          readmeMd: values.readmeMd ?? "",
         };
       }}
     />

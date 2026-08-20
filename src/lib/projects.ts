@@ -6,6 +6,11 @@ export type ProjectResultData = {
   value: string;
 };
 
+export type ProjectLinkData = {
+  label: string;
+  url: string;
+};
+
 export type ProjectData = {
   id: string;
   title: string;
@@ -15,6 +20,7 @@ export type ProjectData = {
   bullets: string[];
   liveUrl: string;
   githubUrl: string;
+  links: ProjectLinkData[];
   imageUrl: string;
   images: string[];
   category: string;
@@ -31,6 +37,8 @@ export type ProjectData = {
   teamSize: string;
   responsibilities: string[];
   videoUrl: string;
+  directoryStructure: string;
+  readmeMd: string;
   order: number;
 };
 
@@ -39,27 +47,44 @@ function slugify(text: string): string {
     .toString()
     .toLowerCase()
     .trim()
-    .replace(/\s+/g, "-") // Replace spaces with -
-    .replace(/[^\w\-]+/g, "") // Remove all non-word chars
-    .replace(/\-\-+/g, "-") // Replace multiple - with single -
-    .replace(/^-+/, "") // Trim - from start of text
-    .replace(/-+$/, ""); // Trim - from end of text
+    .replace(/\s+/g, "-")
+    .replace(/[^\w\-]+/g, "")
+    .replace(/\-\-+/g, "-")
+    .replace(/^-+/, "")
+    .replace(/-+$/, "");
 }
 
-export async function getProjects(): Promise<ProjectData[]> {
-  await connectDB();
-
-  const docs = await Project.find().sort({ order: 1 });
-
-  // Self-healing migration for existing projects with empty slugs
-  for (const doc of docs) {
-    if (!doc.slug) {
-      doc.slug = slugify(doc.title);
-      await doc.save();
-    }
-  }
-
-  return docs.map((doc) => ({
+function toProjectData(doc: {
+  _id: unknown;
+  title: string;
+  slug?: string;
+  techStack?: string[];
+  description: string;
+  bullets?: string[];
+  liveUrl?: string;
+  githubUrl?: string;
+  links?: { label: string; url: string }[];
+  imageUrl?: string;
+  images?: string[];
+  category?: string;
+  status?: "completed" | "ongoing" | "concept";
+  featured?: boolean;
+  role?: string;
+  duration?: string;
+  problem?: string;
+  solution?: string;
+  features?: string[];
+  results?: { label: string; value: string }[];
+  projectType?: "personal" | "professional";
+  company?: string;
+  teamSize?: string;
+  responsibilities?: string[];
+  videoUrl?: string;
+  directoryStructure?: string;
+  readmeMd?: string;
+  order: number;
+}): ProjectData {
+  return {
     id: String(doc._id),
     title: doc.title,
     slug: doc.slug || slugify(doc.title),
@@ -68,6 +93,9 @@ export async function getProjects(): Promise<ProjectData[]> {
     bullets: doc.bullets ?? [],
     liveUrl: doc.liveUrl ?? "",
     githubUrl: doc.githubUrl ?? "",
+    links: (doc.links ?? [])
+      .filter((link) => link.label?.trim() && link.url?.trim())
+      .map((link) => ({ label: link.label, url: link.url })),
     imageUrl: doc.imageUrl ?? "",
     images: doc.images ?? [],
     category: doc.category ?? "",
@@ -78,7 +106,7 @@ export async function getProjects(): Promise<ProjectData[]> {
     problem: doc.problem ?? "",
     solution: doc.solution ?? "",
     features: doc.features ?? [],
-    results: (doc.results ?? []).map((r: any) => ({
+    results: (doc.results ?? []).map((r) => ({
       label: r.label,
       value: r.value,
     })),
@@ -87,8 +115,25 @@ export async function getProjects(): Promise<ProjectData[]> {
     teamSize: doc.teamSize ?? "",
     responsibilities: doc.responsibilities ?? [],
     videoUrl: doc.videoUrl ?? "",
+    directoryStructure: doc.directoryStructure ?? "",
+    readmeMd: doc.readmeMd ?? "",
     order: doc.order,
-  }));
+  };
+}
+
+export async function getProjects(): Promise<ProjectData[]> {
+  await connectDB();
+
+  const docs = await Project.find().sort({ order: 1 });
+
+  for (const doc of docs) {
+    if (!doc.slug) {
+      doc.slug = slugify(doc.title);
+      await doc.save();
+    }
+  }
+
+  return docs.map((doc) => toProjectData(doc));
 }
 
 export async function getProjectBySlug(
@@ -99,7 +144,6 @@ export async function getProjectBySlug(
   let doc = await Project.findOne({ slug }).lean();
 
   if (!doc) {
-    // Try finding by slugified title as a fallback if migration hasn't persisted yet
     const all = await Project.find();
     const match = all.find((d) => slugify(d.title) === slug);
     if (match) {
@@ -113,34 +157,5 @@ export async function getProjectBySlug(
 
   if (!doc) return null;
 
-  return {
-    id: String(doc._id),
-    title: doc.title,
-    slug: doc.slug || slugify(doc.title),
-    techStack: doc.techStack ?? [],
-    description: doc.description,
-    bullets: doc.bullets ?? [],
-    liveUrl: doc.liveUrl ?? "",
-    githubUrl: doc.githubUrl ?? "",
-    imageUrl: doc.imageUrl ?? "",
-    images: doc.images ?? [],
-    category: doc.category ?? "",
-    status: doc.status ?? "completed",
-    featured: doc.featured ?? false,
-    role: doc.role ?? "",
-    duration: doc.duration ?? "",
-    problem: doc.problem ?? "",
-    solution: doc.solution ?? "",
-    features: doc.features ?? [],
-    results: (doc.results ?? []).map((r: any) => ({
-      label: r.label,
-      value: r.value,
-    })),
-    projectType: doc.projectType ?? "personal",
-    company: doc.company ?? "",
-    teamSize: doc.teamSize ?? "",
-    responsibilities: doc.responsibilities ?? [],
-    videoUrl: doc.videoUrl ?? "",
-    order: doc.order,
-  };
+  return toProjectData(doc);
 }

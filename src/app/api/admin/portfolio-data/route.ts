@@ -72,6 +72,9 @@ export async function GET() {
         techStack: doc.techStack || [],
         liveUrl: doc.liveUrl || "",
         githubUrl: doc.githubUrl || "",
+        links: doc.links || [],
+        directoryStructure: doc.directoryStructure || "",
+        readmeMd: doc.readmeMd || "",
         order: doc.order || 0,
       })),
       skills: skills.map((doc) => ({
