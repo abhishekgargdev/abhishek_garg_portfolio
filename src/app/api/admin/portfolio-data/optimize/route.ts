@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireAdminSession } from "@/lib/admin-auth";
 import {
   askGeminiJson,
+  askGeminiJsonChained,
   getConfiguredGeminiKeyCount,
 } from "@/lib/gemini";
 import {
@@ -26,7 +27,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { prompt: userPrompt, currentData } = await request.json();
+    const { prompt: userPrompt, currentData, useChain, chainSteps } = await request.json();
 
     if (!userPrompt?.trim()) {
       return NextResponse.json(
@@ -37,15 +38,25 @@ export async function POST(request: Request) {
 
     const compiledPrompt = PORTFOLIO_COPILOT_PROMPT_TEMPLATE(userPrompt, currentData);
 
-    const { data } = await askGeminiJson<any>({
-      purpose: "portfolio-copilot",
-      prompt: compiledPrompt,
-      systemInstruction: PORTFOLIO_COPILOT_SYSTEM_INSTRUCTION,
-      temperature: 0.4,
-      metadata: { source: "admin-copilot" },
-    });
+    const { data } = useChain
+      ? await askGeminiJsonChained<any>({
+          purpose: "portfolio-copilot",
+          prompt: compiledPrompt,
+          systemInstruction: PORTFOLIO_COPILOT_SYSTEM_INSTRUCTION,
+          temperature: 0.4,
+          chainSteps,
+          metadata: { source: "admin-copilot" },
+        })
+      : await askGeminiJson<any>({
+          purpose: "portfolio-copilot",
+          prompt: compiledPrompt,
+          systemInstruction: PORTFOLIO_COPILOT_SYSTEM_INSTRUCTION,
+          temperature: 0.4,
+          metadata: { source: "admin-copilot" },
+        });
 
     return NextResponse.json({ suggestions: data });
+
   } catch (error) {
     console.error("[portfolio-data/optimize] POST failed:", error);
     return NextResponse.json(

@@ -181,6 +181,7 @@ export default function AiAssistantPage() {
   const [prompt, setPrompt] = useState(DEFAULT_USER_PROMPT);
   const [generating, setGenerating] = useState(false);
   const [suggestions, setSuggestions] = useState<AISuggestions | null>(null);
+  const [useChain, setUseChain] = useState(false);
 
   // Field-wise AI States
   const [activeField, setActiveField] = useState<{
@@ -317,7 +318,7 @@ export default function AiAssistantPage() {
       const response = await fetch("/api/admin/portfolio-data/optimize", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt, currentData }),
+        body: JSON.stringify({ prompt, currentData, useChain }),
       });
       const data = (await response.json()) as {
         suggestions?: AISuggestions;
@@ -1920,6 +1921,19 @@ export default function AiAssistantPage() {
                 placeholder="Example: Optimize my experience bullets to focus on metrics like loading speeds and API response times..."
                 className="w-full rounded-lg border border-zinc-850 p-2.5 text-xs bg-zinc-850 text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:border-teal-500 transition-colors"
               />
+              <div className="flex items-center gap-2 py-1 text-xs">
+                <input
+                  type="checkbox"
+                  id="use-chain-checkbox"
+                  checked={useChain}
+                  onChange={(e) => setUseChain(e.target.checked)}
+                  disabled={generating}
+                  className="rounded border-zinc-700 bg-zinc-800 text-teal-500 focus:ring-0 cursor-pointer"
+                />
+                <label htmlFor="use-chain-checkbox" className="text-zinc-300 font-medium select-none cursor-pointer flex items-center gap-1">
+                  <span>Chained Refinement (Rotate 6 Keys)</span>
+                </label>
+              </div>
               <Button
                 type="button"
                 onClick={generateSuggestions}

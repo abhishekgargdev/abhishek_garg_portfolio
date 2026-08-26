@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireAdminSession } from "@/lib/admin-auth";
 import {
   askGemini,
+  askGeminiChained,
   getConfiguredGeminiKeyCount,
   getDefaultGeminiModel,
   listAiInteractions,
@@ -19,6 +20,8 @@ const generateSchema = z.object({
   maxOutputTokens: z.number().int().min(16).max(8192).optional(),
   persist: z.boolean().optional(),
   metadata: z.record(z.string(), z.unknown()).optional(),
+  useChain: z.boolean().optional(),
+  chainSteps: z.number().int().min(1).max(6).optional(),
 });
 
 /** POST — send a prompt through the shared Gemini key pool. */
@@ -46,7 +49,11 @@ export async function POST(request: Request) {
       );
     }
 
-    const result = await askGemini(parsed.data);
+    const { useChain, chainSteps, ...geminiOptions } = parsed.data;
+    const result = useChain
+      ? await askGeminiChained({ ...geminiOptions, chainSteps })
+      : await askGemini(geminiOptions);
+
     return NextResponse.json({
       ...result,
       defaultModel: getDefaultGeminiModel(),

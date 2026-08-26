@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
-import { LogOut, Menu } from "lucide-react";
+import { useState, useEffect } from "react";
+import { LogOut, Menu, AlertTriangle, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -89,6 +89,25 @@ function LogoutButton({ className }: { className?: string }) {
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [hasMismatches, setHasMismatches] = useState(false);
+  const [bannerDismissed, setBannerDismissed] = useState(false);
+
+  useEffect(() => {
+    const checkSyncStatus = async () => {
+      try {
+        const res = await fetch("/api/admin/linkedin/profile");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.isConnected && data.hasMismatches) {
+            setHasMismatches(true);
+          }
+        }
+      } catch {
+        // Silently ignore errors
+      }
+    };
+    void checkSyncStatus();
+  }, []);
 
   return (
     <div className="min-h-svh bg-zinc-50 text-zinc-900">
@@ -129,7 +148,30 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           <p className="text-sm font-semibold">Portfolio CMS</p>
         </header>
 
-        <div className="px-4 py-6 sm:px-6 lg:px-8">{children}</div>
+        <div className="px-4 py-6 sm:px-6 lg:px-8">
+          {hasMismatches && !bannerDismissed && (
+            <div className="mb-6 flex items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50/70 p-4 text-xs font-medium text-amber-800 shadow-sm animate-in slide-in-from-top-4 duration-300 backdrop-blur-sm">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="size-4 shrink-0 text-amber-600 animate-bounce" />
+                <span>
+                  Your LinkedIn Profile and Portfolio data are out of sync.{" "}
+                  <Link href="/admin/linkedin" className="font-semibold underline hover:text-amber-900 transition-colors">
+                    Review and sync differences
+                  </Link>
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setBannerDismissed(true)}
+                className="rounded-lg p-1 hover:bg-amber-100 transition-colors shrink-0"
+                aria-label="Dismiss banner"
+              >
+                <X className="size-3.5 text-amber-600" />
+              </button>
+            </div>
+          )}
+          {children}
+        </div>
       </div>
     </div>
   );
