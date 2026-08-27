@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { SplashLoader } from "@/components/loader/SplashLoader";
 import { Providers } from "@/components/providers/Providers";
 import { Toaster } from "@/components/ui/sonner";
+import { ParticleBackground } from "@/components/layout/ParticleBackground";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -91,6 +92,7 @@ export default function RootLayout({
     >
       <body className="flex min-h-full flex-col overflow-x-hidden bg-background text-foreground">
         <Providers>
+          <ParticleBackground />
           <SplashLoader>{children}</SplashLoader>
           <Toaster richColors closeButton position="top-right" />
         </Providers>

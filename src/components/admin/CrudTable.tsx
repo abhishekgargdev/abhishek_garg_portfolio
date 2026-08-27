@@ -46,7 +46,7 @@ export function CrudTable<T extends { id: string }>({
 
   if (!data.length) {
     return (
-      <div className="rounded-xl border border-dashed border-zinc-300 bg-white px-4 py-10 text-center text-sm text-zinc-500">
+      <div className="rounded-xl border border-dashed border-zinc-300 dark:border-zinc-800 bg-white/40 dark:bg-zinc-900/30 px-4 py-10 text-center text-sm text-zinc-500 dark:text-zinc-400 backdrop-blur-sm transition-colors duration-300">
         {emptyMessage}
       </div>
     );
@@ -55,7 +55,7 @@ export function CrudTable<T extends { id: string }>({
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-xl border border-zinc-200 bg-white",
+        "overflow-hidden rounded-xl border border-zinc-200/80 dark:border-zinc-800/80 bg-white/50 dark:bg-zinc-900/40 backdrop-blur-sm transition-colors duration-300",
         className,
       )}
     >

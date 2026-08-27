@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { DefaultValues, FieldValues } from "react-hook-form";
 import type { z } from "zod";
 import { Plus } from "lucide-react";
+import { motion } from "framer-motion";
 import { toast } from "sonner";
 import {
   CrudFormDialog,
@@ -220,7 +221,12 @@ export function AdminResourcePage<
   };
 
   return (
-    <div className="space-y-6">
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: "easeOut" }}
+      className="space-y-6"
+    >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
@@ -300,7 +306,7 @@ export function AdminResourcePage<
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </motion.div>
   );
 }
 

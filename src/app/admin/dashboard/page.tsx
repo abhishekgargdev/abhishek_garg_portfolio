@@ -117,17 +117,17 @@ export default function AdminDashboardPage() {
           {STAT_CARDS.map((card) => {
             const Icon = card.icon;
             return (
-              <Link key={card.key} href={card.href} className="block">
-                <Card className="h-full transition-colors hover:ring-zinc-300">
+              <Link key={card.key} href={card.href} className="block group">
+                <Card className="h-full bg-white/50 dark:bg-zinc-900/40 border border-zinc-200/80 dark:border-zinc-800/80 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:scale-[1.01] hover:shadow-lg hover:shadow-teal-500/5 hover:border-teal-500/50 dark:hover:border-teal-500/30">
                   <CardHeader className="flex flex-row items-start justify-between gap-3">
                     <div>
-                      <CardDescription>{card.label}</CardDescription>
-                      <CardTitle className="mt-1 text-3xl tabular-nums">
+                      <CardDescription className="transition-colors group-hover:text-teal-600 dark:group-hover:text-teal-400">{card.label}</CardDescription>
+                      <CardTitle className="mt-1 text-3xl tabular-nums tracking-tight">
                         {stats[card.key]}
                       </CardTitle>
                     </div>
-                    <span className="flex size-9 items-center justify-center rounded-full border border-zinc-200 bg-zinc-50">
-                      <Icon className="size-4 text-zinc-700" />
+                    <span className="flex size-9 items-center justify-center rounded-full border border-zinc-200/85 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 transition-all duration-300 group-hover:scale-110 group-hover:bg-teal-500/10 group-hover:border-teal-500/30">
+                      <Icon className="size-4 text-zinc-700 dark:text-zinc-300 transition-colors duration-300 group-hover:text-teal-600 dark:group-hover:text-teal-400" />
                     </span>
                   </CardHeader>
                 </Card>
