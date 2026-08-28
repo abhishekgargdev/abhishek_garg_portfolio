@@ -3,6 +3,7 @@ import {
   Award,
   Brain,
   Briefcase,
+  FileJson,
   FileText,
   FolderKanban,
   GraduationCap,
@@ -26,6 +27,7 @@ export const ADMIN_NAV: AdminNavItem[] = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/ai-assistant", label: "AI Assistant", icon: Brain },
   { href: "/admin/linkedin", label: "LinkedIn Connect", icon: FaLinkedin },
+  { href: "/admin/json-data", label: "JSON Data Manager", icon: FileJson },
   { href: "/admin/about", label: "About", icon: UserRound },
 
   { href: "/admin/experience-clocks", label: "Experience Clocks", icon: Timer },
