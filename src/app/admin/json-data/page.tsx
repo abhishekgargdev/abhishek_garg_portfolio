@@ -60,14 +60,41 @@ const SAMPLES: Record<string, unknown> = {
   projects: [
     {
       title: "Project Forge",
+      slug: "project-forge",
+      techStack: ["Next.js", "TailwindCSS", "Gemini AI"],
       description: "An AI-powered SaaS tool for code synthesis and deployment.",
       bullets: [
         "Integrated Gemini API to automate readme generation.",
         "Deployed on Vercel with serverless function handlers."
       ],
-      techStack: ["Next.js", "TailwindCSS", "Gemini AI"],
+      imageUrl: "",
+      images: [],
+      category: "SaaS",
+      status: "completed",
+      featured: true,
+      role: "Lead Developer",
+      duration: "6 Months",
+      problem: "Writing boilerplate README files manually takes too much developer time.",
+      solution: "Provide an automated generation framework leveraging Gemini Models.",
+      features: ["Auto-readme generation", "Vercel deployments", "Multi-language support"],
+      results: [
+        { label: "Developer Time Saved", value: "80%" }
+      ],
+      videoUrl: "",
       liveUrl: "https://forge.example.com",
       githubUrl: "https://github.com/user/forge",
+      links: [
+        { label: "Product Page", url: "https://forge.example.com" }
+      ],
+      directoryStructure: "src/ ...",
+      readmeMd: "# Project Forge ...",
+      projectType: "personal",
+      company: "",
+      teamSize: "1 (Solo)",
+      responsibilities: [
+        "Designed database models",
+        "Configured serverless endpoints"
+      ],
       order: 0
     }
   ],
@@ -122,7 +149,21 @@ const SAMPLES: Record<string, unknown> = {
       link: "",
       order: 0
     }
-  ]
+  ],
+  experienceTenure: {
+    totalLabel: "Total Experience",
+    relevantLabel: "Relevant Experience",
+    periods: [
+      {
+        title: "Senior Full Stack Engineer",
+        company: "Innovate Inc",
+        startDate: "2023-01-01",
+        endDate: null,
+        countsTotal: true,
+        countsRelevant: true
+      }
+    ]
+  }
 };
 
 // Create a combined schema sample
@@ -134,7 +175,8 @@ SAMPLES.all = {
   education: SAMPLES.education,
   achievements: SAMPLES.achievements,
   certifications: SAMPLES.certifications,
-  timeline: SAMPLES.timeline
+  timeline: SAMPLES.timeline,
+  experienceTenure: SAMPLES.experienceTenure
 };
 
 const MODULE_OPTIONS = [
@@ -147,6 +189,7 @@ const MODULE_OPTIONS = [
   { value: "achievements", label: "🏆 Achievements" },
   { value: "certifications", label: "📜 Certifications" },
   { value: "timeline", label: "🗺️ Timeline Entries" },
+  { value: "experienceTenure", label: "⏰ Experience Clocks" },
 ];
 
 export default function JsonDataManagerPage() {

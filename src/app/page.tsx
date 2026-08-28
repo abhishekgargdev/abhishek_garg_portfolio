@@ -92,10 +92,7 @@ export default async function Home() {
         <Hero about={about} />
         <FadeInSection>
           <ExperienceWatches tenure={tenure} />
-        </FadeInSection>
-        <FadeInSection>
-          <StatsCounters stats={stats} />
-        </FadeInSection>
+        </FadeInSection>      
         <FadeInSection>
           <CareerJourney items={journey} />
         </FadeInSection>
