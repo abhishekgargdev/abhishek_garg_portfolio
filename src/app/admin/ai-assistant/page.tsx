@@ -101,6 +101,18 @@ type CertificationForm = {
   order: number;
 };
 
+type TimelineEntryForm = {
+  id: string;
+  category: "experience" | "education" | "achievement" | "certificate" | "other";
+  role: string;
+  company: string;
+  startDate: string;
+  endDate: string | null;
+  description: string;
+  link: string;
+  order: number;
+};
+
 type PortfolioData = {
   aboutMe: AboutMeForm;
   experience: ExperienceForm[];
@@ -109,6 +121,7 @@ type PortfolioData = {
   education: EducationForm[];
   achievements: AchievementForm[];
   certifications: CertificationForm[];
+  timeline: TimelineEntryForm[];
 };
 
 type SuggestionAbout = {
@@ -149,6 +162,13 @@ type SuggestionCertification = {
   provider?: string;
 };
 
+type SuggestionTimeline = {
+  id: string;
+  role?: string;
+  company?: string;
+  description?: string;
+};
+
 type AISuggestions = {
   aboutMe?: SuggestionAbout;
   experience?: SuggestionExperience[];
@@ -156,6 +176,7 @@ type AISuggestions = {
   achievements?: SuggestionAchievement[];
   education?: SuggestionEducation[];
   certifications?: SuggestionCertification[];
+  timeline?: SuggestionTimeline[];
 };
 
 const PRESETS = [
@@ -233,6 +254,7 @@ export default function AiAssistantPage() {
   const [education, setEducation] = useState<EducationForm[]>([]);
   const [achievements, setAchievements] = useState<AchievementForm[]>([]);
   const [certifications, setCertifications] = useState<CertificationForm[]>([]);
+  const [timeline, setTimeline] = useState<TimelineEntryForm[]>([]);
 
   const fetchPortfolioData = useCallback(async () => {
     setLoading(true);
@@ -258,6 +280,7 @@ export default function AiAssistantPage() {
       setEducation(data.education || []);
       setAchievements(data.achievements || []);
       setCertifications(data.certifications || []);
+      setTimeline(data.timeline || []);
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to load portfolio data",
@@ -285,6 +308,7 @@ export default function AiAssistantPage() {
           education,
           achievements,
           certifications,
+          timeline,
         }),
       });
       const data = (await response.json()) as { error?: string };
@@ -313,6 +337,7 @@ export default function AiAssistantPage() {
         achievements,
         education,
         certifications,
+        timeline,
       };
 
       const response = await fetch("/api/admin/portfolio-data/optimize", {
@@ -443,7 +468,43 @@ export default function AiAssistantPage() {
       );
     }
 
+    // 7. Timeline
+    if (Array.isArray(suggestions.timeline)) {
+      setTimeline((prev) =>
+        prev.map((item) => {
+          const sugg = suggestions.timeline?.find((s) => s.id === item.id);
+          if (sugg) {
+            return {
+              ...item,
+              role: sugg.role || item.role,
+              company: sugg.company || item.company,
+              description: sugg.description || item.description,
+            };
+          }
+          return item;
+        }),
+      );
+    }
+
     toast.success("Applied all suggestions to the form fields!");
+  };
+
+  const addTimeline = () => {
+    const tempId = `temp_${Date.now()}`;
+    setTimeline((prev) => [
+      ...prev,
+      {
+        id: tempId,
+        category: "experience",
+        role: "New Milestone",
+        company: "",
+        startDate: new Date().toISOString().slice(0, 10),
+        endDate: null,
+        description: "Details about this milestone.",
+        link: "",
+        order: prev.length,
+      },
+    ]);
   };
 
   // List Management Helpers
@@ -752,6 +813,45 @@ export default function AiAssistantPage() {
       });
     }
 
+    // Timeline
+    if (Array.isArray(suggestions.timeline)) {
+      suggestions.timeline.forEach((sugg) => {
+        const orig = timeline.find((x) => x.id === sugg.id);
+        if (orig) {
+          if (sugg.role && sugg.role !== orig.role) {
+            diffs.push({
+              id: `time_role_${sugg.id}`,
+              section: `Timeline: ${orig.role}`,
+              label: "Title / Role",
+              original: orig.role,
+              suggested: sugg.role,
+              apply: () => setTimeline(prev => prev.map(x => x.id === sugg.id ? { ...x, role: sugg.role! } : x)),
+            });
+          }
+          if (sugg.company && sugg.company !== orig.company) {
+            diffs.push({
+              id: `time_company_${sugg.id}`,
+              section: `Timeline: ${orig.role}`,
+              label: "Organization / Company",
+              original: orig.company,
+              suggested: sugg.company,
+              apply: () => setTimeline(prev => prev.map(x => x.id === sugg.id ? { ...x, company: sugg.company! } : x)),
+            });
+          }
+          if (sugg.description && sugg.description !== orig.description) {
+            diffs.push({
+              id: `time_desc_${sugg.id}`,
+              section: `Timeline: ${orig.role}`,
+              label: "Description",
+              original: orig.description,
+              suggested: sugg.description,
+              apply: () => setTimeline(prev => prev.map(x => x.id === sugg.id ? { ...x, description: sugg.description! } : x)),
+            });
+          }
+        }
+      });
+    }
+
     return diffs;
   };
 
@@ -837,6 +937,7 @@ export default function AiAssistantPage() {
                 <TabsTrigger value="education">Education</TabsTrigger>
                 <TabsTrigger value="achievements">Achievements</TabsTrigger>
                 <TabsTrigger value="certifications">Certifications</TabsTrigger>
+                <TabsTrigger value="timeline">Timeline</TabsTrigger>
               </TabsList>
             </div>
 
@@ -1865,6 +1966,285 @@ export default function AiAssistantPage() {
                             }
                             className="w-full rounded-lg border border-zinc-200 p-2 text-sm bg-white text-zinc-800 font-mono"
                           />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </TabsContent>
+
+              {/* --- Timeline Tab --- */}
+              <TabsContent value="timeline" className="space-y-6 mt-0">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-sm font-semibold text-zinc-700 uppercase tracking-wide">Timeline Entries</h2>
+                  <Button type="button" size="sm" onClick={addTimeline} className="bg-zinc-800 text-white hover:bg-zinc-900">
+                    <Plus className="size-3.5 mr-1" />
+                    Add Entry
+                  </Button>
+                </div>
+
+                <div className="space-y-6">
+                  {timeline.map((item) => {
+                    const timelineSuggestion = suggestions?.timeline?.find((s) => s.id === item.id);
+
+                    return (
+                      <div key={item.id} className="relative rounded-xl border border-zinc-200 bg-zinc-50/30 p-5 space-y-4">
+                        <button
+                          type="button"
+                          onClick={() => setTimeline(timeline.filter((x) => x.id !== item.id))}
+                          className="absolute top-4 right-4 text-zinc-400 hover:text-destructive transition-colors"
+                          title="Remove entry"
+                        >
+                          <Trash2 className="size-4" />
+                        </button>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pr-8">
+                          <div className="space-y-1">
+                            <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wide">Type</label>
+                            <select
+                              value={item.category}
+                              onChange={(e) =>
+                                setTimeline(
+                                  timeline.map((x) =>
+                                    x.id === item.id
+                                      ? { ...x, category: e.target.value as any }
+                                      : x,
+                                  ),
+                                )
+                              }
+                              className="w-full rounded-lg border border-zinc-200 p-2 text-sm bg-white text-zinc-800"
+                            >
+                              <option value="experience">Experience</option>
+                              <option value="education">Education</option>
+                              <option value="achievement">Achievement</option>
+                              <option value="certificate">Certificate</option>
+                              <option value="other">Other</option>
+                            </select>
+                          </div>
+
+                          <div className="space-y-1">
+                            {renderAiLabel(
+                              "Title / Role",
+                              `role_${item.id}`,
+                              item.role,
+                              (val) =>
+                                setTimeline(
+                                  timeline.map((x) =>
+                                    x.id === item.id ? { ...x, role: val as string } : x,
+                                  ),
+                                ),
+                              false,
+                            )}
+                            <input
+                              type="text"
+                              value={item.role}
+                              onChange={(e) =>
+                                setTimeline(
+                                  timeline.map((x) =>
+                                    x.id === item.id ? { ...x, role: e.target.value } : x,
+                                  ),
+                                )
+                              }
+                              className="w-full rounded-lg border border-zinc-200 p-2 text-sm bg-white text-zinc-800"
+                            />
+                            {timelineSuggestion?.role && timelineSuggestion.role !== item.role && (
+                              <div className="mt-1 rounded-lg border border-teal-200 bg-teal-50/30 p-2 text-xs">
+                                <div className="flex items-center justify-between font-bold text-teal-800 mb-0.5">
+                                  <span>AI Suggestion:</span>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setTimeline(
+                                        timeline.map((x) =>
+                                          x.id === item.id
+                                            ? { ...x, role: timelineSuggestion.role! }
+                                            : x,
+                                        ),
+                                      )
+                                    }
+                                    className="px-1.5 py-0.5 rounded bg-teal-600 text-white text-[10px]"
+                                  >
+                                    Apply
+                                  </button>
+                                </div>
+                                <p>{timelineSuggestion.role}</p>
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="space-y-1">
+                            {renderAiLabel(
+                              "Organization / Company",
+                              `company_${item.id}`,
+                              item.company,
+                              (val) =>
+                                setTimeline(
+                                  timeline.map((x) =>
+                                    x.id === item.id ? { ...x, company: val as string } : x,
+                                  ),
+                                ),
+                              false,
+                            )}
+                            <input
+                              type="text"
+                              value={item.company}
+                              onChange={(e) =>
+                                setTimeline(
+                                  timeline.map((x) =>
+                                    x.id === item.id ? { ...x, company: e.target.value } : x,
+                                  ),
+                                )
+                              }
+                              className="w-full rounded-lg border border-zinc-200 p-2 text-sm bg-white text-zinc-800"
+                            />
+                            {timelineSuggestion?.company && timelineSuggestion.company !== item.company && (
+                              <div className="mt-1 rounded-lg border border-teal-200 bg-teal-50/30 p-2 text-xs">
+                                <div className="flex items-center justify-between font-bold text-teal-800 mb-0.5">
+                                  <span>AI Suggestion:</span>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setTimeline(
+                                        timeline.map((x) =>
+                                          x.id === item.id
+                                            ? { ...x, company: timelineSuggestion.company! }
+                                            : x,
+                                        ),
+                                      )
+                                    }
+                                    className="px-1.5 py-0.5 rounded bg-teal-600 text-white text-[10px]"
+                                  >
+                                    Apply
+                                  </button>
+                                </div>
+                                <p>{timelineSuggestion.company}</p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div className="space-y-1">
+                            <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wide">Start Date</label>
+                            <input
+                              type="date"
+                              value={item.startDate ? item.startDate.slice(0, 10) : ""}
+                              onChange={(e) =>
+                                setTimeline(
+                                  timeline.map((x) =>
+                                    x.id === item.id ? { ...x, startDate: e.target.value } : x,
+                                  ),
+                                )
+                              }
+                              className="w-full rounded-lg border border-zinc-200 p-2 text-sm bg-white text-zinc-800"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wide">End Date (optional)</label>
+                            <input
+                              type="date"
+                              value={item.endDate ? item.endDate.slice(0, 10) : ""}
+                              onChange={(e) =>
+                                setTimeline(
+                                  timeline.map((x) =>
+                                    x.id === item.id
+                                      ? { ...x, endDate: e.target.value || null }
+                                      : x,
+                                  ),
+                                )
+                              }
+                              className="w-full rounded-lg border border-zinc-200 p-2 text-sm bg-white text-zinc-800"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div className="space-y-1">
+                            <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wide">Link (optional)</label>
+                            <input
+                              type="url"
+                              value={item.link}
+                              onChange={(e) =>
+                                setTimeline(
+                                  timeline.map((x) =>
+                                    x.id === item.id ? { ...x, link: e.target.value } : x,
+                                  ),
+                                )
+                              }
+                              className="w-full rounded-lg border border-zinc-200 p-2 text-sm bg-white text-zinc-800 font-mono"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wide">Order</label>
+                            <input
+                              type="number"
+                              value={item.order}
+                              onChange={(e) =>
+                                setTimeline(
+                                  timeline.map((x) =>
+                                    x.id === item.id
+                                      ? { ...x, order: Number(e.target.value) || 0 }
+                                      : x,
+                                  ),
+                                )
+                              }
+                              className="w-full rounded-lg border border-zinc-200 p-2 text-sm bg-white text-zinc-800"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-1">
+                          {renderAiLabel(
+                            "Description",
+                            `description_${item.id}`,
+                            item.description,
+                            (val) =>
+                              setTimeline(
+                                timeline.map((x) =>
+                                  x.id === item.id
+                                    ? { ...x, description: val as string }
+                                    : x,
+                                ),
+                              ),
+                            false,
+                          )}
+                          <textarea
+                            rows={3}
+                            value={item.description}
+                            onChange={(e) =>
+                              setTimeline(
+                                timeline.map((x) =>
+                                  x.id === item.id
+                                    ? { ...x, description: e.target.value }
+                                    : x,
+                                ),
+                              )
+                            }
+                            className="w-full rounded-lg border border-zinc-200 p-2 text-sm bg-white text-zinc-800"
+                          />
+                          {timelineSuggestion?.description && timelineSuggestion.description !== item.description && (
+                            <div className="mt-2 rounded-lg border border-teal-200 bg-teal-50/30 p-3 text-xs leading-relaxed text-zinc-700">
+                              <div className="flex items-center justify-between font-bold text-teal-800 uppercase tracking-wide mb-1">
+                                <span>AI Suggestion:</span>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setTimeline(
+                                      timeline.map((x) =>
+                                        x.id === item.id
+                                          ? { ...x, description: timelineSuggestion.description! }
+                                          : x,
+                                      ),
+                                    )
+                                  }
+                                  className="px-2 py-0.5 rounded bg-teal-600 hover:bg-teal-700 text-white font-medium normal-case"
+                                >
+                                  Apply
+                                </button>
+                              </div>
+                              <p>{timelineSuggestion.description}</p>
+                            </div>
+                          )}
                         </div>
                       </div>
                     );

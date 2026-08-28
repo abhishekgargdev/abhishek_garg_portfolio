@@ -72,6 +72,14 @@ Your response must be a JSON object matching this schema:
       "title": "suggested title (string, optional)",
       "provider": "suggested provider (string, optional)"
     }
+  ],
+  "timeline": [
+    {
+      "id": "original_timeline_id (string, required)",
+      "role": "suggested role/title (string, optional)",
+      "company": "suggested company/organization (string, optional)",
+      "description": "suggested description (string, optional)"
+    }
   ]
 }
 

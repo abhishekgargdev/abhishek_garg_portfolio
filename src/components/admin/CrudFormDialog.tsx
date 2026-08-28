@@ -10,6 +10,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { z } from "zod";
 import {
+  Brain,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -727,6 +728,83 @@ export function CrudFormDialog<TSchema extends z.ZodType>({
     await onSubmit(values);
   });
 
+  // AI Field Optimizer States
+  const [activeField, setActiveField] = useState<{
+    name: string;
+    key: Path<FormValues>;
+    currentValue: string | string[];
+    applyValue: (val: string | string[]) => void;
+  } | null>(null);
+  const [fieldInstruction, setFieldInstruction] = useState("");
+  const [generatingField, setGeneratingField] = useState(false);
+  const [fieldSuggestion, setFieldSuggestion] = useState<string | string[] | null>(null);
+
+  const optimizeField = async () => {
+    if (!activeField) return;
+    setGeneratingField(true);
+    setFieldSuggestion(null);
+    try {
+      const response = await fetch("/api/admin/portfolio-data/optimize-field", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fieldName: activeField.name,
+          currentValue: activeField.currentValue,
+          instruction: fieldInstruction,
+        }),
+      });
+      const data = (await response.json()) as {
+        suggestedValue?: string | string[];
+        error?: string;
+      };
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to optimize field");
+      }
+      setFieldSuggestion(data.suggestedValue || null);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to generate suggestion",
+      );
+    } finally {
+      setGeneratingField(false);
+    }
+  };
+
+  const renderFieldLabel = (field: CrudFieldConfig<FormValues>) => {
+    const isAiEligible = ["text", "textarea", "string-list", "markdown"].includes(field.type);
+    if (!isAiEligible) {
+      return <Label htmlFor={String(field.name)}>{field.label}</Label>;
+    }
+
+    return (
+      <div className="flex items-center justify-between mb-1.5 w-full">
+        <Label htmlFor={String(field.name)} className="cursor-pointer">{field.label}</Label>
+        <button
+          type="button"
+          onClick={() => {
+            const currentVal = watch(field.name) || (field.type === "string-list" ? [] : "");
+            setActiveField({
+              name: field.label,
+              key: field.name,
+              currentValue: currentVal,
+              applyValue: (val) => {
+                setValue(field.name, val as never, {
+                  shouldDirty: true,
+                  shouldValidate: true,
+                });
+              },
+            });
+            setFieldInstruction("Optimize this field for ATS-friendliness and professional tone, ensuring it remains natural and human-written.");
+          }}
+          className="flex items-center gap-1 text-[10px] font-semibold text-teal-600 hover:text-teal-700 transition-colors shrink-0"
+        >
+          <Sparkles className="size-3 text-teal-500" />
+          <span>Ask AI</span>
+        </button>
+      </div>
+    );
+  };
+
   const renderField = (field: CrudFieldConfig<FormValues>) => {
     const error = errors[field.name];
     const message =
@@ -760,7 +838,7 @@ export function CrudFormDialog<TSchema extends z.ZodType>({
     if (field.type === "string-list") {
       return (
         <div key={String(field.name)} className="space-y-2">
-          <Label htmlFor={String(field.name)}>{field.label}</Label>
+          {renderFieldLabel(field)}
           <Controller
             control={control}
             name={field.name}
@@ -944,9 +1022,9 @@ export function CrudFormDialog<TSchema extends z.ZodType>({
     if (field.type === "markdown") {
       return (
         <div key={String(field.name)} className="space-y-2">
-          <div className="flex items-center justify-between gap-2">
-            <Label htmlFor={String(field.name)}>{field.label}</Label>
-            {field.aiGenerate ? (
+          {renderFieldLabel(field)}
+          {field.aiGenerate ? (
+            <div className="flex justify-end mb-1">
               <GenerateReadmeButton
                 disabled={submitting}
                 getProject={() => watch()}
@@ -957,8 +1035,8 @@ export function CrudFormDialog<TSchema extends z.ZodType>({
                   })
                 }
               />
-            ) : null}
-          </div>
+            </div>
+          ) : null}
           <Textarea
             id={String(field.name)}
             placeholder={field.placeholder}
@@ -981,7 +1059,7 @@ export function CrudFormDialog<TSchema extends z.ZodType>({
     if (field.type === "textarea") {
       return (
         <div key={String(field.name)} className="space-y-2">
-          <Label htmlFor={String(field.name)}>{field.label}</Label>
+          {renderFieldLabel(field)}
           <Textarea
             id={String(field.name)}
             placeholder={field.placeholder}
@@ -1033,7 +1111,7 @@ export function CrudFormDialog<TSchema extends z.ZodType>({
 
     return (
       <div key={String(field.name)} className="space-y-2">
-        <Label htmlFor={String(field.name)}>{field.label}</Label>
+        {renderFieldLabel(field)}
         <Input
           id={String(field.name)}
           type={
@@ -1070,68 +1148,191 @@ export function CrudFormDialog<TSchema extends z.ZodType>({
   }, [fields]);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          {description ? (
-            <DialogDescription>{description}</DialogDescription>
-          ) : null}
-        </DialogHeader>
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{title}</DialogTitle>
+            {description ? (
+              <DialogDescription>{description}</DialogDescription>
+            ) : null}
+          </DialogHeader>
 
-        <form onSubmit={submit} className="space-y-4" noValidate>
-          {tabsList.length > 0 ? (
-            <Tabs defaultValue={tabsList[0]} className="w-full flex-col gap-4">
-              <TabsList className="w-full flex flex-row overflow-x-auto justify-start border-b border-border bg-transparent p-0 rounded-none h-auto gap-2 scrollbar-none pb-2">
+          <form onSubmit={submit} className="space-y-4" noValidate>
+            {tabsList.length > 0 ? (
+              <Tabs defaultValue={tabsList[0]} className="w-full flex-col gap-4">
+                <TabsList className="w-full flex flex-row overflow-x-auto justify-start border-b border-border bg-transparent p-0 rounded-none h-auto gap-2 scrollbar-none pb-2">
+                  {tabsList.map((tab) => (
+                    <TabsTrigger
+                      key={tab}
+                      value={tab}
+                      className="px-3 py-1.5 text-sm border-b-2 rounded-none data-[state=active]:border-primary data-active:border-primary data-active:bg-transparent dark:data-active:bg-transparent cursor-pointer font-semibold"
+                    >
+                      {tab}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
                 {tabsList.map((tab) => (
-                  <TabsTrigger
+                  <TabsContent
                     key={tab}
                     value={tab}
-                    className="px-3 py-1.5 text-sm border-b-2 rounded-none data-[state=active]:border-primary data-active:border-primary data-active:bg-transparent dark:data-active:bg-transparent cursor-pointer font-semibold"
+                    className="space-y-4 pt-2 animate-in fade-in duration-200"
                   >
-                    {tab}
-                  </TabsTrigger>
+                    {fields
+                      .filter((f) => f.tab === tab)
+                      .map((field) => renderField(field))}
+                  </TabsContent>
                 ))}
-              </TabsList>
-              {tabsList.map((tab) => (
-                <TabsContent
-                  key={tab}
-                  value={tab}
-                  className="space-y-4 pt-2 animate-in fade-in duration-200"
-                >
-                  {fields
-                    .filter((f) => f.tab === tab)
-                    .map((field) => renderField(field))}
-                </TabsContent>
-              ))}
-            </Tabs>
-          ) : (
-            fields.map((field) => renderField(field))
-          )}
+              </Tabs>
+            ) : (
+              fields.map((field) => renderField(field))
+            )}
 
-          <DialogFooter className="border-t border-border pt-4 mt-6">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={submitting}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={submitting}>
-              {submitting ? (
-                <>
-                  <Loader2 className="animate-spin" data-icon="inline-start" />
-                  Saving…
-                </>
-              ) : (
-                "Save"
-              )}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+            <DialogFooter className="border-t border-border pt-4 mt-6">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                disabled={submitting}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={submitting}>
+                {submitting ? (
+                  <>
+                    <Loader2 className="animate-spin" data-icon="inline-start" />
+                    Saving…
+                  </>
+                ) : (
+                  "Save"
+                )}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Field-wise AI Assistant Modal inside CrudFormDialog */}
+      <Dialog
+        open={Boolean(activeField)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setActiveField(null);
+            setFieldInstruction("");
+            setFieldSuggestion(null);
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-lg gap-4 bg-white border border-zinc-200 shadow-xl rounded-xl">
+          {activeField ? (
+            <>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-1.5 text-teal-700 text-lg font-bold">
+                  <Brain className="size-5 text-teal-600 animate-pulse animate-in" />
+                  Field AI Optimizer
+                </DialogTitle>
+                <DialogDescription className="text-xs text-zinc-500">
+                  Suggest professional updates for field: <strong className="text-zinc-800 font-semibold">{activeField.name}</strong>
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-4 text-sm mt-2">
+                {/* Original Value Display */}
+                <div className="space-y-1">
+                  <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wide">Current Value</span>
+                  <div className="rounded-lg border border-zinc-200 bg-zinc-50/50 p-3 text-zinc-700 whitespace-pre-wrap max-h-[150px] overflow-y-auto text-xs leading-relaxed">
+                    {Array.isArray(activeField.currentValue) ? (
+                      <ul className="list-disc list-inside space-y-0.5">
+                        {activeField.currentValue.map((b, idx) => (
+                          <li key={idx}>{b}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      activeField.currentValue
+                    )}
+                  </div>
+                </div>
+
+                {/* Rewrite Instructions */}
+                <div className="space-y-1.5 flex flex-col">
+                  <label htmlFor="modal-instruction-textarea" className="text-xs font-semibold text-zinc-500 uppercase tracking-wide">
+                    Optimization Instructions
+                  </label>
+                  <textarea
+                    id="modal-instruction-textarea"
+                    rows={3}
+                    value={fieldInstruction}
+                    onChange={(e) => setFieldInstruction(e.target.value)}
+                    disabled={generatingField}
+                    placeholder="E.g., Make it more concise, emphasize cloud scale, add metrics, rewrite in third person..."
+                    className="w-full rounded-lg border border-zinc-200 p-2.5 text-xs bg-white text-zinc-800 disabled:opacity-50 placeholder:text-zinc-400 focus:outline-none focus:border-teal-500"
+                  />
+                </div>
+
+                {/* Suggestion Result */}
+                {fieldSuggestion && (
+                  <div className="space-y-1 animate-in fade-in duration-300">
+                    <span className="text-xs font-semibold text-teal-700 uppercase tracking-wide">AI Recommendation</span>
+                    <div className="rounded-lg border border-teal-200 bg-teal-50/10 p-3 text-zinc-800 whitespace-pre-wrap max-h-[150px] overflow-y-auto text-xs leading-relaxed">
+                      {Array.isArray(fieldSuggestion) ? (
+                        <ul className="list-disc list-inside space-y-0.5">
+                          {fieldSuggestion.map((b, idx) => (
+                            <li key={idx}>{b}</li>
+                          ))}
+                        </ul>
+                      ) : (
+                        fieldSuggestion
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex justify-end gap-2 border-t border-zinc-150 pt-3.5 mt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={generatingField}
+                  onClick={() => {
+                    setActiveField(null);
+                    setFieldInstruction("");
+                    setFieldSuggestion(null);
+                  }}
+                  className="text-xs"
+                >
+                  Close
+                </Button>
+                
+                <Button
+                  type="button"
+                  onClick={optimizeField}
+                  disabled={generatingField || !fieldInstruction.trim()}
+                  className="bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs"
+                >
+                  {generatingField ? "Optimizing..." : "Generate Suggestion"}
+                </Button>
+                
+                {fieldSuggestion && (
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      activeField.applyValue(fieldSuggestion);
+                      setActiveField(null);
+                      setFieldInstruction("");
+                      setFieldSuggestion(null);
+                      toast.success("Applied suggestion to field!");
+                    }}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs"
+                  >
+                    Apply Suggestion
+                  </Button>
+                )}
+              </div>
+            </>
+          ) : null}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 

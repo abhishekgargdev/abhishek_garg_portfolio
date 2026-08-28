@@ -9,6 +9,7 @@ import SkillCategory from "@/models/SkillCategory";
 import Education from "@/models/Education";
 import Achievement from "@/models/Achievement";
 import Certification from "@/models/Certification";
+import TimelineEntry from "@/models/TimelineEntry";
 
 export const runtime = "nodejs";
 
@@ -35,6 +36,7 @@ export async function GET() {
       Education.find().sort({ year: -1 }).lean(),
       Achievement.find().sort({ order: 1, date: -1 }).lean(),
       Certification.find().sort({ order: 1, date: -1 }).lean(),
+      TimelineEntry.find().sort({ order: 1, startDate: -1 }).lean(),
     ]);
 
     return NextResponse.json({
@@ -111,6 +113,17 @@ export async function GET() {
         imageUrl: doc.imageUrl || "",
         order: doc.order || 0,
       })),
+      timeline: timelineEntries.map((doc) => ({
+        id: String(doc._id),
+        category: doc.category,
+        role: doc.role,
+        company: doc.company || "",
+        startDate: doc.startDate ? new Date(doc.startDate).toISOString() : "",
+        endDate: doc.endDate ? new Date(doc.endDate).toISOString() : null,
+        description: doc.description || "",
+        link: doc.link || "",
+        order: doc.order || 0,
+      })),
     });
   } catch (error) {
     console.error("[portfolio-data] GET failed:", error);
@@ -182,6 +195,11 @@ export async function POST(request: Request) {
     // 7. Certifications
     if (Array.isArray(body.certifications)) {
       await performUpserts(Certification, body.certifications);
+    }
+
+    // 8. Timeline
+    if (Array.isArray(body.timeline)) {
+      await performUpserts(TimelineEntry, body.timeline);
     }
 
     return NextResponse.json({ message: "Portfolio updated successfully" });
