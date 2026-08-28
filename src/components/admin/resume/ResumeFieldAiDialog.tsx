@@ -70,13 +70,13 @@ export function ResumeFieldAiDialog({
 
   return (
     <Dialog open={open} onOpenChange={(next) => !next && handleClose()}>
-      <DialogContent className="gap-4 sm:max-w-lg">
+      <DialogContent className="gap-4 sm:max-w-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xl rounded-xl">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-1.5 text-teal-700">
-            <Brain className="size-5 text-teal-600" />
+          <DialogTitle className="flex items-center gap-1.5 text-teal-700 dark:text-teal-400 text-lg font-bold">
+            <Brain className="size-5 text-teal-600 dark:text-teal-400" />
             AI Resume Optimizer
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-zinc-500 dark:text-zinc-400">
             Enhance <strong>{fieldName}</strong> with ATS-friendly, professional
             copy.
           </DialogDescription>
@@ -87,7 +87,7 @@ export function ResumeFieldAiDialog({
             <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Current Value
             </span>
-            <div className="max-h-36 overflow-y-auto rounded-lg border bg-muted/30 p-3 text-xs leading-relaxed">
+            <div className="max-h-36 overflow-y-auto rounded-lg border border-zinc-200 dark:border-zinc-800 bg-muted/30 p-3 text-xs leading-relaxed text-zinc-700 dark:text-zinc-300">
               {Array.isArray(currentValue) ? (
                 <ul className="list-inside list-disc space-y-0.5">
                   {currentValue.map((item, index) => (
@@ -113,16 +113,16 @@ export function ResumeFieldAiDialog({
               value={instruction}
               onChange={(e) => setInstruction(e.target.value)}
               disabled={generating}
-              className="w-full rounded-lg border p-2.5 text-xs focus:border-teal-500 focus:outline-none disabled:opacity-50"
+              className="w-full rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 text-zinc-800 dark:text-zinc-200 p-2.5 text-xs focus:border-teal-500 focus:outline-none disabled:opacity-50"
             />
           </div>
 
           {suggestion ? (
             <div className="space-y-1">
-              <span className="text-xs font-semibold uppercase tracking-wide text-teal-700">
+              <span className="text-xs font-semibold uppercase tracking-wide text-teal-700 dark:text-teal-400">
                 AI Recommendation
               </span>
-              <div className="max-h-36 overflow-y-auto rounded-lg border border-teal-200 bg-teal-50/20 p-3 text-xs leading-relaxed">
+              <div className="max-h-36 overflow-y-auto rounded-lg border border-teal-200 dark:border-teal-900/50 bg-teal-50/20 dark:bg-teal-950/20 p-3 text-xs leading-relaxed text-zinc-700 dark:text-zinc-300">
                 {Array.isArray(suggestion) ? (
                   <ul className="list-inside list-disc space-y-0.5">
                     {suggestion.map((item, index) => (
@@ -137,7 +137,7 @@ export function ResumeFieldAiDialog({
           ) : null}
         </div>
 
-        <div className="flex justify-end gap-2 border-t pt-3">
+        <div className="flex justify-end gap-2 border-t border-zinc-100 dark:border-zinc-800 pt-3">
           <Button type="button" variant="outline" onClick={handleClose}>
             Close
           </Button>

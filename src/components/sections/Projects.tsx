@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion, AnimatePresence } from "framer-motion";
-import { ArrowRight, ExternalLink } from "lucide-react";
+import { ArrowRight, ExternalLink, ChevronDown, ChevronUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -288,15 +288,23 @@ export function Projects({ projects }: ProjectsProps) {
   const [activeTab, setActiveTab] = useState<"personal" | "professional">(
     "personal",
   );
+  const [visibleCount, setVisibleCount] = useState(6);
 
   if (!projects.length) {
     return null;
   }
 
+  const handleTabChange = (tab: "personal" | "professional") => {
+    setActiveTab(tab);
+    setVisibleCount(6);
+  };
+
   // Filter projects by active category tab
   const filteredProjects = projects.filter(
     (p) => (p.projectType || "personal") === activeTab,
   );
+
+  const visibleProjects = filteredProjects.slice(0, visibleCount);
 
   return (
     <section
@@ -315,7 +323,7 @@ export function Projects({ projects }: ProjectsProps) {
         <div className="mt-8 flex justify-center gap-2.5 sm:mt-10 select-none">
           <button
             type="button"
-            onClick={() => setActiveTab("personal")}
+            onClick={() => handleTabChange("personal")}
             className={cn(
               "px-5 py-2 text-xs sm:text-sm font-semibold rounded-full border transition-all relative overflow-hidden cursor-pointer",
               activeTab === "personal"
@@ -334,7 +342,7 @@ export function Projects({ projects }: ProjectsProps) {
           </button>
           <button
             type="button"
-            onClick={() => setActiveTab("professional")}
+            onClick={() => handleTabChange("professional")}
             className={cn(
               "px-5 py-2 text-xs sm:text-sm font-semibold rounded-full border transition-all relative overflow-hidden cursor-pointer",
               activeTab === "professional"
@@ -363,8 +371,8 @@ export function Projects({ projects }: ProjectsProps) {
           viewport={{ once: true, amount: 0.05 }}
         >
           <AnimatePresence mode="popLayout">
-            {filteredProjects.length > 0 ? (
-              filteredProjects.map((project) => (
+            {visibleProjects.length > 0 ? (
+              visibleProjects.map((project) => (
                 <motion.div
                   key={project.id}
                   layout
@@ -392,6 +400,41 @@ export function Projects({ projects }: ProjectsProps) {
             )}
           </AnimatePresence>
         </motion.div>
+
+        {/* Load More / Show Less controls */}
+        {filteredProjects.length > 6 && (
+          <div className="mt-12 flex flex-col items-center justify-center gap-4">
+            {visibleCount < filteredProjects.length ? (
+              <Button
+                type="button"
+                onClick={() => setVisibleCount((prev) => Math.min(prev + 6, filteredProjects.length))}
+                className="group relative flex items-center gap-2 overflow-hidden rounded-full bg-gradient-to-r from-teal-600 to-sky-600 px-6 py-5 text-sm font-semibold text-white shadow-md transition-all duration-300 hover:from-teal-500 hover:to-sky-500 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] cursor-pointer"
+              >
+                Load More Projects
+                <motion.span
+                  animate={reduceMotion ? undefined : { y: [0, 3, 0] }}
+                  transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                  className="inline-flex"
+                >
+                  <ChevronDown className="size-4 shrink-0" />
+                </motion.span>
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setVisibleCount(6);
+                  document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" });
+                }}
+                className="group flex items-center gap-2 rounded-full border border-teal-500/30 text-teal-600 hover:text-teal-500 bg-teal-500/5 hover:bg-teal-500/10 px-6 py-5 text-sm font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+              >
+                Show Less
+                <ChevronUp className="size-4 shrink-0 transition-transform duration-300 group-hover:-translate-y-0.5" />
+              </Button>
+            )}
+          </div>
+        )}
       </div>
     </section>
   );

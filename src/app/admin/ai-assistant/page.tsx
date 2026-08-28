@@ -2431,24 +2431,24 @@ export default function AiAssistantPage() {
           }
         }}
       >
-        <DialogContent className="sm:max-w-lg gap-4 bg-white border border-zinc-200 shadow-xl rounded-xl">
+        <DialogContent className="sm:max-w-lg gap-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xl rounded-xl">
           {activeField ? (
             <>
               <DialogHeader>
-                <DialogTitle className="flex items-center gap-1.5 text-teal-700 text-lg font-bold">
-                  <Brain className="size-5 text-teal-600 animate-pulse" />
+                <DialogTitle className="flex items-center gap-1.5 text-teal-700 dark:text-teal-400 text-lg font-bold">
+                  <Brain className="size-5 text-teal-600 dark:text-teal-400 animate-pulse" />
                   Field AI Optimizer
                 </DialogTitle>
-                <DialogDescription className="text-xs text-zinc-505">
-                  Suggest professional updates for field: <strong className="text-zinc-800 font-semibold">{activeField.name}</strong>
+                <DialogDescription className="text-xs text-zinc-550 dark:text-zinc-400">
+                  Suggest professional updates for field: <strong className="text-zinc-800 dark:text-zinc-250 font-semibold">{activeField.name}</strong>
                 </DialogDescription>
               </DialogHeader>
 
               <div className="space-y-4 text-sm mt-2">
                 {/* Original Value Display */}
                 <div className="space-y-1">
-                  <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wide">Current Value</span>
-                  <div className="rounded-lg border border-zinc-200 bg-zinc-50/50 p-3 text-zinc-700 whitespace-pre-wrap max-h-[150px] overflow-y-auto text-xs leading-relaxed">
+                  <span className="text-xs font-semibold text-zinc-550 dark:text-zinc-400 uppercase tracking-wide">Current Value</span>
+                  <div className="rounded-lg border border-zinc-200 dark:border-zinc-850 bg-zinc-50/50 dark:bg-zinc-950 p-3 text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap max-h-[150px] overflow-y-auto text-xs leading-relaxed">
                     {Array.isArray(activeField.currentValue) ? (
                       <ul className="list-disc list-inside space-y-0.5">
                         {activeField.currentValue.map((b, idx) => (
@@ -2463,7 +2463,7 @@ export default function AiAssistantPage() {
 
                 {/* Rewrite Instructions */}
                 <div className="space-y-1.5 flex flex-col">
-                  <label htmlFor="field-instruction-textarea" className="text-xs font-semibold text-zinc-500 uppercase tracking-wide">
+                  <label htmlFor="field-instruction-textarea" className="text-xs font-semibold text-zinc-550 dark:text-zinc-400 uppercase tracking-wide">
                     Optimization Instructions
                   </label>
                   <textarea
@@ -2473,15 +2473,15 @@ export default function AiAssistantPage() {
                     onChange={(e) => setFieldInstruction(e.target.value)}
                     disabled={generatingField}
                     placeholder="E.g., Make it more concise, emphasize cloud scale, add metrics, rewrite in third person..."
-                    className="w-full rounded-lg border border-zinc-200 p-2.5 text-xs bg-white text-zinc-800 disabled:opacity-50 placeholder:text-zinc-400 focus:outline-none focus:border-teal-500"
+                    className="w-full rounded-lg border border-zinc-200 dark:border-zinc-800 p-2.5 text-xs bg-white dark:bg-zinc-950 text-zinc-800 dark:text-zinc-200 disabled:opacity-50 placeholder:text-zinc-400 dark:placeholder:text-zinc-650 focus:outline-none focus:border-teal-500"
                   />
                 </div>
 
                 {/* Suggestion Result */}
                 {fieldSuggestion && (
                   <div className="space-y-1 animate-in fade-in duration-300">
-                    <span className="text-xs font-semibold text-teal-700 uppercase tracking-wide">AI Recommendation</span>
-                    <div className="rounded-lg border border-teal-200 bg-teal-50/10 p-3 text-zinc-800 whitespace-pre-wrap max-h-[150px] overflow-y-auto text-xs leading-relaxed">
+                    <span className="text-xs font-semibold text-teal-700 dark:text-teal-400 uppercase tracking-wide">AI Recommendation</span>
+                    <div className="rounded-lg border border-teal-200 dark:border-teal-900/50 bg-teal-50/10 dark:bg-teal-950/20 p-3 text-zinc-800 dark:text-zinc-200 whitespace-pre-wrap max-h-[150px] overflow-y-auto text-xs leading-relaxed">
                       {Array.isArray(fieldSuggestion) ? (
                         <ul className="list-disc list-inside space-y-0.5">
                           {fieldSuggestion.map((b, idx) => (
@@ -2496,7 +2496,7 @@ export default function AiAssistantPage() {
                 )}
               </div>
 
-              <div className="flex justify-end gap-2 border-t border-zinc-150 pt-3.5 mt-2">
+              <div className="flex justify-end gap-2 border-t border-zinc-150 dark:border-zinc-800 pt-3.5 mt-2">
                 <Button
                   type="button"
                   variant="outline"
