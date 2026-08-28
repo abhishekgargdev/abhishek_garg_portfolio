@@ -28,6 +28,7 @@ export async function GET() {
       education,
       achievements,
       certifications,
+      timelineEntries,
     ] = await Promise.all([
       AboutMe.findOne().lean(),
       Experience.find().sort({ order: 1, startDate: -1 }).lean(),
