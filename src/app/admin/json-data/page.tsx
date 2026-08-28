@@ -400,7 +400,7 @@ export default function JsonDataManagerPage() {
           <div className="flex-1 relative flex flex-col">
             {loading ? (
               <div className="absolute inset-0 bg-zinc-950/80 backdrop-blur-xs flex items-center justify-center z-10">
-                <SectionLoader variant="grid" count={4} />
+                <SectionLoader variant="text" count={4} />
               </div>
             ) : null}
 
