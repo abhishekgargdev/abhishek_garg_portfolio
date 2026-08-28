@@ -90,7 +90,7 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col overflow-x-hidden bg-background text-foreground">
+      <body className="flex min-h-full flex-col overflow-x-hidden bg-zinc-50/40 dark:bg-zinc-950/20 text-foreground">
         <Providers>
           <ParticleBackground />
           <SplashLoader>{children}</SplashLoader>

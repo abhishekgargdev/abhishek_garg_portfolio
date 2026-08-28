@@ -310,9 +310,9 @@ export default function JsonDataManagerPage() {
   return (
     <div className="space-y-6">
       {/* Header Panel */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-zinc-200 pb-5">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-zinc-200 dark:border-zinc-800 pb-5">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">JSON Data Manager</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">JSON Data Manager</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Export database records or import/update entries using raw JSON objects. Non-destructive: missing records are not deleted.
           </p>
@@ -321,18 +321,18 @@ export default function JsonDataManagerPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Editor (8/12) */}
-        <div className="lg:col-span-8 bg-zinc-950 border border-zinc-800 rounded-2xl overflow-hidden shadow-2xl flex flex-col min-h-[620px] transition-all duration-300">
+        <div className="lg:col-span-8 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl overflow-hidden shadow-xl flex flex-col min-h-[620px] transition-all duration-300">
           
           {/* Editor Header Bar */}
-          <div className="bg-zinc-900 border-b border-zinc-800 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div className="flex items-center gap-3">
-              <label htmlFor="module-select" className="text-xs font-semibold text-zinc-400 uppercase tracking-wide">Scope:</label>
+              <label htmlFor="module-select" className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">Scope:</label>
               <select
                 id="module-select"
                 value={selectedModule}
                 onChange={(e) => setSelectedModule(e.target.value)}
                 disabled={loading || saving}
-                className="rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-1.5 text-xs text-zinc-200 focus:border-teal-500 focus:outline-none cursor-pointer"
+                className="rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 px-3 py-1.5 text-xs text-zinc-800 dark:text-zinc-200 focus:border-teal-500 focus:outline-none cursor-pointer"
               >
                 {MODULE_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -349,7 +349,7 @@ export default function JsonDataManagerPage() {
                 size="sm"
                 onClick={handlePrettify}
                 disabled={loading || saving || !jsonText}
-                className="h-8 text-xs text-zinc-300 hover:text-white hover:bg-zinc-800 border border-zinc-700 bg-transparent shrink-0"
+                className="h-8 text-xs text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 bg-transparent shrink-0"
               >
                 Prettify
               </Button>
@@ -359,9 +359,9 @@ export default function JsonDataManagerPage() {
                 size="sm"
                 onClick={handleCopy}
                 disabled={loading || !jsonText}
-                className="h-8 text-xs text-zinc-300 hover:text-white hover:bg-zinc-800 border border-zinc-700 bg-transparent shrink-0 gap-1.5"
+                className="h-8 text-xs text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 bg-transparent shrink-0 gap-1.5"
               >
-                {copied ? <Check className="size-3 text-emerald-400" /> : <Copy className="size-3" />}
+                {copied ? <Check className="size-3 text-emerald-500 dark:text-emerald-400" /> : <Copy className="size-3" />}
                 {copied ? "Copied" : "Copy"}
               </Button>
               <Button
@@ -370,7 +370,7 @@ export default function JsonDataManagerPage() {
                 size="sm"
                 onClick={handleDownload}
                 disabled={loading || !jsonText}
-                className="h-8 text-xs text-zinc-300 hover:text-white hover:bg-zinc-800 border border-zinc-700 bg-transparent shrink-0 gap-1.5"
+                className="h-8 text-xs text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 bg-transparent shrink-0 gap-1.5"
               >
                 <Download className="size-3" />
                 Export
@@ -381,7 +381,7 @@ export default function JsonDataManagerPage() {
                 size="sm"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={loading || saving}
-                className="h-8 text-xs text-zinc-300 hover:text-white hover:bg-zinc-800 border border-zinc-700 bg-transparent shrink-0 gap-1.5"
+                className="h-8 text-xs text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 bg-transparent shrink-0 gap-1.5"
               >
                 <Upload className="size-3" />
                 Upload
@@ -399,18 +399,18 @@ export default function JsonDataManagerPage() {
           {/* Editor Textarea Workspace */}
           <div className="flex-1 relative flex flex-col">
             {loading ? (
-              <div className="absolute inset-0 bg-zinc-950/80 backdrop-blur-xs flex items-center justify-center z-10">
+              <div className="absolute inset-0 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xs flex items-center justify-center z-10">
                 <SectionLoader variant="text" count={4} />
               </div>
             ) : null}
 
-            <div className="flex-1 flex flex-col p-4 bg-zinc-950">
+            <div className="flex-1 flex flex-col p-4 bg-zinc-50/50 dark:bg-zinc-950/60">
               <textarea
                 value={jsonText}
                 onChange={(e) => handleTextChange(e.target.value)}
                 disabled={loading || saving}
                 rows={22}
-                className="w-full flex-1 min-h-[420px] bg-transparent text-zinc-200 font-mono text-xs focus:outline-none resize-y leading-relaxed whitespace-pre select-text caret-teal-400"
+                className="w-full flex-1 min-h-[420px] bg-transparent text-zinc-800 dark:text-zinc-200 font-mono text-xs focus:outline-none resize-y leading-relaxed whitespace-pre select-text caret-teal-500"
                 placeholder={`// Enter or paste JSON data for ${selectedModule}...`}
                 spellCheck={false}
               />
@@ -418,15 +418,15 @@ export default function JsonDataManagerPage() {
           </div>
 
           {/* Editor Footer / Validation Panel */}
-          <div className="bg-zinc-900 border-t border-zinc-800 p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="bg-zinc-50 dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800 p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
               {syntaxError ? (
-                <div className="flex items-center gap-1.5 text-xs text-rose-400 font-semibold bg-rose-950/30 border border-rose-900/50 px-3 py-1.5 rounded-lg animate-pulse">
+                <div className="flex items-center gap-1.5 text-xs text-rose-600 dark:text-rose-400 font-semibold bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 px-3 py-1.5 rounded-lg animate-pulse">
                   <AlertTriangle className="size-3.5 shrink-0" />
                   <span>{syntaxError}</span>
                 </div>
               ) : (
-                <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-semibold bg-emerald-950/20 border border-emerald-900/40 px-3 py-1.5 rounded-lg">
+                <div className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-semibold bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/40 px-3 py-1.5 rounded-lg">
                   <CheckCircle2 className="size-3.5 shrink-0" />
                   <span>JSON Syntax Valid</span>
                 </div>
@@ -439,7 +439,7 @@ export default function JsonDataManagerPage() {
                 variant="ghost"
                 onClick={handleReset}
                 disabled={loading || saving}
-                className="h-9 text-xs text-zinc-400 hover:text-white hover:bg-zinc-800 border border-zinc-800 shrink-0 gap-1.5 bg-transparent"
+                className="h-9 text-xs text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 shrink-0 gap-1.5 bg-transparent"
               >
                 <RotateCcw className="size-3.5" />
                 Reset changes
@@ -460,60 +460,60 @@ export default function JsonDataManagerPage() {
         <div className="lg:col-span-4 space-y-6">
           
           {/* Instructions Block */}
-          <div className="bg-gradient-to-br from-zinc-900 to-zinc-950 text-zinc-100 rounded-2xl p-6 border border-zinc-800 shadow-xl space-y-4">
-            <div className="flex items-center gap-2 text-teal-400">
+          <div className="bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-100 rounded-2xl p-6 border border-zinc-200 dark:border-zinc-800 shadow-md space-y-4">
+            <div className="flex items-center gap-2 text-teal-600 dark:text-teal-400">
               <Info className="size-5" />
               <h2 className="text-sm font-semibold tracking-wider uppercase">How Import Works</h2>
             </div>
-            <ul className="text-xs text-zinc-400 space-y-2.5 list-disc list-inside leading-relaxed">
+            <ul className="text-xs text-zinc-600 dark:text-zinc-400 space-y-2.5 list-disc list-inside leading-relaxed">
               <li>
-                <strong className="text-zinc-200">Non-Destructive Update</strong>: This import processes items incrementally. Any matching ID will update fields, and missing records in your JSON are <strong className="text-zinc-200">not deleted</strong> from the database.
+                <strong className="text-zinc-900 dark:text-zinc-200">Non-Destructive Update</strong>: This import processes items incrementally. Any matching ID will update fields, and missing records in your JSON are <strong className="text-zinc-900 dark:text-zinc-200">not deleted</strong> from the database.
               </li>
               <li>
-                <strong className="text-zinc-200">Creating Entries</strong>: To insert a brand new entry, simply delete its <code className="bg-zinc-800 text-zinc-300 px-1 py-0.5 rounded text-[10px]">id</code> property (or exclude it) from the JSON object.
+                <strong className="text-zinc-900 dark:text-zinc-200">Creating Entries</strong>: To insert a brand new entry, simply delete its <code className="bg-zinc-100 dark:bg-zinc-850 text-zinc-700 dark:text-zinc-300 px-1 py-0.5 rounded text-[10px]">id</code> property (or exclude it) from the JSON object.
               </li>
               <li>
-                <strong className="text-zinc-200">Format Scope</strong>: Ensure your JSON structure corresponds to the selected Scope dropdown in the editor.
+                <strong className="text-zinc-900 dark:text-zinc-200">Format Scope</strong>: Ensure your JSON structure corresponds to the selected Scope dropdown in the editor.
               </li>
               <li>
-                <strong className="text-zinc-200">Date Formats</strong>: Dates should follow the standard <code className="bg-zinc-800 text-zinc-300 px-1 py-0.5 rounded text-[10px]">YYYY-MM-DD</code> ISO layout.
+                <strong className="text-zinc-900 dark:text-zinc-200">Date Formats</strong>: Dates should follow the standard <code className="bg-zinc-100 dark:bg-zinc-850 text-zinc-700 dark:text-zinc-300 px-1 py-0.5 rounded text-[10px]">YYYY-MM-DD</code> ISO layout.
               </li>
             </ul>
           </div>
 
           {/* Sample Drawer Selector */}
-          <div className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 shadow-xl space-y-4 flex flex-col">
-            <div className="flex items-center gap-2 text-zinc-200">
-              <BookOpen className="size-5 text-indigo-400" />
+          <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 shadow-md space-y-4 flex flex-col">
+            <div className="flex items-center gap-2 text-zinc-800 dark:text-zinc-200">
+              <BookOpen className="size-5 text-indigo-500 dark:text-indigo-400" />
               <h2 className="text-sm font-semibold tracking-wider uppercase">Reference Template</h2>
             </div>
             
-            <p className="text-xs text-zinc-400 leading-relaxed">
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
               Stuck on the JSON structure? Toggle our reference templates helper showing clean arrays and parameter configurations.
             </p>
 
             <Button
               type="button"
               onClick={() => setSampleOpen(!sampleOpen)}
-              className="w-full text-xs bg-zinc-800 text-zinc-200 hover:bg-zinc-700 hover:text-white border border-zinc-700"
+              className="w-full text-xs bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700"
             >
               {sampleOpen ? "Hide Template Panel" : "Show Template Panel"}
             </Button>
 
             {sampleOpen ? (
-              <div className="space-y-3 mt-3 pt-3 border-t border-zinc-850 animate-in slide-in-from-top-2 duration-300">
+              <div className="space-y-3 mt-3 pt-3 border-t border-zinc-200 dark:border-zinc-800 animate-in slide-in-from-top-2 duration-300">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-zinc-400 uppercase">
+                  <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase">
                     Template: {MODULE_OPTIONS.find(o => o.value === selectedModule)?.label.split(" ").slice(1).join(" ")}
                   </span>
                   <button
                     onClick={handleLoadSample}
-                    className="text-[10px] bg-teal-950 text-teal-300 hover:bg-teal-900 border border-teal-800 px-2 py-0.5 rounded font-semibold transition-colors"
+                    className="text-[10px] bg-teal-50 dark:bg-teal-950 text-teal-700 dark:text-teal-300 hover:bg-teal-100 dark:hover:bg-teal-900 border border-teal-200 dark:border-teal-800 px-2 py-0.5 rounded font-semibold transition-colors"
                   >
                     Load into Workspace
                   </button>
                 </div>
-                <div className="rounded-lg bg-zinc-950 p-3 max-h-[220px] overflow-y-auto border border-zinc-800 text-[10px] font-mono leading-relaxed text-zinc-400 whitespace-pre">
+                <div className="rounded-lg bg-zinc-50 dark:bg-zinc-950 p-3 max-h-[220px] overflow-y-auto border border-zinc-200 dark:border-zinc-850 text-[10px] font-mono leading-relaxed text-zinc-600 dark:text-zinc-400 whitespace-pre">
                   {JSON.stringify(SAMPLES[selectedModule], null, 2)}
                 </div>
               </div>
