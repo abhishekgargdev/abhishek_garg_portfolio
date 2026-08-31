@@ -33,6 +33,7 @@ export type AskGeminiOptions = {
   /** Persist prompt/response to AiInteraction (default true). */
   persist?: boolean;
   metadata?: Record<string, unknown>;
+  provider?: "gemini" | "nvidia";
 };
 
 export type AskGeminiResult = {
@@ -92,6 +93,22 @@ export function getConfiguredGeminiKeyCount(): number {
 
 export function getDefaultGeminiModel(): string {
   return process.env.GEMINI_MODEL?.trim() || DEFAULT_MODEL;
+}
+
+export function getNvidiaKey(): string | undefined {
+  return process.env.NVIDIA_API_KEY?.trim() || undefined;
+}
+
+export function getConfiguredNvidiaKeyCount(): number {
+  return getNvidiaKey() ? 1 : 0;
+}
+
+export function getConfiguredAIKeyCount(): number {
+  return getConfiguredGeminiKeyCount() + getConfiguredNvidiaKeyCount();
+}
+
+export function getDefaultNvidiaModel(): string {
+  return process.env.NVIDIA_MODEL?.trim() || "nvidia/nemotron-3-ultra-550b";
 }
 
 function isRetryableKeyError(error: unknown): boolean {
@@ -173,6 +190,51 @@ async function generateWithKey(params: {
   return text;
 }
 
+async function generateWithNvidia(params: {
+  apiKey: string;
+  model: string;
+  prompt: string;
+  systemInstruction?: string;
+  temperature?: number;
+  maxOutputTokens?: number;
+}): Promise<string> {
+  const baseURL = "https://integrate.api.nvidia.com/v1";
+  const response = await fetch(`${baseURL}/chat/completions`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${params.apiKey}`,
+    },
+    body: JSON.stringify({
+      model: params.model,
+      messages: [
+        ...(params.systemInstruction
+          ? [{ role: "system", content: params.systemInstruction }]
+          : []),
+        { role: "user", content: params.prompt },
+      ],
+      temperature:
+        typeof params.temperature === "number" ? params.temperature : undefined,
+      max_tokens:
+        typeof params.maxOutputTokens === "number" ? params.maxOutputTokens : undefined,
+    }),
+  });
+
+  if (!response.ok) {
+    const errBody = await response.text();
+    throw new Error(
+      `NVIDIA API returned error status ${response.status}: ${errBody}`,
+    );
+  }
+
+  const data = await response.json();
+  const text = data.choices?.[0]?.message?.content?.trim() ?? "";
+  if (!text) {
+    throw new Error("NVIDIA returned an empty response.");
+  }
+  return text;
+}
+
 async function persistInteraction(input: {
   purpose: string;
   prompt: string;
@@ -206,115 +268,252 @@ async function persistInteraction(input: {
 export async function askGemini(
   options: AskGeminiOptions,
 ): Promise<AskGeminiResult> {
-  const keys = getGeminiKeys();
-  if (!keys.length) {
-    throw new Error(
-      "No Gemini API keys configured. Set GEMINI_API_KEY_1..6 in .env.local.",
-    );
-  }
+  const geminiKeys = getGeminiKeys();
+  const nvidiaKey = getNvidiaKey();
 
-  const model = options.model?.trim() || getDefaultGeminiModel();
+  const provider =
+    options.provider ||
+    (options.model?.startsWith("nvidia/") || options.model?.startsWith("meta/")
+      ? "nvidia"
+      : undefined) ||
+    (process.env.DEFAULT_AI_PROVIDER?.trim().toLowerCase() as "gemini" | "nvidia") ||
+    (geminiKeys.length > 0 ? "gemini" : "nvidia");
+
   const purpose = options.purpose?.trim() || "general";
   const persist = options.persist !== false;
   const started = Date.now();
 
-  const attemptedSlots = new Set<number>();
-  let lastError: unknown;
+  async function executeNvidia(): Promise<AskGeminiResult> {
+    if (!nvidiaKey) {
+      throw new Error(
+        "No NVIDIA API key configured. Set NVIDIA_API_KEY in .env.local.",
+      );
+    }
 
-  for (let attempt = 0; attempt < MAX_ATTEMPTS_PER_CALL; attempt += 1) {
-    const remaining = keys.filter((k) => !attemptedSlots.has(k.slot));
-    if (!remaining.length) break;
+    const model =
+      options.model && (options.model.startsWith("nvidia/") || options.model.startsWith("meta/"))
+        ? options.model.trim()
+        : getDefaultNvidiaModel();
 
-    const key = pickNextKey(remaining);
-    attemptedSlots.add(key.slot);
+    let lastError: unknown;
 
-    try {
-      const text = await generateWithKey({
-        apiKey: key.apiKey,
-        model,
+    for (let attempt = 0; attempt < MAX_ATTEMPTS_PER_CALL; attempt += 1) {
+      try {
+        const text = await generateWithNvidia({
+          apiKey: nvidiaKey,
+          model,
+          prompt: options.prompt,
+          systemInstruction: options.systemInstruction,
+          temperature: options.temperature,
+          maxOutputTokens: options.maxOutputTokens,
+        });
+
+        const durationMs = Date.now() - started;
+        let interactionId: string | undefined;
+
+        if (persist) {
+          interactionId = await persistInteraction({
+            purpose,
+            prompt: options.prompt,
+            systemInstruction: options.systemInstruction,
+            response: text,
+            model,
+            keySlot: 1,
+            status: "success",
+            metadata: { ...options.metadata, provider: "nvidia" },
+            durationMs,
+          });
+        }
+
+        return {
+          text,
+          model,
+          keySlot: 1,
+          durationMs,
+          interactionId,
+        };
+      } catch (error) {
+        lastError = error;
+        if (isRetryableKeyError(error)) {
+          console.warn(
+            `[nvidia] Attempt ${attempt + 1} failed (retryable). Retrying…`,
+            error instanceof Error ? error.message : error,
+          );
+          await new Promise((resolve) => setTimeout(resolve, 1000 * (attempt + 1)));
+          continue;
+        }
+
+        const durationMs = Date.now() - started;
+        if (persist) {
+          await persistInteraction({
+            purpose,
+            prompt: options.prompt,
+            systemInstruction: options.systemInstruction,
+            response: "",
+            model,
+            keySlot: 1,
+            status: "error",
+            errorMessage: error instanceof Error ? error.message : String(error),
+            metadata: { ...options.metadata, provider: "nvidia" },
+            durationMs,
+          });
+        }
+        throw error;
+      }
+    }
+
+    const durationMs = Date.now() - started;
+    const message =
+      lastError instanceof Error ? lastError.message : "NVIDIA API request failed.";
+    if (persist) {
+      await persistInteraction({
+        purpose,
         prompt: options.prompt,
         systemInstruction: options.systemInstruction,
-        temperature: options.temperature,
-        maxOutputTokens: options.maxOutputTokens,
-      });
-
-      const durationMs = Date.now() - started;
-      let interactionId: string | undefined;
-
-      if (persist) {
-        interactionId = await persistInteraction({
-          purpose,
-          prompt: options.prompt,
-          systemInstruction: options.systemInstruction,
-          response: text,
-          model,
-          keySlot: key.slot,
-          status: "success",
-          metadata: options.metadata,
-          durationMs,
-        });
-      }
-
-      return {
-        text,
+        response: "",
         model,
-        keySlot: key.slot,
+        keySlot: 1,
+        status: "error",
+        errorMessage: message,
+        metadata: { ...options.metadata, provider: "nvidia" },
         durationMs,
-        interactionId,
-      };
-    } catch (error) {
-      lastError = error;
-      if (isRetryableKeyError(error)) {
-        markKeyCooldown(key.slot);
-        console.warn(
-          `[gemini] Key slot ${key.slot} failed (retryable). Trying another key…`,
-          error instanceof Error ? error.message : error,
-        );
-        continue;
-      }
+      });
+    }
+    throw new Error(message);
+  }
 
-      const durationMs = Date.now() - started;
-      if (persist) {
-        await persistInteraction({
-          purpose,
+  async function executeGemini(): Promise<AskGeminiResult> {
+    if (!geminiKeys.length) {
+      throw new Error(
+        "No Gemini API keys configured. Set GEMINI_API_KEY_1..6 in .env.local.",
+      );
+    }
+
+    const model =
+      options.model && !options.model.startsWith("nvidia/") && !options.model.startsWith("meta/")
+        ? options.model.trim()
+        : getDefaultGeminiModel();
+
+    const attemptedSlots = new Set<number>();
+    let lastError: unknown;
+
+    for (let attempt = 0; attempt < MAX_ATTEMPTS_PER_CALL; attempt += 1) {
+      const remaining = geminiKeys.filter((k) => !attemptedSlots.has(k.slot));
+      if (!remaining.length) break;
+
+      const key = pickNextKey(remaining);
+      attemptedSlots.add(key.slot);
+
+      try {
+        const text = await generateWithKey({
+          apiKey: key.apiKey,
+          model,
           prompt: options.prompt,
           systemInstruction: options.systemInstruction,
-          response: "",
+          temperature: options.temperature,
+          maxOutputTokens: options.maxOutputTokens,
+        });
+
+        const durationMs = Date.now() - started;
+        let interactionId: string | undefined;
+
+        if (persist) {
+          interactionId = await persistInteraction({
+            purpose,
+            prompt: options.prompt,
+            systemInstruction: options.systemInstruction,
+            response: text,
+            model,
+            keySlot: key.slot,
+            status: "success",
+            metadata: { ...options.metadata, provider: "gemini" },
+            durationMs,
+          });
+        }
+
+        return {
+          text,
           model,
           keySlot: key.slot,
-          status: "error",
-          errorMessage:
-            error instanceof Error ? error.message : String(error),
-          metadata: options.metadata,
           durationMs,
-        });
+          interactionId,
+        };
+      } catch (error) {
+        lastError = error;
+        if (isRetryableKeyError(error)) {
+          markKeyCooldown(key.slot);
+          console.warn(
+            `[gemini] Key slot ${key.slot} failed (retryable). Trying another key…`,
+            error instanceof Error ? error.message : error,
+          );
+          continue;
+        }
+
+        const durationMs = Date.now() - started;
+        if (persist) {
+          await persistInteraction({
+            purpose,
+            prompt: options.prompt,
+            systemInstruction: options.systemInstruction,
+            response: "",
+            model,
+            keySlot: key.slot,
+            status: "error",
+            errorMessage:
+              error instanceof Error ? error.message : String(error),
+            metadata: { ...options.metadata, provider: "gemini" },
+            durationMs,
+          });
+        }
+        throw error;
+      }
+    }
+
+    const durationMs = Date.now() - started;
+    const message =
+      lastError instanceof Error
+        ? lastError.message
+        : "All Gemini API keys failed or are rate-limited.";
+
+    if (persist) {
+      await persistInteraction({
+        purpose,
+        prompt: options.prompt,
+        systemInstruction: options.systemInstruction,
+        response: "",
+        model,
+        keySlot: geminiKeys[0]?.slot ?? 1,
+        status: "error",
+        errorMessage: message,
+        metadata: { ...options.metadata, provider: "gemini" },
+        durationMs,
+      });
+    }
+
+    throw new Error(message);
+  }
+
+  if (provider === "nvidia") {
+    try {
+      return await executeNvidia();
+    } catch (error) {
+      if (geminiKeys.length > 0) {
+        console.warn("[nvidia] NVIDIA request failed. Falling back to Gemini...", error);
+        return await executeGemini();
+      }
+      throw error;
+    }
+  } else {
+    try {
+      return await executeGemini();
+    } catch (error) {
+      if (nvidiaKey) {
+        console.warn("[gemini] Gemini request failed. Falling back to NVIDIA...", error);
+        return await executeNvidia();
       }
       throw error;
     }
   }
-
-  const durationMs = Date.now() - started;
-  const message =
-    lastError instanceof Error
-      ? lastError.message
-      : "All Gemini API keys failed or are rate-limited.";
-
-  if (persist) {
-    await persistInteraction({
-      purpose,
-      prompt: options.prompt,
-      systemInstruction: options.systemInstruction,
-      response: "",
-      model,
-      keySlot: keys[0]?.slot ?? 1,
-      status: "error",
-      errorMessage: message,
-      metadata: options.metadata,
-      durationMs,
-    });
-  }
-
-  throw new Error(message);
 }
 
 /**

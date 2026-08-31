@@ -3,7 +3,7 @@ import { requireAdminSession } from "@/lib/admin-auth";
 import {
   askGeminiJson,
   askGeminiJsonChained,
-  getConfiguredGeminiKeyCount,
+  getConfiguredAIKeyCount,
 } from "@/lib/gemini";
 import {
   PORTFOLIO_COPILOT_PROMPT_TEMPLATE,
@@ -16,11 +16,11 @@ export async function POST(request: Request) {
   const auth = await requireAdminSession();
   if (!auth.ok) return auth.response;
 
-  if (getConfiguredGeminiKeyCount() === 0) {
+  if (getConfiguredAIKeyCount() === 0) {
     return NextResponse.json(
       {
         error:
-          "No Gemini API keys configured. Add GEMINI_API_KEY_1..6 in .env.local.",
+          "No AI API keys configured. Add GEMINI_API_KEY_1..6 or NVIDIA_API_KEY in .env.local.",
       },
       { status: 503 },
     );

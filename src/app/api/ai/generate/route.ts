@@ -5,7 +5,9 @@ import {
   askGemini,
   askGeminiChained,
   getConfiguredGeminiKeyCount,
+  getConfiguredAIKeyCount,
   getDefaultGeminiModel,
+  getDefaultNvidiaModel,
   listAiInteractions,
 } from "@/lib/gemini";
 
@@ -22,6 +24,7 @@ const generateSchema = z.object({
   metadata: z.record(z.string(), z.unknown()).optional(),
   useChain: z.boolean().optional(),
   chainSteps: z.number().int().min(1).max(6).optional(),
+  provider: z.enum(["gemini", "nvidia"]).optional(),
 });
 
 /** POST — send a prompt through the shared Gemini key pool. */
@@ -29,11 +32,11 @@ export async function POST(request: Request) {
   const auth = await requireAdminSession();
   if (!auth.ok) return auth.response;
 
-  if (getConfiguredGeminiKeyCount() === 0) {
+  if (getConfiguredAIKeyCount() === 0) {
     return NextResponse.json(
       {
         error:
-          "No Gemini API keys configured. Add GEMINI_API_KEY_1..6 in .env.local.",
+          "No AI API keys configured. Add GEMINI_API_KEY_1..6 or NVIDIA_API_KEY in .env.local.",
       },
       { status: 503 },
     );
@@ -57,7 +60,8 @@ export async function POST(request: Request) {
     return NextResponse.json({
       ...result,
       defaultModel: getDefaultGeminiModel(),
-      configuredKeys: getConfiguredGeminiKeyCount(),
+      defaultNvidiaModel: getDefaultNvidiaModel(),
+      configuredKeys: getConfiguredAIKeyCount(),
     });
   } catch (error) {
     console.error("[api/ai/generate] POST failed:", error);
@@ -88,8 +92,9 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       items,
-      configuredKeys: getConfiguredGeminiKeyCount(),
+      configuredKeys: getConfiguredAIKeyCount(),
       defaultModel: getDefaultGeminiModel(),
+      defaultNvidiaModel: getDefaultNvidiaModel(),
     });
   } catch (error) {
     console.error("[api/ai/generate] GET failed:", error);
