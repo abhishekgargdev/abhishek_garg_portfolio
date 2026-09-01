@@ -5,19 +5,12 @@ import { useSearchParams, useRouter } from "next/navigation";
 import {
   RefreshCw,
   AlertTriangle,
-  CheckCircle,
   Trash2,
   Send,
   User,
-  Briefcase,
   AlertCircle,
-  GraduationCap,
-  FolderKanban,
   Sparkles,
-  Trophy,
-  Award,
   Check,
-  Plus,
 } from "lucide-react";
 import { FaLinkedin } from "react-icons/fa";
 import { toast } from "sonner";
@@ -151,8 +144,14 @@ function LinkedInAdminContent() {
   }, []);
 
   useEffect(() => {
-    void fetchLinkedInStatus();
+    const timer = window.setTimeout(() => {
+      void fetchLinkedInStatus();
+    }, 0);
 
+    return () => window.clearTimeout(timer);
+  }, [fetchLinkedInStatus]);
+
+  useEffect(() => {
     // Check query params for alerts/successes
     const connectedParam = searchParams.get("connected");
     const errorParam = searchParams.get("error");
@@ -165,7 +164,7 @@ function LinkedInAdminContent() {
       toast.error(`OAuth Error: ${errorMsg || "Authorization failed"}`);
       router.replace("/admin/linkedin");
     }
-  }, [searchParams, router, fetchLinkedInStatus]);
+  }, [searchParams, router]);
 
   const handleConnect = () => {
     window.location.href = "/api/admin/linkedin/connect";
@@ -225,7 +224,6 @@ function LinkedInAdminContent() {
   };
 
   const handleSyncToRemote = async (section: string) => {
-    const isBulk = section === "all";
     setSyncingSection(section);
     try {
       const response = await fetch("/api/admin/linkedin/profile", {
@@ -316,16 +314,17 @@ function LinkedInAdminContent() {
     try {
       // 1. Fetch current portfolio data
       const getRes = await fetch("/api/admin/portfolio-data");
-      const currentData = await getRes.json();
+      const currentData = (await getRes.json()) as Record<string, unknown>;
       if (!getRes.ok) {
         throw new Error("Failed to load current Portfolio data for editing.");
       }
 
-      const payload: Record<string, any> = {};
+      const payload: Record<string, unknown> = {};
 
       if (optimizeTarget.section === "about") {
+        const aboutMe = currentData.aboutMe as Record<string, unknown> | undefined;
         payload.aboutMe = {
-          ...currentData.aboutMe,
+          ...(aboutMe ?? {}),
           [optimizeTarget.field]: aiSuggestion,
         };
       } else {
@@ -338,7 +337,8 @@ function LinkedInAdminContent() {
         const apiKey = keyMap[optimizeTarget.section];
 
         if (apiKey && Array.isArray(currentData[apiKey])) {
-          payload[apiKey] = currentData[apiKey].map((item: any) => {
+          const list = currentData[apiKey] as Array<Record<string, unknown>>;
+          payload[apiKey] = list.map((item) => {
             if (item.id === optimizeTarget.id) {
               return {
                 ...item,
@@ -381,18 +381,18 @@ function LinkedInAdminContent() {
   const renderSectionHeader = (sectionKey: string, label: string) => {
     const isMismatched = mismatches.some((m) => m.section === sectionKey);
     return (
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-zinc-100 pb-3 mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-border pb-3 mb-4">
         <div className="flex items-center gap-2">
           {isMismatched ? (
-            <Badge variant="destructive" className="bg-amber-100 text-amber-800 border-amber-200 hover:bg-amber-100 text-[10px]">
+            <Badge variant="destructive" className="bg-amber-100 text-amber-800 border-amber-200 hover:bg-amber-100 text-[10px] dark:bg-amber-900/30 dark:text-amber-200 dark:border-amber-700/60">
               Requires Sync
             </Badge>
           ) : (
-            <Badge variant="outline" className="bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-50 text-[10px]">
+            <Badge variant="outline" className="bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-50 text-[10px] dark:bg-emerald-900/20 dark:text-emerald-200 dark:border-emerald-700/60">
               Matched
             </Badge>
           )}
-          <span className="text-xs text-zinc-500 font-medium">Reconcile {label}</span>
+          <span className="text-xs text-muted-foreground font-medium">Reconcile {label}</span>
         </div>
         <div className="flex items-center gap-2">
           <Button
@@ -400,7 +400,7 @@ function LinkedInAdminContent() {
             size="sm"
             onClick={() => handleSyncToRemote(sectionKey)}
             disabled={syncingSection !== null}
-            className="text-[10px] h-7 px-3 border-zinc-200 text-zinc-600 hover:bg-zinc-50"
+            className="text-[10px] h-7 px-3 border-border text-muted-foreground hover:bg-muted"
           >
             {syncingSection === sectionKey ? "Syncing..." : "Sync Portfolio to LinkedIn"}
           </Button>
@@ -408,7 +408,7 @@ function LinkedInAdminContent() {
             size="sm"
             onClick={() => handleSyncToLocal(sectionKey)}
             disabled={syncingSection !== null}
-            className="text-[10px] h-7 px-3 bg-zinc-900 text-white hover:bg-zinc-800"
+            className="text-[10px] h-7 px-3 bg-primary text-primary-foreground hover:bg-primary/90"
           >
             {syncingSection === sectionKey ? "Syncing..." : "Sync LinkedIn to Portfolio"}
           </Button>
@@ -424,7 +424,7 @@ function LinkedInAdminContent() {
         variant="ghost"
         size="sm"
         onClick={() => setOptimizeTarget(mismatch)}
-        className="flex items-center gap-1 text-[10px] font-semibold text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 bg-teal-50/50 dark:bg-teal-950/30 hover:bg-teal-50 dark:hover:bg-teal-900 border border-teal-200 dark:border-teal-900/50 px-2 py-0.5 h-6 rounded mt-2 shrink-0 transition-colors"
+        className="flex items-center gap-1 text-[10px] font-semibold text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 bg-teal-50/50 dark:bg-teal-950/30 hover:bg-teal-100/50 dark:hover:bg-teal-900/50 border border-teal-200 dark:border-teal-900/50 px-2 py-0.5 h-6 rounded mt-2 shrink-0 transition-colors"
       >
         <Sparkles className="size-3 text-teal-500 dark:text-teal-400" />
         <span>Optimize Mismatch with AI</span>
@@ -432,16 +432,49 @@ function LinkedInAdminContent() {
     );
   };
 
+  const asStringArray = (value: string | string[] | null | undefined): string[] => {
+    if (Array.isArray(value)) {
+      return value.filter((v): v is string => typeof v === "string" && v.trim().length > 0);
+    }
+    if (typeof value === "string" && value.trim()) return [value];
+    return [];
+  };
+
+  const renderMismatchValue = (value: string | string[] | null | undefined) => {
+    const values = asStringArray(value);
+
+    if (values.length === 0) {
+      return "—";
+    }
+
+    return values.length === 1 ? values[0] : values.join(", ");
+  };
+
+  const renderValueOrList = (value: string | string[] | null | undefined) => {
+    if (!value) return "—";
+    if (Array.isArray(value)) {
+      if (value.length === 0) return "—";
+      return (
+        <ul className="list-disc list-inside space-y-0.5">
+          {value.map((b, i) => (
+            <li key={i}>{b}</li>
+          ))}
+        </ul>
+      );
+    }
+    return value;
+  };
+
   if (loading) {
     return <SectionLoader variant="table" count={6} />;
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-foreground">
       {/* Page Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-zinc-200 pb-5">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border pb-5">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">LinkedIn Integration</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">LinkedIn Integration</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Synchronize profile details, experiences, projects, education, skills, and publish updates.
           </p>
@@ -453,7 +486,7 @@ function LinkedInAdminContent() {
               size="sm"
               onClick={() => handleSyncToLocal("all")}
               disabled={syncingSection !== null}
-              className="gap-1.5 h-8 bg-zinc-900 text-white border-zinc-900 hover:bg-zinc-800"
+              className="gap-1.5 h-8 bg-primary text-primary-foreground border-primary hover:bg-primary/90"
             >
               <RefreshCw className={`size-3.5 ${syncingSection === "all" ? "animate-spin" : ""}`} />
               <span>Sync All Sections</span>
@@ -462,7 +495,7 @@ function LinkedInAdminContent() {
               variant="outline"
               size="sm"
               onClick={() => void fetchLinkedInStatus()}
-              className="gap-1.5 h-8"
+              className="gap-1.5 h-8 border-border text-foreground hover:bg-muted"
             >
               <RefreshCw className="size-3.5" />
               <span>Refresh Status</span>
@@ -483,21 +516,21 @@ function LinkedInAdminContent() {
 
       {!connected ? (
         /* Not Connected Layout */
-        <Card className="max-w-xl mx-auto border border-zinc-200 bg-white/70 backdrop-blur-md shadow-xl rounded-2xl overflow-hidden mt-10">
+        <Card className="max-w-xl mx-auto border border-border bg-card/80 backdrop-blur-md shadow-xl rounded-2xl overflow-hidden mt-10 text-card-foreground">
           <div className="p-8 text-center space-y-6">
-            <div className="mx-auto w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 animate-pulse">
+            <div className="mx-auto w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary animate-pulse">
               <FaLinkedin className="size-10" />
             </div>
             <div className="space-y-2">
-              <CardTitle className="text-xl font-bold">Connect your LinkedIn Account</CardTitle>
-              <CardDescription className="text-sm text-zinc-500 max-w-md mx-auto leading-relaxed">
+              <CardTitle className="text-xl font-bold text-foreground">Connect your LinkedIn Account</CardTitle>
+              <CardDescription className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
                 Connect your LinkedIn profile to run side-by-side data audits, highlight mismatches between your portfolio and profile, and publish updates directly.
               </CardDescription>
             </div>
             <Button
               type="button"
               onClick={handleConnect}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 w-full max-w-xs"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all duration-300 w-full max-w-xs"
             >
               <FaLinkedin className="size-4 mr-2" />
               Connect to LinkedIn
@@ -509,8 +542,8 @@ function LinkedInAdminContent() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Comparison Column */}
           <div className="lg:col-span-2 space-y-6">
-            <Tabs defaultValue="about" className="flex flex-col bg-white border border-zinc-200 rounded-xl overflow-hidden shadow-sm">
-              <div className="border-b border-zinc-200 bg-zinc-50/50 p-2">
+            <Tabs defaultValue="about" className="flex flex-col bg-card text-card-foreground border border-border rounded-xl overflow-hidden shadow-sm">
+              <div className="border-b border-border bg-muted/40 p-2">
                 <TabsList className="flex flex-wrap gap-1 justify-start border-none bg-transparent h-auto p-0">
                   <TabsTrigger value="about">About</TabsTrigger>
                   <TabsTrigger value="experience">Experience</TabsTrigger>
@@ -528,21 +561,21 @@ function LinkedInAdminContent() {
 
                   <div className="space-y-4">
                     {/* Name */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-3 rounded-lg border border-zinc-100 bg-zinc-50/30">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-3 rounded-lg border border-border bg-muted/30">
                       <div>
-                        <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">Portfolio Name</p>
-                        <p className="text-sm font-medium mt-0.5">
-                          {mismatches.find((m) => m.section === "about" && m.field === "name")?.localValue as string || profile?.name}
+                        <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Portfolio Name</p>
+                        <p className="text-sm font-medium mt-0.5 text-foreground">
+                          {(mismatches.find((m) => m.section === "about" && m.field === "name")?.localValue as string) || profile?.name}
                         </p>
                       </div>
                       <div>
-                        <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">LinkedIn Name</p>
-                        <p className="text-sm font-medium mt-0.5">
-                          {mismatches.find((m) => m.section === "about" && m.field === "name")?.remoteValue as string || profile?.name}
+                        <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">LinkedIn Name</p>
+                        <p className="text-sm font-medium mt-0.5 text-foreground">
+                          {(mismatches.find((m) => m.section === "about" && m.field === "name")?.remoteValue as string) || profile?.name}
                         </p>
                       </div>
                       {mismatches.some((m) => m.section === "about" && m.field === "name") && (
-                        <div className="md:col-span-2 flex flex-col md:flex-row md:items-center md:justify-between border border-amber-100 bg-amber-50/30 px-3 py-2 rounded text-xs text-amber-700">
+                        <div className="md:col-span-2 flex flex-col md:flex-row md:items-center md:justify-between border border-amber-200 dark:border-amber-900/50 bg-amber-50/50 dark:bg-amber-950/30 px-3 py-2 rounded-lg text-xs text-amber-800 dark:text-amber-300">
                           <span>Name mismatch detected.</span>
                           {renderAiOptimizeButton(mismatches.find((m) => m.section === "about" && m.field === "name")!)}
                         </div>
@@ -550,21 +583,21 @@ function LinkedInAdminContent() {
                     </div>
 
                     {/* Headline */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-3 rounded-lg border border-zinc-100 bg-zinc-50/30">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-3 rounded-lg border border-border bg-muted/30">
                       <div>
-                        <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">Portfolio Headline</p>
-                        <p className="text-sm font-medium mt-0.5">
-                          {mismatches.find((m) => m.section === "about" && m.field === "title")?.localValue as string || profile?.headline}
+                        <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Portfolio Headline</p>
+                        <p className="text-sm font-medium mt-0.5 text-foreground">
+                          {(mismatches.find((m) => m.section === "about" && m.field === "title")?.localValue as string) || profile?.headline}
                         </p>
                       </div>
                       <div>
-                        <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">LinkedIn Headline</p>
-                        <p className="text-sm font-medium mt-0.5">
-                          {mismatches.find((m) => m.section === "about" && m.field === "title")?.remoteValue as string || profile?.headline}
+                        <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">LinkedIn Headline</p>
+                        <p className="text-sm font-medium mt-0.5 text-foreground">
+                          {(mismatches.find((m) => m.section === "about" && m.field === "title")?.remoteValue as string) || profile?.headline}
                         </p>
                       </div>
                       {mismatches.some((m) => m.section === "about" && m.field === "title") && (
-                        <div className="md:col-span-2 flex flex-col md:flex-row md:items-center md:justify-between border border-amber-100 bg-amber-50/30 px-3 py-2 rounded text-xs text-amber-700">
+                        <div className="md:col-span-2 flex flex-col md:flex-row md:items-center md:justify-between border border-amber-200 dark:border-amber-900/50 bg-amber-50/50 dark:bg-amber-950/30 px-3 py-2 rounded-lg text-xs text-amber-800 dark:text-amber-300">
                           <span>Headline / Title mismatch detected.</span>
                           {renderAiOptimizeButton(mismatches.find((m) => m.section === "about" && m.field === "title")!)}
                         </div>
@@ -572,21 +605,21 @@ function LinkedInAdminContent() {
                     </div>
 
                     {/* Bio */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-3 rounded-lg border border-zinc-100 bg-zinc-50/30">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-3 rounded-lg border border-border bg-muted/30">
                       <div>
-                        <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">Portfolio Bio</p>
-                        <p className="text-xs text-zinc-600 mt-1 whitespace-pre-wrap">
-                          {mismatches.find((m) => m.section === "about" && m.field === "bio")?.localValue as string || profile?.bio}
+                        <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Portfolio Bio</p>
+                        <p className="text-xs text-foreground mt-1 whitespace-pre-wrap">
+                          {(mismatches.find((m) => m.section === "about" && m.field === "bio")?.localValue as string) || profile?.bio}
                         </p>
                       </div>
                       <div>
-                        <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">LinkedIn Summary</p>
-                        <p className="text-xs text-zinc-600 mt-1 whitespace-pre-wrap">
-                          {mismatches.find((m) => m.section === "about" && m.field === "bio")?.remoteValue as string || profile?.bio}
+                        <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">LinkedIn Summary</p>
+                        <p className="text-xs text-foreground mt-1 whitespace-pre-wrap">
+                          {(mismatches.find((m) => m.section === "about" && m.field === "bio")?.remoteValue as string) || profile?.bio}
                         </p>
                       </div>
                       {mismatches.some((m) => m.section === "about" && m.field === "bio") && (
-                        <div className="md:col-span-2 flex flex-col md:flex-row md:items-center md:justify-between border border-amber-100 bg-amber-50/30 px-3 py-2 rounded text-xs text-amber-700">
+                        <div className="md:col-span-2 flex flex-col md:flex-row md:items-center md:justify-between border border-amber-200 dark:border-amber-900/50 bg-amber-50/50 dark:bg-amber-950/30 px-3 py-2 rounded-lg text-xs text-amber-800 dark:text-amber-300">
                           <span>Bio summary mismatch detected.</span>
                           {renderAiOptimizeButton(mismatches.find((m) => m.section === "about" && m.field === "bio")!)}
                         </div>
@@ -611,42 +644,42 @@ function LinkedInAdminContent() {
                       return (
                         <div
                           key={idx}
-                          className={`p-4 rounded-xl border ${
+                          className={`p-4 rounded-xl border transition-colors ${
                             localMismatch
-                              ? "border-amber-250 bg-amber-50/10"
-                              : "border-zinc-100 bg-zinc-50/30"
+                              ? "border-amber-200 dark:border-amber-900/50 bg-amber-50/40 dark:bg-amber-950/20"
+                              : "border-border bg-muted/20"
                           } space-y-3`}
                         >
                           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
                             <div>
-                              <p className="font-semibold text-sm text-zinc-900">{exp.title}</p>
-                              <p className="text-xs text-zinc-500 font-medium">
+                              <p className="font-semibold text-sm text-foreground">{exp.title}</p>
+                              <p className="text-xs text-muted-foreground font-medium">
                                 {exp.company} · {exp.startDate} - {exp.endDate || "Present"}
                               </p>
                             </div>
                             {localMismatch ? (
-                              <Badge variant="destructive" className="bg-amber-105 text-amber-800 border-amber-200 hover:bg-amber-100 text-[10px] w-fit">
+                              <Badge variant="destructive" className="bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-200 dark:border-amber-700/60 text-[10px] w-fit">
                                 Out of Sync
                               </Badge>
                             ) : (
-                              <Badge variant="outline" className="bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-50 text-[10px] w-fit">
+                              <Badge variant="outline" className="bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-200 dark:border-emerald-700/60 text-[10px] w-fit">
                                 Matched
                               </Badge>
                             )}
                           </div>
 
                           {localMismatch && (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-t border-dashed border-zinc-100 text-xs">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-t border-dashed border-border text-xs">
                               <div>
-                                <p className="font-semibold text-zinc-400">Portfolio Description:</p>
-                                <p className="text-zinc-650 mt-1 whitespace-pre-wrap bg-white p-2 rounded border border-zinc-100">
-                                  {localMismatch.localValue as string}
+                                <p className="font-semibold text-muted-foreground">Portfolio Description:</p>
+                                <p className="text-foreground mt-1 whitespace-pre-wrap bg-background p-2.5 rounded-lg border border-border">
+                                  {renderMismatchValue(localMismatch.localValue)}
                                 </p>
                               </div>
                               <div>
-                                <p className="font-semibold text-zinc-400">LinkedIn Description:</p>
-                                <p className="text-zinc-650 mt-1 whitespace-pre-wrap bg-white p-2 rounded border border-zinc-100">
-                                  {localMismatch.remoteValue as string}
+                                <p className="font-semibold text-muted-foreground">LinkedIn Description:</p>
+                                <p className="text-foreground mt-1 whitespace-pre-wrap bg-background p-2.5 rounded-lg border border-border">
+                                  {renderMismatchValue(localMismatch.remoteValue)}
                                 </p>
                               </div>
                               <div className="md:col-span-2">
@@ -677,44 +710,44 @@ function LinkedInAdminContent() {
                       return (
                         <div
                           key={idx}
-                          className={`p-4 rounded-xl border ${
+                          className={`p-4 rounded-xl border transition-colors ${
                             localMismatch
-                              ? "border-amber-250 bg-amber-50/10"
-                              : "border-zinc-100 bg-zinc-50/30"
+                              ? "border-amber-200 dark:border-amber-900/50 bg-amber-50/40 dark:bg-amber-950/20"
+                              : "border-border bg-muted/20"
                           } space-y-3`}
                         >
                           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
                             <div>
-                              <p className="font-semibold text-sm text-zinc-900">{edu.degree}</p>
-                              <p className="text-xs text-zinc-500 font-medium">
+                              <p className="font-semibold text-sm text-foreground">{edu.degree}</p>
+                              <p className="text-xs text-muted-foreground font-medium">
                                 {edu.institution} · {edu.year}
                               </p>
                             </div>
                             {localMismatch ? (
-                              <Badge variant="destructive" className="bg-amber-105 text-amber-800 border-amber-200 hover:bg-amber-100 text-[10px] w-fit">
+                              <Badge variant="destructive" className="bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-200 dark:border-amber-700/60 text-[10px] w-fit">
                                 Out of Sync
                               </Badge>
                             ) : (
-                              <Badge variant="outline" className="bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-50 text-[10px] w-fit">
+                              <Badge variant="outline" className="bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-200 dark:border-emerald-700/60 text-[10px] w-fit">
                                 Matched
                               </Badge>
                             )}
                           </div>
 
                           {localMismatch && (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-t border-dashed border-zinc-100 text-xs">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-t border-dashed border-border text-xs">
                               <div>
-                                <p className="font-semibold text-zinc-400">Portfolio Highlights:</p>
-                                <ul className="list-disc list-inside text-zinc-650 mt-1 bg-white p-2 rounded border border-zinc-100 space-y-0.5">
-                                  {(localMismatch.localValue as string[] || []).map((h, i) => (
+                                <p className="font-semibold text-muted-foreground">Portfolio Highlights:</p>
+                                <ul className="list-disc list-inside text-foreground mt-1 bg-background p-2.5 rounded-lg border border-border space-y-0.5">
+                                  {asStringArray(localMismatch.localValue).map((h, i) => (
                                     <li key={i}>{h}</li>
                                   ))}
                                 </ul>
                               </div>
                               <div>
-                                <p className="font-semibold text-zinc-400">LinkedIn Highlights:</p>
-                                <ul className="list-disc list-inside text-zinc-650 mt-1 bg-white p-2 rounded border border-zinc-100 space-y-0.5">
-                                  {(localMismatch.remoteValue as string[] || []).map((h, i) => (
+                                <p className="font-semibold text-muted-foreground">LinkedIn Highlights:</p>
+                                <ul className="list-disc list-inside text-foreground mt-1 bg-background p-2.5 rounded-lg border border-border space-y-0.5">
+                                  {asStringArray(localMismatch.remoteValue).map((h, i) => (
                                     <li key={i}>{h}</li>
                                   ))}
                                 </ul>
@@ -743,44 +776,44 @@ function LinkedInAdminContent() {
                       return (
                         <div
                           key={idx}
-                          className={`p-4 rounded-xl border ${
+                          className={`p-4 rounded-xl border transition-colors ${
                             localMismatch
-                              ? "border-amber-250 bg-amber-50/10"
-                              : "border-zinc-100 bg-zinc-50/30"
+                              ? "border-amber-200 dark:border-amber-900/50 bg-amber-50/40 dark:bg-amber-950/20"
+                              : "border-border bg-muted/20"
                           } space-y-3`}
                         >
                           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
                             <div>
-                              <p className="font-semibold text-sm text-zinc-900">{proj.title}</p>
+                              <p className="font-semibold text-sm text-foreground">{proj.title}</p>
                               {proj.techStack && proj.techStack.length > 0 && (
-                                <p className="text-[10px] text-zinc-550 mt-0.5">
+                                <p className="text-[10px] text-muted-foreground mt-0.5">
                                   Stack: {proj.techStack.join(", ")}
                                 </p>
                               )}
                             </div>
                             {localMismatch ? (
-                              <Badge variant="destructive" className="bg-amber-105 text-amber-800 border-amber-200 hover:bg-amber-100 text-[10px] w-fit">
+                              <Badge variant="destructive" className="bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-200 dark:border-amber-700/60 text-[10px] w-fit">
                                 Out of Sync
                               </Badge>
                             ) : (
-                              <Badge variant="outline" className="bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-50 text-[10px] w-fit">
+                              <Badge variant="outline" className="bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-200 dark:border-emerald-700/60 text-[10px] w-fit">
                                 Matched
                               </Badge>
                             )}
                           </div>
 
                           {localMismatch && (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-t border-dashed border-zinc-100 text-xs">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-t border-dashed border-border text-xs">
                               <div>
-                                <p className="font-semibold text-zinc-400">Portfolio Description:</p>
-                                <p className="text-zinc-650 mt-1 whitespace-pre-wrap bg-white p-2 rounded border border-zinc-100">
-                                  {localMismatch.localValue as string}
+                                <p className="font-semibold text-muted-foreground">Portfolio Description:</p>
+                                <p className="text-foreground mt-1 whitespace-pre-wrap bg-background p-2.5 rounded-lg border border-border">
+                                  {renderMismatchValue(localMismatch.localValue)}
                                 </p>
                               </div>
                               <div>
-                                <p className="font-semibold text-zinc-400">LinkedIn Description:</p>
-                                <p className="text-zinc-650 mt-1 whitespace-pre-wrap bg-white p-2 rounded border border-zinc-100">
-                                  {localMismatch.remoteValue as string}
+                                <p className="font-semibold text-muted-foreground">LinkedIn Description:</p>
+                                <p className="text-foreground mt-1 whitespace-pre-wrap bg-background p-2.5 rounded-lg border border-border">
+                                  {renderMismatchValue(localMismatch.remoteValue)}
                                 </p>
                               </div>
                               <div className="md:col-span-2">
@@ -799,8 +832,8 @@ function LinkedInAdminContent() {
                   {renderSectionHeader("skills", "Skills Inventory")}
 
                   <div className="space-y-4">
-                    <div className="rounded-xl border border-zinc-150 bg-zinc-50/20 p-4 space-y-3">
-                      <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2">LinkedIn Skills List</h4>
+                    <div className="rounded-xl border border-border bg-muted/20 p-4 space-y-3">
+                      <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">LinkedIn Skills List</h4>
                       <div className="flex flex-wrap gap-2">
                         {profile?.skills.map((skill, idx) => {
                           const isMissingLocal = mismatches.some(
@@ -812,8 +845,8 @@ function LinkedInAdminContent() {
                               variant={isMissingLocal ? "destructive" : "secondary"}
                               className={
                                 isMissingLocal
-                                  ? "bg-amber-100 text-amber-800 border-amber-200 hover:bg-amber-100 flex items-center gap-1 text-[11px]"
-                                  : "text-zinc-700 border-zinc-200 hover:bg-zinc-100 text-[11px]"
+                                  ? "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/40 dark:text-amber-200 dark:border-amber-700/60 flex items-center gap-1 text-[11px]"
+                                  : "text-foreground border-border bg-background hover:bg-muted text-[11px]"
                               }
                             >
                               {skill.name}
@@ -825,12 +858,12 @@ function LinkedInAdminContent() {
                     </div>
 
                     {mismatches.some((m) => m.section === "skills") && (
-                      <Card className="border border-amber-200 bg-amber-50/10 p-4 text-xs space-y-2">
-                        <div className="font-semibold text-amber-800 flex items-center gap-1">
+                      <Card className="border border-amber-200 dark:border-amber-900/50 bg-amber-50/40 dark:bg-amber-950/20 p-4 text-xs space-y-2 rounded-xl">
+                        <div className="font-semibold text-amber-800 dark:text-amber-300 flex items-center gap-1">
                           <AlertCircle className="size-4 shrink-0" />
                           <span>Skill discrepancies detected:</span>
                         </div>
-                        <ul className="list-disc list-inside space-y-1 text-zinc-650">
+                        <ul className="list-disc list-inside space-y-1 text-foreground/80">
                           {mismatches
                             .filter((m) => m.section === "skills")
                             .map((m, idx) => (
@@ -854,7 +887,6 @@ function LinkedInAdminContent() {
 
                   <div className="space-y-4">
                     {profile?.achievements.map((ach, idx) => {
-                      const cleanTitle = ach.title.replace(/\s*\(gold medalist\)/i, "").trim();
                       const localMismatch = mismatches.find(
                         (m) =>
                           m.section === "achievements" &&
@@ -865,42 +897,42 @@ function LinkedInAdminContent() {
                       return (
                         <div
                           key={idx}
-                          className={`p-4 rounded-xl border ${
+                          className={`p-4 rounded-xl border transition-colors ${
                             localMismatch
-                              ? "border-amber-250 bg-amber-50/10"
-                              : "border-zinc-100 bg-zinc-50/30"
+                              ? "border-amber-200 dark:border-amber-900/50 bg-amber-50/40 dark:bg-amber-950/20"
+                              : "border-border bg-muted/20"
                           } space-y-3`}
                         >
                           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
                             <div>
-                              <p className="font-semibold text-sm text-zinc-900">{ach.title}</p>
-                              <p className="text-xs text-zinc-500 font-medium">
+                              <p className="font-semibold text-sm text-foreground">{ach.title}</p>
+                              <p className="text-xs text-muted-foreground font-medium">
                                 Date awarded: {ach.date}
                               </p>
                             </div>
                             {localMismatch ? (
-                              <Badge variant="destructive" className="bg-amber-105 text-amber-800 border-amber-200 hover:bg-amber-100 text-[10px] w-fit">
+                              <Badge variant="destructive" className="bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-200 dark:border-amber-700/60 text-[10px] w-fit">
                                 Out of Sync
                               </Badge>
                             ) : (
-                              <Badge variant="outline" className="bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-50 text-[10px] w-fit">
+                              <Badge variant="outline" className="bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-200 dark:border-emerald-700/60 text-[10px] w-fit">
                                 Matched
                               </Badge>
                             )}
                           </div>
 
                           {localMismatch && (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-t border-dashed border-zinc-100 text-xs">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-t border-dashed border-border text-xs">
                               <div>
-                                <p className="font-semibold text-zinc-400">Portfolio Description:</p>
-                                <p className="text-zinc-650 mt-1 whitespace-pre-wrap bg-white p-2 rounded border border-zinc-100">
-                                  {localMismatch.localValue as string}
+                                <p className="font-semibold text-muted-foreground">Portfolio Description:</p>
+                                <p className="text-foreground mt-1 whitespace-pre-wrap bg-background p-2.5 rounded-lg border border-border">
+                                  {renderMismatchValue(localMismatch.localValue)}
                                 </p>
                               </div>
                               <div>
-                                <p className="font-semibold text-zinc-400">LinkedIn Description:</p>
-                                <p className="text-zinc-650 mt-1 whitespace-pre-wrap bg-white p-2 rounded border border-zinc-100">
-                                  {localMismatch.remoteValue as string}
+                                <p className="font-semibold text-muted-foreground">LinkedIn Description:</p>
+                                <p className="text-foreground mt-1 whitespace-pre-wrap bg-background p-2.5 rounded-lg border border-border">
+                                  {renderMismatchValue(localMismatch.remoteValue)}
                                 </p>
                               </div>
                               <div className="md:col-span-2">
@@ -920,9 +952,9 @@ function LinkedInAdminContent() {
           {/* Sync Actions & Share Composer Sidebar */}
           <div className="space-y-6">
             {/* Connected Card */}
-            <Card className="border border-zinc-200 bg-white shadow-sm rounded-xl overflow-hidden">
+            <Card className="border border-border bg-card text-card-foreground shadow-sm rounded-xl overflow-hidden">
               <CardContent className="p-6 text-center space-y-4">
-                <div className="relative mx-auto w-16 h-16 rounded-full overflow-hidden border-2 border-blue-500 bg-zinc-100 flex items-center justify-center">
+                <div className="relative mx-auto w-16 h-16 rounded-full overflow-hidden border-2 border-primary bg-muted flex items-center justify-center">
                   {profile?.imageUrl ? (
                     <img
                       src={profile.imageUrl}
@@ -930,19 +962,19 @@ function LinkedInAdminContent() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <User className="size-8 text-zinc-400" />
+                    <User className="size-8 text-muted-foreground" />
                   )}
-                  <span className="absolute bottom-0 right-0 w-4 h-4 bg-blue-600 rounded-full flex items-center justify-center text-white border-2 border-white">
+                  <span className="absolute bottom-0 right-0 w-4 h-4 bg-primary rounded-full flex items-center justify-center text-primary-foreground border-2 border-card">
                     <FaLinkedin className="size-2.5" />
                   </span>
                 </div>
                 <div>
-                  <h2 className="font-bold text-sm text-zinc-900">{profile?.name}</h2>
-                  <p className="text-[10px] text-zinc-500 font-medium truncate max-w-[200px] mx-auto">
+                  <h2 className="font-bold text-sm text-foreground">{profile?.name}</h2>
+                  <p className="text-[10px] text-muted-foreground font-medium truncate max-w-[200px] mx-auto">
                     {profile?.email}
                   </p>
                   {lastSynced && (
-                    <p className="text-[9px] text-zinc-400 mt-1">
+                    <p className="text-[9px] text-muted-foreground mt-1">
                       Last Checked: {new Date(lastSynced).toLocaleTimeString()}
                     </p>
                   )}
@@ -951,10 +983,10 @@ function LinkedInAdminContent() {
             </Card>
 
             {/* Sync Tools */}
-            <Card className="border border-zinc-200 bg-white shadow-sm rounded-xl">
-              <CardHeader className="py-4 px-6 border-b border-zinc-100">
-                <CardTitle className="text-sm font-semibold">Synchronization Actions</CardTitle>
-                <CardDescription className="text-xs">
+            <Card className="border border-border bg-card text-card-foreground shadow-sm rounded-xl">
+              <CardHeader className="py-4 px-6 border-b border-border">
+                <CardTitle className="text-sm font-semibold text-foreground">Synchronization Actions</CardTitle>
+                <CardDescription className="text-xs text-muted-foreground">
                   Sync all information at once bidirectionally.
                 </CardDescription>
               </CardHeader>
@@ -962,7 +994,7 @@ function LinkedInAdminContent() {
                 <Button
                   onClick={() => handleSyncToLocal("all")}
                   disabled={syncingSection !== null}
-                  className="w-full bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-medium py-2 rounded-lg gap-2"
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-medium py-2 rounded-lg gap-2"
                 >
                   <RefreshCw className={`size-3.5 ${syncingSection === "all" ? "animate-spin" : ""}`} />
                   <span>Sync LinkedIn to Portfolio</span>
@@ -971,7 +1003,7 @@ function LinkedInAdminContent() {
                   variant="outline"
                   onClick={() => handleSyncToRemote("all")}
                   disabled={syncingSection !== null}
-                  className="w-full border-zinc-200 text-zinc-700 hover:bg-zinc-50 text-xs font-medium py-2 rounded-lg gap-2"
+                  className="w-full border-border text-foreground hover:bg-muted text-xs font-medium py-2 rounded-lg gap-2"
                 >
                   <RefreshCw className={`size-3.5 ${syncingSection === "all" ? "animate-spin" : ""}`} />
                   <span>Sync Portfolio to LinkedIn</span>
@@ -980,10 +1012,10 @@ function LinkedInAdminContent() {
             </Card>
 
             {/* Share composer */}
-            <Card className="border border-zinc-200 bg-white shadow-sm rounded-xl">
-              <CardHeader className="py-4 px-6 border-b border-zinc-100">
-                <CardTitle className="text-sm font-semibold">Publish Share Update</CardTitle>
-                <CardDescription className="text-xs">
+            <Card className="border border-border bg-card text-card-foreground shadow-sm rounded-xl">
+              <CardHeader className="py-4 px-6 border-b border-border">
+                <CardTitle className="text-sm font-semibold text-foreground">Publish Share Update</CardTitle>
+                <CardDescription className="text-xs text-muted-foreground">
                   Post professional status updates directly to LinkedIn feed.
                 </CardDescription>
               </CardHeader>
@@ -997,10 +1029,10 @@ function LinkedInAdminContent() {
                       onChange={(e) => setShareText(e.target.value)}
                       disabled={sharing}
                       placeholder="Share a professional milestone or write your post..."
-                      className="w-full rounded-lg border border-zinc-200 p-3 text-xs focus:border-blue-500 focus:outline-none bg-white text-zinc-800 disabled:opacity-50 transition-colors placeholder:text-zinc-400 resize-none"
+                      className="w-full rounded-lg border border-border bg-background p-3 text-xs focus:border-ring focus:outline-none text-foreground disabled:opacity-50 transition-colors placeholder:text-muted-foreground resize-none"
                     />
                     <div className="flex items-center justify-between text-[10px] font-semibold">
-                      <span className={`${shareText.length > MAX_CHARACTERS ? "text-destructive" : "text-zinc-400"}`}>
+                      <span className={`${shareText.length > MAX_CHARACTERS ? "text-destructive" : "text-muted-foreground"}`}>
                         {shareText.length} / {MAX_CHARACTERS} chars
                       </span>
                       {shareText.length > MAX_CHARACTERS && (
@@ -1013,7 +1045,7 @@ function LinkedInAdminContent() {
                   <Button
                     type="submit"
                     disabled={sharing || !shareText.trim() || shareText.length > MAX_CHARACTERS}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium py-2 rounded-lg gap-2"
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-medium py-2 rounded-lg gap-2"
                   >
                     <Send className="size-3.5" />
                     <span>{sharing ? "Publishing..." : "Publish Post"}</span>
@@ -1038,53 +1070,37 @@ function LinkedInAdminContent() {
           }
         }}
       >
-        <DialogContent className="sm:max-w-lg gap-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-xl rounded-xl">
+        <DialogContent className="sm:max-w-lg gap-4 bg-card text-card-foreground border border-border shadow-xl rounded-xl">
           {optimizeTarget && (
             <>
               <DialogHeader>
-                <DialogTitle className="flex items-center gap-1.5 text-teal-700 dark:text-teal-400 text-lg font-bold">
+                <DialogTitle className="flex items-center gap-1.5 text-teal-600 dark:text-teal-400 text-lg font-bold">
                   <Sparkles className="size-5 text-teal-500 dark:text-teal-400 animate-pulse" />
                   AI Mismatch Resolver
                 </DialogTitle>
-                <DialogDescription className="text-xs text-zinc-550 dark:text-zinc-400">
-                  Optimize and merge field: <strong className="text-zinc-800 dark:text-zinc-250 font-semibold">{optimizeTarget.label}</strong>
+                <DialogDescription className="text-xs text-muted-foreground">
+                  Optimize and merge field: <strong className="text-foreground font-semibold">{optimizeTarget.label}</strong>
                 </DialogDescription>
               </DialogHeader>
 
               <div className="space-y-4 text-sm mt-2">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                   <div>
-                    <span className="font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">Portfolio Local Value</span>
-                    <div className="rounded-lg border border-zinc-200 dark:border-zinc-850 bg-zinc-50/50 dark:bg-zinc-950 p-2.5 mt-1 text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap max-h-[120px] overflow-y-auto leading-relaxed">
-                      {Array.isArray(optimizeTarget.localValue) ? (
-                        <ul className="list-disc list-inside space-y-0.5">
-                          {optimizeTarget.localValue.map((b, i) => (
-                            <li key={i}>{b}</li>
-                          ))}
-                        </ul>
-                      ) : (
-                        optimizeTarget.localValue
-                      )}
+                    <span className="font-semibold text-muted-foreground uppercase tracking-wide">Portfolio Local Value</span>
+                    <div className="rounded-lg border border-border bg-muted/40 p-2.5 mt-1 text-foreground whitespace-pre-wrap max-h-[120px] overflow-y-auto leading-relaxed">
+                      {renderValueOrList(optimizeTarget.localValue)}
                     </div>
                   </div>
                   <div>
-                    <span className="font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">LinkedIn Remote Value</span>
-                    <div className="rounded-lg border border-zinc-200 dark:border-zinc-850 bg-zinc-50/50 dark:bg-zinc-950 p-2.5 mt-1 text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap max-h-[120px] overflow-y-auto leading-relaxed">
-                      {Array.isArray(optimizeTarget.remoteValue) ? (
-                        <ul className="list-disc list-inside space-y-0.5">
-                          {optimizeTarget.remoteValue.map((b, i) => (
-                            <li key={i}>{b}</li>
-                          ))}
-                        </ul>
-                      ) : (
-                        optimizeTarget.remoteValue
-                      )}
+                    <span className="font-semibold text-muted-foreground uppercase tracking-wide">LinkedIn Remote Value</span>
+                    <div className="rounded-lg border border-border bg-muted/40 p-2.5 mt-1 text-foreground whitespace-pre-wrap max-h-[120px] overflow-y-auto leading-relaxed">
+                      {renderValueOrList(optimizeTarget.remoteValue)}
                     </div>
                   </div>
                 </div>
 
                 <div className="space-y-1.5 flex flex-col">
-                  <label htmlFor="ai-instructions-textarea" className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">
+                  <label htmlFor="ai-instructions-textarea" className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                     Merging / Writing Guidelines
                   </label>
                   <textarea
@@ -1094,29 +1110,21 @@ function LinkedInAdminContent() {
                     onChange={(e) => setAiInstruction(e.target.value)}
                     disabled={aiGenerating}
                     placeholder="Merge the best points, maintain professional tone..."
-                    className="w-full rounded-lg border border-zinc-200 dark:border-zinc-800 p-2.5 text-xs bg-white dark:bg-zinc-950 text-zinc-800 dark:text-zinc-200 disabled:opacity-50 placeholder:text-zinc-400 dark:placeholder:text-zinc-650 focus:outline-none focus:border-teal-500"
+                    className="w-full rounded-lg border border-border p-2.5 text-xs bg-background text-foreground disabled:opacity-50 placeholder:text-muted-foreground focus:outline-none focus:border-teal-500"
                   />
                 </div>
 
                 {aiSuggestion && (
                   <div className="space-y-1 animate-in fade-in duration-300">
-                    <span className="text-xs font-semibold text-teal-700 dark:text-teal-400 uppercase tracking-wide">AI Recommendation</span>
-                    <div className="rounded-lg border border-teal-200 dark:border-teal-900/50 bg-teal-50/10 dark:bg-teal-950/20 p-3 text-zinc-800 dark:text-zinc-200 whitespace-pre-wrap max-h-[120px] overflow-y-auto text-xs leading-relaxed">
-                      {Array.isArray(aiSuggestion) ? (
-                        <ul className="list-disc list-inside space-y-0.5">
-                          {aiSuggestion.map((b, i) => (
-                            <li key={i}>{b}</li>
-                          ))}
-                        </ul>
-                      ) : (
-                        aiSuggestion
-                      )}
+                    <span className="text-xs font-semibold text-teal-600 dark:text-teal-400 uppercase tracking-wide">AI Recommendation</span>
+                    <div className="rounded-lg border border-teal-200 dark:border-teal-900/50 bg-teal-50/20 dark:bg-teal-950/30 p-3 text-foreground whitespace-pre-wrap max-h-[120px] overflow-y-auto text-xs leading-relaxed">
+                      {renderValueOrList(aiSuggestion)}
                     </div>
                   </div>
                 )}
               </div>
 
-              <div className="flex justify-end gap-2 border-t border-zinc-150 dark:border-zinc-800 pt-3.5 mt-2">
+              <div className="flex justify-end gap-2 border-t border-border pt-3.5 mt-2">
                 <Button
                   type="button"
                   variant="outline"
@@ -1128,7 +1136,7 @@ function LinkedInAdminContent() {
                       "Merge the best parts of both summaries, maintaining a professional and human tone, and formatting it cleanly.",
                     );
                   }}
-                  className="text-xs h-9"
+                  className="text-xs h-9 border-border text-foreground hover:bg-muted"
                 >
                   Close
                 </Button>
